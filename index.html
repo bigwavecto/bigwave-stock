@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼성전자 주가 예측 보고서</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --card2:#f0f3fa; --line:#e2e7f2;
+    --txt:#1c2333; --sub:#5b6785; --accent:#2563eb; --up:#e5484d; --down:#2563eb;
+    --gold:#b07d10; --green:#0f9d6e; --orange:#e07b1a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;line-height:1.6}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
+  header{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:6px}
+  h1{font-size:1.5rem;font-weight:800}
+  .ticker{color:var(--sub);font-size:.9rem}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700}
+  .badge.live{background:rgba(15,157,110,.1);color:var(--green);border:1px solid rgba(15,157,110,.35)}
+  .badge.cache{background:rgba(224,123,26,.1);color:var(--orange);border:1px solid rgba(224,123,26,.35)}
+  .asof{color:var(--sub);font-size:.8rem;margin-bottom:18px}
+  .price-row{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;flex:1;min-width:150px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
+  .stat .k{color:var(--sub);font-size:.78rem;margin-bottom:2px}
+  .stat .v{font-size:1.25rem;font-weight:800}
+  .stat .v small{font-size:.8rem;font-weight:600}
+  .up{color:var(--up)} .down{color:var(--down)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
+  .card h2{font-size:1.05rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .card h2::before{content:'';width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block}
+  .chart-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+  .rbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
+  .rbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .legend-note{color:var(--sub);font-size:.75rem;margin-left:auto}
+  #chartBox{position:relative;height:420px}
+  .summary-banner{display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:linear-gradient(120deg,rgba(37,99,235,.07),rgba(15,157,110,.05));border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
+  .score-circle{width:86px;height:86px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
+  .score-circle .n{font-size:1.4rem}
+  .score-circle .t{font-size:.65rem;color:var(--sub)}
+  .summary-txt{flex:1;min-width:260px;font-size:.92rem}
+  .summary-txt b{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{color:var(--sub);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 10px;border-bottom:1px solid var(--line)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  .factor{margin-bottom:14px;padding:12px 14px;background:var(--card2);border-radius:10px;border-left:3px solid var(--accent);font-size:.88rem}
+  .factor.pos{border-left-color:var(--green)}
+  .factor.neg{border-left-color:var(--up)}
+  .factor .t{font-weight:700;margin-bottom:2px}
+  .factor .d{color:var(--sub);font-size:.82rem}
+  .tag{display:inline-block;font-size:.68rem;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle}
+  .tag.pos{background:rgba(15,157,110,.1);color:var(--green)}
+  .tag.neg{background:rgba(229,72,77,.1);color:var(--up)}
+  .tag.neu{background:rgba(91,103,133,.12);color:var(--sub)}
+  .verdict{margin-top:14px;padding:14px 16px;background:linear-gradient(120deg,rgba(37,99,235,.05),rgba(15,157,110,.04));border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;font-size:.87rem}
+  .verdict .vt{font-weight:800;color:var(--accent);font-size:.78rem;margin-bottom:4px;letter-spacing:.03em}
+  .stale-warn{background:rgba(229,72,77,.08);border:1px solid rgba(229,72,77,.3);color:#b03236;border-radius:10px;padding:10px 14px;font-size:.8rem;margin-bottom:18px;display:none}
+  .src{color:var(--sub);font-size:.75rem;margin-top:10px}
+  .src a{color:var(--accent);text-decoration:none}
+  .disclaimer{background:rgba(176,125,16,.07);border:1px solid rgba(176,125,16,.3);border-radius:12px;padding:14px 18px;font-size:.8rem;color:#7a5c10;margin-top:10px}
+  .muted{color:var(--sub);font-size:.82rem}
+  .method{font-size:.85rem;color:var(--sub)}
+  .method b{color:var(--txt)}
+  .err-pos{color:var(--green)} .err-neg{color:var(--up)}
+  @media(max-width:640px){#chartBox{height:320px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>삼성전자 주가 예측 보고서</h1>
+    <span class="ticker">KRX 005930</span>
+    <span id="liveBadge" class="badge cache">데이터 불러오는 중…</span>
+  </header>
+  <div class="asof" id="asofLine">-</div>
+  <div class="stale-warn" id="staleWarn"></div>
+
+  <div class="price-row">
+    <div class="stat"><div class="k">현재가 (종가)</div><div class="v" id="curPrice">-</div></div>
+    <div class="stat"><div class="k">전일 대비</div><div class="v" id="chg">-</div></div>
+    <div class="stat"><div class="k">52주 최고</div><div class="v" id="hi52">-</div></div>
+    <div class="stat"><div class="k">52주 최저</div><div class="v" id="lo52">-</div></div>
+    <div class="stat"><div class="k">1년 수익률</div><div class="v" id="yret">-</div></div>
+  </div>
+
+  <div class="summary-banner">
+    <div class="score-circle" id="scoreCircle"><span class="n" id="scoreN">-</span><span class="t">종합 신호</span></div>
+    <div class="summary-txt" id="summaryTxt">데이터 분석 중…</div>
+  </div>
+
+  <div class="card">
+    <h2>주가 차트 &amp; 향후 5거래일 예측</h2>
+    <div class="chart-tools">
+      <button class="rbtn" data-r="1M">1개월</button>
+      <button class="rbtn on" data-r="3M">3개월</button>
+      <button class="rbtn" data-r="6M">6개월</button>
+      <button class="rbtn" data-r="1Y">1년</button>
+      <span class="legend-note">── 실제 종가 &nbsp; ┅ 오늘의 5일 예측(음영: 80% 신뢰구간) &nbsp; ┅ 과거 예측(실제와 비교)</span>
+    </div>
+    <div id="chartBox"><canvas id="mainChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>예측 기록: 과거 예측 vs 실제</h2>
+    <p class="muted" style="margin-bottom:10px">앱을 여는 날마다 그날의 5일 예측이 이 브라우저에 자동 저장됩니다. 다음 날부터는 어제까지의 예측과 실제 주가를 비교해 정확도를 확인할 수 있습니다.</p>
+    <div style="overflow-x:auto">
+      <table id="histTable">
+        <thead><tr><th>예측 시행일</th><th>대상일</th><th class="num">예측가</th><th class="num">실제 종가</th><th class="num">오차</th><th>구간 적중</th></tr></thead>
+        <tbody id="histBody"><tr><td colspan="6" class="muted">아직 비교할 기록이 없습니다. 내일 이후 다시 열면 오늘 예측과 실제 주가가 비교됩니다.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>기술적 지표 (실시간 계산)</h2>
+      <table>
+        <tbody id="techBody"></tbody>
+      </table>
+      <div class="verdict"><div class="vt">🧭 종합평가 (지표 기반 자동 생성)</div><div id="techVerdict">-</div></div>
+    </div>
+
+    <div class="card">
+      <h2>전문가 목표주가 · 투자의견 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
+      <table>
+        <tbody id="expertBody"></tbody>
+      </table>
+      <div class="verdict"><div class="vt">🧭 종합평가</div><div id="expertVerdict">-</div></div>
+      <p class="src">출처:
+        <a href="https://bullstory.io/blog/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-%EC%A3%BC%EA%B0%80-%EC%A0%84%EB%A7%9D-2026-2%EB%B6%84%EA%B8%B0-%EC%98%81%EC%97%85%EC%9D%B4%EC%9D%B5-895%EC%A1%B0%EC%9B%90%EA%B3%BC-%EB%AA%A9%ED%91%9C%EC%A3%BC%EA%B0%80-493542%EC%9B%90-%EA%B7%B8-%EC%82%AC%EC%9D%B4%EC%9D%98-%EA%B0%84%EA%B7%B9" target="_blank">불스토리</a> ·
+        <a href="https://www.thecommoditiesnews.com/news/articleView.html?idxno=11596" target="_blank">CNews</a> ·
+        <a href="https://www.infostockdaily.co.kr/news/articleView.html?idxno=217228" target="_blank">인포스탁데일리</a> ·
+        <a href="https://www.investing.com/equities/samsung-electronics-co-ltd-consensus-estimates" target="_blank">Investing.com</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>주가에 영향을 주는 핵심 요인 · 주요 동향 <span class="muted" style="font-weight:400" id="factorAsOf"></span></h2>
+    <div class="grid2" id="factorGrid"></div>
+    <div class="verdict"><div class="vt">🧭 종합평가</div><div id="newsVerdict">-</div></div>
+    <p class="src">출처:
+      <a href="https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026%EB%85%84-2%EB%B6%84%EA%B8%B0-%EC%8B%A4%EC%A0%81-%EB%B0%9C%ED%91%9C" target="_blank">삼성전자 뉴스룸(2분기 실적)</a> ·
+      <a href="https://www.thelec.kr/news/articleView.html?idxno=60316" target="_blank">디일렉(컨퍼런스콜)</a> ·
+      <a href="https://namu.wiki/w/2026%EB%85%84%207%EC%9B%94%20%EA%B5%AD%EB%82%B4%EC%A6%9D%EC%8B%9C%20%EB%8C%80%ED%8F%AD%EB%9D%BD" target="_blank">7월 증시 급락 정리</a> ·
+      <a href="https://www.cnbc.com/2026/07/31/cxmts-sk-hynix-samsung-micron-memory-chip.html" target="_blank">CNBC(CXMT)</a> ·
+      <a href="https://www.shinhangroup.com/kr/archive/insight/extend/detail/32873" target="_blank">신한(메모리 사이클)</a> ·
+      <a href="https://www.newspim.com/news/view/20260720001033" target="_blank">뉴스핌(CXMT 분석)</a>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>예측 방법 (5거래일 예측이 계산되는 방식)</h2>
+    <p class="method">
+      이 앱의 예측은 세 가지 신호를 결합한 통계 모델입니다.<br><br>
+      <b>① 추세(모멘텀) 40%</b> — 최근 10거래일 수익률의 지수가중평균으로 단기 방향성을 측정합니다.<br>
+      <b>② 평균회귀 30%</b> — 주가가 20일 이동평균에서 멀어지면 되돌아가려는 힘을 반영합니다.<br>
+      <b>③ 전문가 컨센서스 30%</b> — 최신 컨센서스 목표주가까지의 상승여력을 1년(252거래일)에 걸쳐 나눈 기대 수익률을 반영합니다.<br><br>
+      음영 구간은 최근 20일 변동성 기반의 <b>80% 신뢰구간</b>입니다. 예측일이 멀어질수록 구간이 넓어지는 것은 불확실성이 커지기 때문입니다.
+      하루 예상 변동폭은 ±1.5%로 제한해 극단값을 방지합니다. 예측은 하루에 한 번 생성·저장되며 같은 날 다시 열어도 바뀌지 않습니다.
+    </p>
+    <div class="disclaimer">
+      ⚠️ 본 보고서는 정보 제공 목적으로 자동 생성된 자료이며, 투자 권유나 금융 자문이 아닙니다. 통계 모델의 예측은 급격한 뉴스·정책 변화를 반영하지 못하며, 특히 현재 삼성전자는 변동성이 매우 큰 구간에 있습니다. 투자 판단과 책임은 투자자 본인에게 있습니다.
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============ 1. 데이터 ============ */
+// 폴백 데이터: 2026-08-12 기준 최근 1년 실제 종가 (날짜YYMMDD,종가,거래량백만주)
+const FALLBACK = "250812,71100,15.8;250813,71900,12.3;250814,71600,11.9;250818,70000,13.6;250819,70000,10.5;250820,70500,17.4;250821,70600,18.8;250822,71400,9.3;250825,71500,10.3;250826,70300,14.7;250827,70600,10.5;250828,69600,11.6;250829,69700,11.7;250901,67600,12.0;250902,69100,10.6;250903,69800,10.3;250904,70100,12.3;250905,69500,11.5;250908,70100,9.3;250909,71500,14.9;250910,72600,21.9;250911,73400,20.8;250912,75400,28.2;250915,76500,19.9;250916,79400,28.2;250917,78200,20.9;250918,80300,25.6;250922,83500,27.5;250923,84700,23.6;250924,85400,18.3;250925,86100,19.7;250926,83300,24.1;250929,84200,13.1;250930,83900,16.3;251001,86000,22.0;251002,89750,49.9;251010,94400,35.3;251013,93300,23.9;251014,91600,35.5;251015,95000,21.1;251016,97700,28.1;251017,97900,22.7;251020,98100,17.6;251021,97500,22.8;251022,98600,15.9;251023,96500,18.5;251024,98800,18.8;251027,102000,22.2;251028,99500,20.0;251029,100500,20.9;251030,104100,34.6;251031,107500,54.8;251103,111100,30.1;251104,104900,30.5;251105,100600,44.8;251106,99200,28.7;251107,97900,22.9;251110,100600,23.8;251111,103500,27.7;251112,103100,19.4;251113,102800,20.8;251114,97200,21.8;251117,100600,17.2;251118,97800,18.7;251119,96500,19.0;251120,100600,25.4;251121,94800,23.1;251124,96700,29.8;251125,99300,16.1;251126,102800,21.3;251127,103500,16.5;251128,100500,15.3;251201,100800,10.9;251202,103400,13.6;251203,104500,14.7;251204,105100,11.9;251205,108400,19.8;251208,109500,15.5;251209,108400,13.7;251210,108000,12.4;251211,107300,23.0;251212,108900,14.2;251215,104800,20.6;251216,102800,18.9;251217,107900,22.3;251218,107600,20.4;251219,106300,25.9;251222,110500,24.9;251223,111500,20.4;251224,111100,12.5;251226,117000,34.0;251229,119500,19.7;251230,119900,19.7;260102,128500,30.5;260105,138100,42.9;260106,138900,45.3;260107,141000,46.3;260108,138800,41.4;260109,139000,29.5;260112,138800,26.3;260113,137600,22.4;260114,140300,18.4;260115,143900,24.7;260116,148900,30.0;260119,149300,22.8;260120,145200,24.1;260121,149500,31.7;260122,152300,32.1;260123,152100,25.4;260126,152100,20.6;260127,159500,29.4;260128,162400,29.5;260129,160700,36.1;260130,160500,40.6;260202,150400,39.7;260203,167500,36.5;260204,169100,29.9;260205,159300,38.4;260206,158600,36.4;260209,166400,25.1;260210,165800,19.4;260211,167800,22.8;260212,178600,41.3;260213,181200,34.5;260219,190000,27.0;260220,190100,24.2;260223,193000,26.4;260224,200000,28.1;260225,203500,27.0;260226,218000,30.1;260227,216500,51.8;260303,195100,54.9;260304,172200,89.4;260305,191600,54.0;260306,188200,29.5;260309,173500,43.1;260310,187900,33.5;260311,190000,24.3;260312,187900,20.4;260313,183500,19.6;260316,188700,19.7;260317,193900,20.3;260318,208500,25.1;260319,200500,19.9;260320,199400,35.3;260323,186300,30.3;260324,189700,25.5;260325,189000,23.0;260326,180100,32.1;260327,180100,29.1;260330,176300,22.3;260331,167200,38.7;260401,189650,32.4;260402,178400,38.6;260403,186200,20.2;260406,193100,20.6;260407,196500,30.8;260408,210500,35.9;260409,204000,42.3;260410,206000,18.2;260413,201000,19.6;260414,206500,23.7;260415,211000,24.1;260416,217500,21.5;260417,216000,18.1;260420,214500,17.1;260421,219000,16.8;260422,217500,16.8;260423,224500,34.5;260424,219500,19.6;260427,224500,22.9;260428,222000,18.4;260429,226000,20.4;260430,220500,22.2;260504,232500,32.9;260506,266000,53.1;260507,271500,41.4;260508,268500,25.9;260511,285500,36.0;260512,279000,41.2;260513,284000,35.5;260514,296000,39.3;260515,270500,38.1;260518,281000,33.6;260519,275500,30.8;260520,276000,35.7;260521,299500,36.2;260522,292500,18.4;260526,299000,23.4;260527,307000,33.9;260528,299500,30.2;260529,317000,37.2;260601,349000,45.1;260602,360500,44.7;260604,351500,34.8;260605,329000,33.7;260608,295500,38.9;260609,322000,30.1;260610,302500,0.0;260611,299000,31.4;260612,322500,31.0;260615,337000,21.5;260616,343000,17.5;260617,346500,18.1;260618,362500,32.8;260619,354000,43.3;260622,353500,24.3;260623,310000,41.3;260624,340500,47.8;260625,358500,36.2;260626,339500,39.7;260629,323000,35.4;260630,334000,29.2;260701,314500,25.0;260702,286000,38.9;260703,309500,31.5;260706,318000,23.9;260707,296000,32.4;260708,277500,33.5;260709,278000,29.7;260710,285000,20.1;260713,254500,31.9;260714,263000,40.1;260715,279500,24.9;260716,255000,27.0;260720,244000,26.8;260721,259000,20.4;260722,260500,22.3;260723,270000,16.0;260724,249500,26.2;260727,254000,23.3;260728,220000,41.6;260729,208500,65.6;260730,207000,46.7;260731,262500,58.5;260803,239500,27.8;260804,240000,29.4;260805,246000,22.6;260806,230500,26.1;260807,231000,20.5;260810,230000,16.3;260811,239500,23.3;260812,255500,27.1";
+
+/* ==================================================================
+   REPORT_DATA: 조사로 채워지는 영역 (Claude가 매일 예약 작업으로 갱신)
+   - updated: 조사 기준일. 이 날짜가 오래되면 화면에 경고가 표시됩니다.
+   ================================================================== */
+let REPORT_DATA = {
+  updated: "2026-08-12",
+  consensus: { target: 493542, asOf: "2026-08-06", rangeLo: 370000, rangeHi: 670000 },
+  analysts: [
+    { name: "노무라", target: "670,000원" },
+    { name: "한국투자증권", target: "650,000원" }
+  ],
+  rating: "매수 36 · 보유 1 · 매도 0",
+  ratingTag: "Strong Buy",
+  expertVerdict: "증권가는 사실상 만장일치 매수이며, 컨센서스 목표가(약 49.4만원)는 현재가의 두 배 수준입니다. 다만 목표가 범위가 37만~67만원으로 극단적으로 넓다는 것은 그만큼 밸류에이션 불확실성이 크다는 뜻이고, 상당수 목표가는 7월 급락 이전 강세장에서 산정됐습니다. 전문가 관점의 해석은 '방향은 위쪽, 속도는 미지수'입니다. 목표주가를 단기 도달 가격이 아니라 12개월 장기 방향성 지표로 읽는 것이 합리적입니다.",
+  factors: [
+    { cls:"pos", tag:"긍정", t:"역대 최대 실적 (2026년 2분기)", d:"매출 171.5조원, 영업이익 89.5조원으로 분기 사상 최대. AI 메모리 수요가 실적을 견인." },
+    { cls:"pos", tag:"긍정", t:"HBM4 고속 성장", d:"3분기 HBM4 매출이 전분기 대비 3배 이상 전망. 업계 최초 HBM4E 샘플 출하로 기술 리더십 입증." },
+    { cls:"pos", tag:"긍정", t:"메모리 슈퍼사이클 지속", d:"2026년 DRAM 수요가 공급을 2.1%p 상회. 서버→모바일→HBM 순차 가격 상승 구조로 최소 2027년까지 지속 전망. 아이폰용 DRAM 공급가 100% 인상 사례도." },
+    { cls:"pos", tag:"긍정", t:"파운드리 개선", d:"2나노 2세대 모바일 양산 시작, HBM 베이스 다이·미주 고객 수요로 매출 증가." },
+    { cls:"neg", tag:"위험", t:"7월 급락의 후유증", d:"6월 고점(362,500원) 이후 AI 거품 논란, 외국인 대량 매도, 단일종목 레버리지 ETF 청산이 겹치며 한때 -43% 급락. 변동성이 매우 큰 구간." },
+    { cls:"neg", tag:"위험", t:"중국 CXMT의 추격", d:"중국 최대 D램 업체 CXMT가 IPO로 14조원 실탄 확보, 30% 싼 D램으로 범용 시장 잠식 시도. 다만 EUV 장비 접근 불가로 첨단 공정 격차는 유지." },
+    { cls:"neg", tag:"위험", t:"AI 투자 회의론", d:"브로드컴 가이던스 하향 등으로 촉발된 AI 반도체 수요 지속성 논쟁. 뉴스 하나에 급등락하는 고감도 구간." },
+    { cls:"", tag:"중립", t:"DX(세트) 부문 부진", d:"부품(DS) 초호황과 달리 스마트폰·가전 부문은 메모리 원가 상승 부담으로 수익성 악화." }
+  ],
+  newsVerdict: "펀더멘털(역대급 실적·HBM4·슈퍼사이클)은 매우 강한 반면, 수급과 심리(AI 회의론·레버리지 청산·외국인 매도)는 불안정한 전형적인 '좋은 기업, 거친 주가' 국면입니다. 실적이 뒷받침되는 조정 구간은 장기 투자자에게 분할 매수 검토 영역이 될 수 있으나, 단기 매매는 급등락 위험이 큽니다. CXMT의 추격은 범용 D램 중심 이슈로, HBM 위주의 이익 구조에 미치는 영향은 아직 제한적입니다."
+};
+const YAHOO_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/005930.KS?range=1y&interval=1d';
+const KR_HOLIDAYS = ['2026-08-17','2026-09-24','2026-09-25','2026-10-05','2026-10-09','2026-12-25','2026-12-31','2027-01-01','2027-02-16','2027-02-17','2027-02-18','2027-03-01'];
+const STORE_KEY = 'ssn005930_predictions_v1';
+
+function parseCompact(s){
+  return s.split(';').map(r=>{
+    const [d,c,v]=r.split(',');
+    return { d:'20'+d.slice(0,2)+'-'+d.slice(2,4)+'-'+d.slice(4,6), c:+c, v:+v };
+  });
+}
+
+function fetchWithTimeout(url, ms){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  return fetch(url, {signal:ctrl.signal}).finally(()=>clearTimeout(t));
+}
+
+function parseYahoo(obj){
+  const res = obj.chart.result[0];
+  const ts = res.timestamp, q = res.indicators.quote[0];
+  const out=[];
+  for(let i=0;i<ts.length;i++){
+    if(q.close[i]==null) continue;
+    out.push({ d:new Date(ts[i]*1000).toISOString().slice(0,10), c:Math.round(q.close[i]), v:q.volume[i]?+(q.volume[i]/1e6).toFixed(1):0 });
+  }
+  return out;
+}
+
+async function loadData(){
+  // 0) GitHub Pages로 배포된 경우: Actions가 매일 갱신하는 저장소 데이터를 최우선 사용
+  try{
+    const r = await fetchWithTimeout('./data/prices.json?t='+Date.now(), 6000);
+    if(r.ok){
+      const j = await r.json();
+      if(j.rows && j.rows.length>100) return { data:j.rows, live:true, src:'저장소 자동 갱신 ('+j.updated+')' };
+    }
+  }catch(e){ /* 로컬 파일로 열었을 때는 실패하는 것이 정상 → 아래 방식으로 진행 */ }
+  const sources = [
+    { name:'야후 파이낸스 (직접)', url: YAHOO_URL },
+    { name:'야후 파이낸스 (프록시)', url: 'https://r.jina.ai/' + YAHOO_URL },
+    { name:'야후 파이낸스 (프록시2)', url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(YAHOO_URL) },
+  ];
+  for(const s of sources){
+    try{
+      const r = await fetchWithTimeout(s.url, 9000);
+      let txt = await r.text();
+      // 프록시가 텍스트로 감싸는 경우 JSON 부분만 추출
+      const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+      if(a<0||b<0) continue;
+      const obj = JSON.parse(txt.slice(a,b+1));
+      const data = parseYahoo(obj);
+      if(data.length > 100) return { data, live:true, src:s.name };
+    }catch(e){ /* 다음 소스 시도 */ }
+  }
+  return { data: parseCompact(FALLBACK), live:false, src:'저장된 데이터 (2026-08-12 기준)' };
+}
+
+/* ============ 2. 지표 계산 ============ */
+const fmt = n => Math.round(n).toLocaleString('ko-KR');
+function sma(arr,n,i){ i=i??arr.length-1; if(i+1<n) return null; let s=0; for(let k=i-n+1;k<=i;k++)s+=arr[k]; return s/n; }
+function rsi(closes,n=14){
+  if(closes.length<n+1) return null;
+  let g=0,l=0;
+  for(let i=closes.length-n;i<closes.length;i++){
+    const df=closes[i]-closes[i-1];
+    if(df>0)g+=df; else l-=df;
+  }
+  if(l===0) return 100;
+  return 100-100/(1+(g/n)/(l/n));
+}
+function stdev(a){ const m=a.reduce((x,y)=>x+y,0)/a.length; return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/a.length); }
+
+/* ============ 3. 예측 모델 ============ */
+function nextBusinessDays(fromDate, n){
+  // 시간대 오류 방지를 위해 모든 계산을 UTC로 수행
+  const [y,m,dd]=fromDate.split('-').map(Number);
+  const d=new Date(Date.UTC(y,m-1,dd));
+  const out=[];
+  while(out.length<n){
+    d.setUTCDate(d.getUTCDate()+1);
+    const dow=d.getUTCDay(); const ds=d.toISOString().slice(0,10);
+    if(dow===0||dow===6||KR_HOLIDAYS.includes(ds)) continue;
+    out.push(ds);
+  }
+  return out;
+}
+
+function makeForecast(data){
+  const closes = data.map(p=>p.c);
+  const last = closes[closes.length-1];
+  const rets=[]; for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
+  // ① 모멘텀: 최근 10일 수익률 지수가중평균
+  const alpha=2/(10+1); let mom=0;
+  rets.slice(-10).forEach(r=>{ mom = alpha*r + (1-alpha)*mom; });
+  // ② 평균회귀: 20일 이평 대비 이격
+  const s20 = sma(closes,20);
+  const rev = s20 ? 0.06*Math.log(s20/last) : 0;
+  // ③ 애널리스트 컨센서스
+  const ana = Math.log(REPORT_DATA.consensus.target/last)/252;
+  let drift = 0.4*mom + 0.3*rev + 0.3*ana;
+  drift = Math.max(-0.015, Math.min(0.015, drift)); // 하루 ±1.5% 제한
+  const vol = stdev(rets.slice(-20));
+  const days = nextBusinessDays(data[data.length-1].d, 5);
+  const pts = days.map((ds,i)=>{
+    const t=i+1;
+    const v = last*Math.exp(drift*t);
+    const band = 1.2816*vol*Math.sqrt(t);
+    return { d:ds, v:Math.round(v), lo:Math.round(last*Math.exp(drift*t-band)), hi:Math.round(last*Math.exp(drift*t+band)) };
+  });
+  return { pts, drift, vol, mom, rev, ana, base:last };
+}
+
+/* ============ 4. 예측 저장/비교 ============ */
+function loadStore(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
+function saveStore(s){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){} }
+
+/* ============ 5. 렌더링 ============ */
+let chart=null, DATA=null, FC=null, STORE=null;
+
+function renderStats(data, live, src){
+  const last=data[data.length-1], prev=data[data.length-2];
+  const first=data[0];
+  const closes=data.map(p=>p.c);
+  const hi=Math.max(...closes), lo=Math.min(...closes);
+  const chg=last.c-prev.c, pct=(chg/prev.c*100);
+  document.getElementById('curPrice').textContent = fmt(last.c)+'원';
+  const el=document.getElementById('chg');
+  el.innerHTML = (chg>=0?'▲ ':'▼ ')+fmt(Math.abs(chg))+' <small>('+(chg>=0?'+':'')+pct.toFixed(2)+'%)</small>';
+  el.className='v '+(chg>=0?'up':'down');
+  document.getElementById('hi52').textContent=fmt(hi)+'원';
+  document.getElementById('lo52').textContent=fmt(lo)+'원';
+  const yr=(last.c/first.c-1)*100;
+  const ye=document.getElementById('yret');
+  ye.textContent=(yr>=0?'+':'')+yr.toFixed(1)+'%';
+  ye.className='v '+(yr>=0?'up':'down');
+  const badge=document.getElementById('liveBadge');
+  badge.textContent = live?'실시간 · '+src:'오프라인 · '+src;
+  badge.className='badge '+(live?'live':'cache');
+  document.getElementById('asofLine').textContent='기준일: '+last.d+' 종가 · 열람 시각: '+new Date().toLocaleString('ko-KR');
+}
+
+function renderTech(data){
+  const closes=data.map(p=>p.c);
+  const last=closes[closes.length-1];
+  const s20=sma(closes,20), s60=sma(closes,60), s120=sma(closes,120);
+  const r=rsi(closes);
+  const rets=[]; for(let i=closes.length-20;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
+  const vol20=stdev(rets)*Math.sqrt(252)*100;
+  const rec=closes.slice(-60);
+  const support=Math.min(...rec), resist=Math.max(...rec);
+  const rows=[
+    ['20일 이동평균', fmt(s20)+'원', last>s20?['주가가 위 → 단기 상승 추세','pos']:['주가가 아래 → 단기 하락 추세','neg']],
+    ['60일 이동평균', fmt(s60)+'원', last>s60?['주가가 위 → 중기 상승 추세','pos']:['주가가 아래 → 중기 조정 국면','neg']],
+    ['120일 이동평균', fmt(s120)+'원', last>s120?['장기 상승 추세 유지','pos']:['장기 추세 이탈','neg']],
+    ['RSI (14일)', r.toFixed(1), r>70?['과매수 구간','neg']:r<30?['과매도 구간','pos']:['중립 구간','neu']],
+    ['연환산 변동성(20일)', vol20.toFixed(0)+'%', vol20>60?['변동성 매우 높음','neg']:vol20>35?['변동성 높음','neu']:['안정적','pos']],
+    ['최근 60일 지지선', fmt(support)+'원', ['최근 저점 부근 매수세 유입 가격대','neu']],
+    ['최근 60일 저항선', fmt(resist)+'원', ['돌파 시 추세 전환 신호 가격대','neu']],
+  ];
+  document.getElementById('techBody').innerHTML = rows.map(([k,v,[t,c]])=>
+    '<tr><td>'+k+'</td><td class="num"><b>'+v+'</b></td><td><span class="tag '+c+'">'+t+'</span></td></tr>').join('');
+
+  // ── 기술적 지표 종합평가 (매번 최신 수치로 자동 생성) ──
+  const trendCnt=[last>s20,last>s60,last>s120].filter(Boolean).length;
+  const trendTxt = trendCnt===3?'단기·중기·장기 추세가 모두 상승 정렬로, 기술적으로 가장 건강한 구조입니다'
+    : trendCnt===2?'추세 지표 3개 중 2개가 상승을 가리키는 회복 국면입니다'
+    : trendCnt===1?'추세 지표들이 엇갈리는 방향 탐색 구간입니다'
+    : '모든 이동평균 아래에 있는 기술적 하락 추세입니다';
+  const rsiTxt = r>70?'RSI('+r.toFixed(0)+')가 과매수권이라 단기 되돌림을 경계해야 합니다'
+    : r<30?'RSI('+r.toFixed(0)+')가 과매도권이라 기술적 반등 가능성이 있습니다'
+    : 'RSI는 '+r.toFixed(0)+'으로 중립권입니다';
+  const volTxt = vol20>60?'연환산 변동성이 '+vol20.toFixed(0)+'%로 매우 높아 하루 급등락이 일상적인 구간이므로 분할 접근이 필수적입니다'
+    : vol20>35?'변동성('+vol20.toFixed(0)+'%)은 다소 높은 편입니다'
+    : '변동성은 안정적인 수준입니다';
+  const posPct=(last-support)/(resist-support)*100;
+  const posTxt='현재가는 최근 60일 가격대('+fmt(support)+'~'+fmt(resist)+'원)의 '+posPct.toFixed(0)+'% 지점에 있어 '
+    +(posPct<35?'지지선 부근입니다. 지지선이 무너지는지가 단기 관전 포인트입니다.'
+    : posPct>75?'저항선 부근입니다. 저항선 돌파 여부가 추세 전환의 관건입니다.'
+    : '박스권 중간입니다. 방향이 정해지기를 기다리는 자리입니다.');
+  document.getElementById('techVerdict').textContent = trendTxt+'. '+rsiTxt+'. '+volTxt+'. '+posTxt;
+  return { s20,s60,s120,rsi:r,vol20 };
+}
+
+function renderReport(data){
+  const last=data[data.length-1].c;
+  const c=REPORT_DATA.consensus;
+  const up=(c.target/last-1)*100;
+  const rows=[
+    ['컨센서스 목표주가','<b>'+fmt(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'],
+    ['목표주가 범위', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원'],
+    ...REPORT_DATA.analysts.map(a=>[a.name,a.target]),
+    ['투자의견', REPORT_DATA.rating+' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>'],
+    ['현재가 대비 상승여력','<b class="'+(up>0?'err-pos':'err-neg')+'">'+(up>0?'+':'')+up.toFixed(1)+'%</b>']
+  ];
+  document.getElementById('expertBody').innerHTML=rows.map(([k,v])=>'<tr><td>'+k+'</td><td class="num">'+v+'</td></tr>').join('');
+  document.getElementById('expertAsOf').textContent='· 조사 기준일 '+REPORT_DATA.updated;
+  document.getElementById('factorAsOf').textContent='· 조사 기준일 '+REPORT_DATA.updated;
+  document.getElementById('expertVerdict').textContent=REPORT_DATA.expertVerdict;
+  document.getElementById('newsVerdict').textContent=REPORT_DATA.newsVerdict;
+  const half=Math.ceil(REPORT_DATA.factors.length/2);
+  const mkF=f=>'<div class="factor '+f.cls+'"><div class="t">'+f.t+' <span class="tag '+(f.cls||'neu')+'">'+f.tag+'</span></div><div class="d">'+f.d+'</div></div>';
+  document.getElementById('factorGrid').innerHTML='<div>'+REPORT_DATA.factors.slice(0,half).map(mkF).join('')+'</div><div>'+REPORT_DATA.factors.slice(half).map(mkF).join('')+'</div>';
+  // 조사 데이터가 오래되면 경고 표시
+  const days=Math.floor((Date.now()-new Date(REPORT_DATA.updated+'T00:00:00').getTime())/86400000);
+  if(days>=4){
+    const w=document.getElementById('staleWarn');
+    w.style.display='block';
+    w.textContent='⚠️ 전문가 의견·주요 동향 조사가 '+days+'일 지났습니다. 자동 갱신이 누락되었을 수 있으니 Claude에게 "보고서 갱신"을 요청해 주세요. (주가·차트·기술 지표·예측은 지금도 최신입니다)';
+  }
+}
+
+function renderSummary(data, tech, fc){
+  const last=data[data.length-1].c;
+  let score=0; const why=[];
+  if(last>tech.s20){score++; why.push('단기 추세 상승');} else {score--; why.push('단기 추세 하락');}
+  if(last>tech.s60){score++;} else {score--;}
+  if(tech.rsi<30){score++; why.push('과매도(반등 여지)');} else if(tech.rsi>70){score--; why.push('과매수(조정 여지)');}
+  const up=(REPORT_DATA.consensus.target/last-1)*100;
+  if(up>30){score++; why.push('목표주가 대비 상승여력 '+up.toFixed(0)+'%');}
+  if(fc.drift>0){score++;} else {score--;}
+  if(tech.vol20>60){score--; why.push('높은 변동성 주의');}
+  const label = score>=3?['긍정적','var(--green)']:score>=1?['다소 긍정','var(--accent)']:score>=-1?['중립','var(--gold)']:['신중','var(--up)'];
+  const sc=document.getElementById('scoreCircle');
+  sc.style.borderColor=label[1];
+  document.getElementById('scoreN').textContent=label[0];
+  const dir=fc.drift>0?'완만한 상승':'완만한 하락';
+  document.getElementById('summaryTxt').innerHTML =
+    '통계 모델은 향후 5거래일간 <b>'+dir+'</b> 흐름을 예상합니다 (5일 후 예상가 <b>'+fmt(fc.pts[4].v)+'원</b>, 80% 신뢰구간 '+fmt(fc.pts[4].lo)+'~'+fmt(fc.pts[4].hi)+'원). '
+    +'판단 근거: '+why.join(', ')+'. 애널리스트 컨센서스는 강한 매수(목표 '+fmt(REPORT_DATA.consensus.target)+'원)이나, 최근 변동성이 큰 구간임을 유의하세요.';
+}
+
+function renderHistory(data){
+  const actualByDate={}; data.forEach(p=>actualByDate[p.d]=p.c);
+  const lastDate=data[data.length-1].d;
+  const rows=[];
+  const keys=Object.keys(STORE).sort();
+  keys.forEach(base=>{
+    const p=STORE[base];
+    p.pts.forEach(pt=>{
+      if(pt.d<=lastDate && actualByDate[pt.d]!=null && pt.d>base){
+        const act=actualByDate[pt.d];
+        const err=(pt.v-act)/act*100;
+        const hit=act>=pt.lo&&act<=pt.hi;
+        rows.push('<tr><td>'+base+'</td><td>'+pt.d+'</td><td class="num">'+fmt(pt.v)+'</td><td class="num">'+fmt(act)+'</td>'
+          +'<td class="num '+(Math.abs(err)<2?'err-pos':'err-neg')+'">'+(err>=0?'+':'')+err.toFixed(2)+'%</td>'
+          +'<td>'+(hit?'<span class="tag pos">적중</span>':'<span class="tag neg">이탈</span>')+'</td></tr>');
+      }
+    });
+  });
+  if(rows.length) document.getElementById('histBody').innerHTML=rows.join('');
+}
+
+function buildChart(range){
+  const nDays={ '1M':22,'3M':66,'6M':132,'1Y':10000 }[range];
+  const data=DATA.slice(-nDays);
+  const lastDate=DATA[DATA.length-1].d;
+  // 라벨: 실제 날짜 + 예측 날짜(중복 제거, 정렬)
+  const labelSet=new Set(data.map(p=>p.d));
+  FC.pts.forEach(p=>labelSet.add(p.d));
+  Object.values(STORE).forEach(pr=>pr.pts.forEach(p=>{ if(p.d>=data[0].d) labelSet.add(p.d); }));
+  const labels=[...labelSet].sort();
+  const idx={}; labels.forEach((d,i)=>idx[d]=i);
+  const mk=()=>new Array(labels.length).fill(null);
+
+  const actual=mk(); data.forEach(p=>actual[idx[p.d]]=p.c);
+  const fLine=mk(), fLo=mk(), fHi=mk();
+  const lastC=DATA[DATA.length-1].c;
+  if(idx[lastDate]!=null){ fLine[idx[lastDate]]=lastC; fLo[idx[lastDate]]=lastC; fHi[idx[lastDate]]=lastC; }
+  FC.pts.forEach(p=>{ fLine[idx[p.d]]=p.v; fLo[idx[p.d]]=p.lo; fHi[idx[p.d]]=p.hi; });
+
+  const datasets=[
+    { label:'실제 종가', data:actual, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.06)', borderWidth:2, pointRadius:0, pointHitRadius:6, tension:.25, fill:false },
+    { label:'신뢰구간 상단', data:fHi, borderColor:'rgba(15,157,110,0)', backgroundColor:'rgba(15,157,110,.1)', pointRadius:0, borderWidth:0, fill:'+1', tension:.25 },
+    { label:'신뢰구간 하단', data:fLo, borderColor:'rgba(15,157,110,0)', pointRadius:0, borderWidth:0, fill:false, tension:.25 },
+    { label:'오늘의 5일 예측', data:fLine, borderColor:'#0f9d6e', borderDash:[6,4], borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#0f9d6e', tension:.25, fill:false },
+  ];
+  // 과거 예측 오버레이 (최근 5건)
+  const past=Object.keys(STORE).sort().filter(b=>b<lastDate).slice(-5);
+  past.forEach((b,i)=>{
+    const arr=mk();
+    const baseIdx=idx[b];
+    if(baseIdx!=null) arr[baseIdx]=STORE[b].base;
+    let anyVisible=false;
+    STORE[b].pts.forEach(p=>{ if(idx[p.d]!=null){ arr[idx[p.d]]=p.v; anyVisible=true; } });
+    if(anyVisible) datasets.push({ label:b+' 예측', data:arr, borderColor:'rgba(224,123,26,'+(0.55+0.09*i)+')', borderDash:[3,4], borderWidth:1.8, pointRadius:2.5, pointBackgroundColor:'#e07b1a', tension:.25, fill:false });
+  });
+
+  if(chart) chart.destroy();
+  chart=new Chart(document.getElementById('mainChart'),{
+    type:'line',
+    data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color:'#5b6785', filter:i=>!i.text.includes('신뢰구간') } },
+        tooltip:{ callbacks:{ label:c=>c.dataset.label+': '+(c.parsed.y!=null?fmt(c.parsed.y)+'원':'-') } }
+      },
+      scales:{
+        x:{ ticks:{ color:'#5b6785', maxTicksLimit:10 }, grid:{ color:'rgba(226,231,242,.8)' } },
+        y:{ ticks:{ color:'#5b6785', callback:v=>fmt(v) }, grid:{ color:'rgba(226,231,242,.8)' } }
+      }
+    }
+  });
+}
+
+/* ============ 6. 초기화 ============ */
+(async function(){
+  const { data, live, src } = await loadData();
+  DATA=data;
+  // 저장소에 최신 조사 데이터(report.json)가 있으면 내장 데이터 대신 사용
+  try{
+    const r = await fetchWithTimeout('./data/report.json?t='+Date.now(), 6000);
+    if(r.ok){ const j = await r.json(); if(j && j.updated) REPORT_DATA = j; }
+  }catch(e){}
+  STORE=loadStore();
+  // 저장소에 예측 기록(predictions.json)이 있으면 병합 (저장소 기록 우선 → 기기와 무관하게 동일한 기록)
+  try{
+    const r = await fetchWithTimeout('./data/predictions.json?t='+Date.now(), 6000);
+    if(r.ok){ const j = await r.json(); STORE = Object.assign({}, STORE, j); }
+  }catch(e){}
+  const lastDate=data[data.length-1].d;
+  // 오늘(최신 거래일) 기준 예측이 없으면 생성·저장
+  if(!STORE[lastDate]){
+    const fc=makeForecast(data);
+    STORE[lastDate]={ madeOn:new Date().toISOString().slice(0,10), base:fc.base, pts:fc.pts };
+    saveStore(STORE);
+  }
+  FC={ pts:STORE[lastDate].pts, base:STORE[lastDate].base, drift:Math.log(STORE[lastDate].pts[4].v/STORE[lastDate].base)/5, vol:0 };
+  renderStats(data, live, src);
+  const tech=renderTech(data);
+  renderReport(data);
+  renderSummary(data, tech, FC);
+  renderHistory(data);
+  buildChart('3M');
+  document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    buildChart(b.dataset.r);
+  }));
+})();
+</script>
+</body>
+</html>
