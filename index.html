@@ -34,24 +34,39 @@
   .rbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
   .rbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
   .legend-note{color:var(--sub);font-size:.75rem;margin-left:auto}
-  #chartBox{position:relative;height:420px}
+  #chartBox{position:relative;height:420px;width:100%;min-width:0;overflow:hidden}
+  #mainChart{display:block;max-width:100%}
   .summary-banner{display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:linear-gradient(120deg,rgba(37,99,235,.07),rgba(15,157,110,.05));border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
-  .score-circle{width:86px;height:86px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
-  .score-circle .n{font-size:1.4rem}
-  .score-circle .t{font-size:.65rem;color:var(--sub)}
+  .score-circle{width:108px;height:108px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 7px;text-align:center;line-height:1.2;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
+  .score-circle .n{font-size:1.1rem;word-break:keep-all}
+  .score-circle .t{font-size:.62rem;font-weight:600;color:var(--sub);white-space:nowrap}
   .summary-txt{flex:1;min-width:260px;font-size:.92rem}
   .summary-txt b{color:var(--gold)}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
   th{color:var(--sub);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
   td{padding:8px 10px;border-bottom:1px solid var(--line)}
   .num{text-align:right;font-variant-numeric:tabular-nums}
-  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  /* 짧은 숫자만 줄바꿈 금지. 전문가 표는 괄호 설명이 붙으므로 제외한다 */
+  #techBody .num{white-space:nowrap}
+  #histTable th,#histTable td{white-space:nowrap}   /* 이 표는 어차피 옆으로 밀린다 */
+  /* min()으로 감싸야 화면이 300px보다 좁을 때 칸이 넘쳐 가로 스크롤이 생기지 않는다 */
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:22px}
+  /* 좌우로 밀리는 표: 양끝 그림자로 "더 있음"을 알린다 */
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;
+    background:
+      linear-gradient(to right,var(--card) 30%,rgba(255,255,255,0)) left center,
+      linear-gradient(to left,var(--card) 30%,rgba(255,255,255,0)) right center,
+      radial-gradient(farthest-side at 0 50%,rgba(28,35,51,.16),rgba(28,35,51,0)) left center,
+      radial-gradient(farthest-side at 100% 50%,rgba(28,35,51,.16),rgba(28,35,51,0)) right center;
+    background-repeat:no-repeat;background-size:32px 100%,32px 100%,14px 100%,14px 100%;
+    background-attachment:local,local,scroll,scroll}
+  .scroll-hint{display:none;color:var(--sub);font-size:.75rem;margin-bottom:8px}
   .factor{margin-bottom:14px;padding:12px 14px;background:var(--card2);border-radius:10px;border-left:3px solid var(--accent);font-size:.88rem}
   .factor.pos{border-left-color:var(--green)}
   .factor.neg{border-left-color:var(--up)}
   .factor .t{font-weight:700;margin-bottom:2px}
   .factor .d{color:var(--sub);font-size:.82rem}
-  .tag{display:inline-block;font-size:.68rem;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle}
+  .tag{display:inline-block;font-size:.68rem;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;word-break:keep-all}
   .tag.pos{background:rgba(15,157,110,.1);color:var(--green)}
   .tag.neg{background:rgba(229,72,77,.1);color:var(--up)}
   .tag.neu{background:rgba(91,103,133,.12);color:var(--sub)}
@@ -65,7 +80,22 @@
   .method{font-size:.85rem;color:var(--sub)}
   .method b{color:var(--txt)}
   .err-pos{color:var(--green)} .err-neg{color:var(--up)}
-  @media(max-width:640px){#chartBox{height:320px}}
+  /* ───── 모바일(640px 이하) 조정 ───── */
+  @media(max-width:640px){
+    #chartBox{height:320px}
+    .card{padding:18px 14px}
+    .summary-banner{padding:16px 14px}
+    /* 기간 버튼: 손가락 터치 최소 크기 44px 확보 */
+    .rbtn{min-height:44px;padding:0 16px;display:inline-flex;align-items:center;font-size:.85rem}
+    .legend-note{margin-left:0;width:100%}
+    /* 기술적 지표 표: [항목 | 값] 한 줄, 설명 태그는 아래 줄 전체 폭 */
+    #techBody tr{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:3px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
+    #techBody td{border:0;padding:0}
+    #techBody td:nth-child(3){grid-column:1/-1}
+    /* 출처 링크: 줄 간격을 넓혀 터치하기 쉽게 */
+    .src{line-height:2.1}
+    .scroll-hint{display:block}
+  }
 </style>
 </head>
 <body>
@@ -107,7 +137,8 @@
   <div class="card">
     <h2>예측 기록: 과거 예측 vs 실제</h2>
     <p class="muted" style="margin-bottom:10px">앱을 여는 날마다 그날의 5일 예측이 이 브라우저에 자동 저장됩니다. 다음 날부터는 어제까지의 예측과 실제 주가를 비교해 정확도를 확인할 수 있습니다.</p>
-    <div style="overflow-x:auto">
+    <p class="scroll-hint">표를 옆으로 밀면 오차·적중 여부가 보입니다 →</p>
+    <div class="tscroll">
       <table id="histTable">
         <thead><tr><th>예측 시행일</th><th>대상일</th><th class="num">예측가</th><th class="num">실제 종가</th><th class="num">오차</th><th>구간 적중</th></tr></thead>
         <tbody id="histBody"><tr><td colspan="6" class="muted">아직 비교할 기록이 없습니다. 내일 이후 다시 열면 오늘 예측과 실제 주가가 비교됩니다.</td></tr></tbody>
@@ -541,6 +572,10 @@ function buildChart(range){
     b.classList.add('on');
     buildChart(b.dataset.r);
   }));
+  // 화면 회전 등으로 폭이 줄어들 때 Chart.js 캔버스가 큰 크기 그대로 남아
+  // 페이지가 옆으로 밀리는 것을 막는다 (넓어질 때는 자동 처리됨)
+  let rzT;
+  addEventListener('resize', ()=>{ clearTimeout(rzT); rzT=setTimeout(()=>{ if(chart) chart.resize(); }, 150); });
 })();
 </script>
 </body>
