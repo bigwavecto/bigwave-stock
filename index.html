@@ -2,9 +2,20 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>삼성전자 주가 예측 보고서</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>삼성전자 주가 리포트</title>
+<meta name="description" content="삼성전자 주가의 예상 변동 범위와 임계값 도달 가능성을 매일 알려주는 리포트입니다. 방향은 예측하지 않습니다.">
+<!-- 홈 화면에 추가하면 앱처럼 열린다 (PWA) -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="삼성 주가">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- Chart.js는 저장소에 두고 쓴다. 외부 CDN이면 오프라인에서 차트가 안 그려진다 -->
+<script src="./vendor/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#f4f6fb; --card:#ffffff; --card2:#f0f3fa; --line:#e2e7f2;
@@ -20,6 +31,13 @@
   .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700}
   .badge.live{background:rgba(15,157,110,.1);color:var(--green);border:1px solid rgba(15,157,110,.35)}
   .badge.cache{background:rgba(224,123,26,.1);color:var(--orange);border:1px solid rgba(224,123,26,.35)}
+  /* 홈 화면 추가 안내 — 브라우저로 열었을 때만 뜬다 */
+  .install-tip{display:none;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.25);border-radius:12px;
+    padding:12px 14px;font-size:.85rem;color:var(--txt);margin-bottom:18px;line-height:1.65}
+  .install-tip b{color:var(--accent)}
+  .install-tip button{background:var(--accent);color:#fff;border:0;border-radius:9px;padding:9px 16px;
+    font-size:.85rem;font-weight:700;cursor:pointer;margin-top:8px;min-height:40px}
+  .install-tip .no{background:none;color:var(--sub);font-weight:600;padding:9px 10px;margin-left:4px}
   .asof{color:var(--sub);font-size:.8rem;margin-bottom:18px}
   .price-row{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;flex:1;min-width:150px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
@@ -187,6 +205,7 @@
   </header>
   <div class="asof" id="asofLine">-</div>
   <div class="stale-warn" id="staleWarn"></div>
+  <div class="install-tip" id="installTip"></div>
 
   <div class="price-row">
     <div class="stat"><div class="k">지금 가격</div><div class="v" id="curPrice">-</div></div>
@@ -1022,7 +1041,58 @@ function closeChartModal(){
   if(modalChart){ modalChart.destroy(); modalChart=null; }
 }
 
-/* ============ 6. 초기화 ============ */
+/* ============ 6. 홈 화면에 추가(PWA) ============ */
+const TIP_KEY='ssn_install_tip_hidden';
+let deferredPrompt=null;
+addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; setupInstall(); });
+
+function setupInstall(){
+  const el=document.getElementById('installTip');
+  if(!el) return;
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if(standalone || localStorage.getItem(TIP_KEY)==='1'){ el.style.display='none'; return; }
+
+  const ua=navigator.userAgent;
+  const isIOS=/iPhone|iPad|iPod/.test(ua);
+  const isSafari=isIOS && !/CriOS|FxiOS|EdgiOS/.test(ua);
+  let html='';
+  if(deferredPrompt){
+    html='📱 <b>앱처럼 쓸 수 있어요.</b> 홈 화면에 추가하면 아이콘으로 바로 열리고, 인터넷이 끊겨도 마지막 내용을 볼 수 있어요.'
+      +'<br><button id="tipAdd">홈 화면에 추가</button><button class="no" id="tipNo">다음에</button>';
+  } else if(isIOS && isSafari){
+    html='📱 <b>앱처럼 쓸 수 있어요.</b> 아래 <b>공유 버튼(⬆️)</b>을 누르고 <b>“홈 화면에 추가”</b>를 선택하세요. '
+      +'아이콘으로 바로 열리고, 인터넷이 끊겨도 마지막 내용을 볼 수 있어요.'
+      +'<br><button class="no" id="tipNo">알겠어요</button>';
+  } else if(isIOS){
+    html='📱 <b>앱처럼 쓰려면 Safari로 열어주세요.</b> 아이폰은 Safari에서만 홈 화면에 추가할 수 있어요.'
+      +'<br><button class="no" id="tipNo">알겠어요</button>';
+  } else {
+    html='📱 <b>앱처럼 쓸 수 있어요.</b> 브라우저 메뉴에서 <b>“홈 화면에 추가”</b> 또는 <b>“앱 설치”</b>를 눌러보세요.'
+      +'<br><button class="no" id="tipNo">알겠어요</button>';
+  }
+  el.innerHTML=html; el.style.display='block';
+
+  const no=document.getElementById('tipNo');
+  if(no) no.onclick=()=>{ localStorage.setItem(TIP_KEY,'1'); el.style.display='none'; };
+  const add=document.getElementById('tipAdd');
+  if(add) add.onclick=async()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt=null; el.style.display='none';
+  };
+}
+addEventListener('appinstalled', ()=>{
+  localStorage.setItem(TIP_KEY,'1');
+  const el=document.getElementById('installTip'); if(el) el.style.display='none';
+});
+
+// 서비스 워커 등록 — 오프라인 지원. 로컬 파일(file://)로 열면 등록되지 않는 것이 정상이다.
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[sw] 등록 실패', e)));
+}
+
+/* ============ 7. 초기화 ============ */
 (async function(){
   const { data, live, src } = await loadData();
   DATA=data;
@@ -1088,6 +1158,8 @@ function closeChartModal(){
   document.getElementById('modalClose').addEventListener('click', closeChartModal);
   document.getElementById('chartModal').addEventListener('click', e=>{ if(e.target.id==='chartModal') closeChartModal(); });
   addEventListener('keydown', e=>{ if(e.key==='Escape') closeChartModal(); });
+
+  setupInstall();
 
   // 화면 회전 등으로 폭이 줄어들 때 Chart.js 캔버스가 큰 크기 그대로 남아
   // 페이지가 옆으로 밀리는 것을 막는다 (넓어질 때는 자동 처리됨)
