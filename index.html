@@ -28,7 +28,8 @@
   .stat .v small{font-size:.8rem;font-weight:600}
   .up{color:var(--up)} .down{color:var(--down)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
-  .card h2{font-size:1.05rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .card h2{font-size:1.05rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h2 .muted{flex-basis:100%;margin-left:12px}
   .card h2::before{content:'';width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block}
   .chart-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
   .rbtn,.hbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
@@ -39,6 +40,18 @@
   .scorecard th{padding:6px 10px}
   .scorecard td{padding:7px 10px}
   .sc-note{color:var(--sub);font-size:.75rem;margin-top:8px;line-height:1.6}
+  .sub-h{font-size:.82rem;font-weight:800;color:var(--txt);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .kv{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .kv:last-child{border-bottom:0}
+  .kv .k{color:var(--sub)}
+  .kv .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .warnline{background:rgba(224,123,26,.08);border-left:3px solid var(--orange);border-radius:6px;padding:9px 12px;font-size:.8rem;color:var(--sub);margin-top:10px}
+  #probTable th{text-align:right;line-height:1.35}
+  #probTable th:first-child,#probTable td:first-child{text-align:left}
+  #probTable th small{display:block;font-weight:400;font-size:.68rem;color:var(--sub)}
+  #probTable td{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+  .pcell{font-weight:700}
+  .pdn{color:var(--up)} .pup{color:var(--green)}
   .legend-note{color:var(--sub);font-size:.75rem;margin-left:auto}
   #chartBox{position:relative;height:420px;width:100%;min-width:0;overflow:hidden}
   #mainChart{display:block;max-width:100%}
@@ -149,6 +162,35 @@
   </div>
 
   <div class="card">
+    <h2>임계값 도달 확률 <span class="muted" style="font-weight:400">— 어디로 갈지가 아니라 얼마나 흔들릴지</span></h2>
+    <p class="muted" style="margin-bottom:12px">
+      “앞으로 며칠 안에 <b>한 번이라도</b> 그 가격에 닿을 확률”입니다. 도중에 스쳤다가 되돌아와도 도달로 셉니다.
+      방향을 예측하지 않으므로 <b>위아래가 대칭</b>입니다.
+    </p>
+    <p class="scroll-hint">표를 옆으로 밀면 전체 구간이 보입니다 →</p>
+    <div class="tscroll"><table id="probTable"></table></div>
+    <div class="verdict"><div class="vt">🧭 읽는 법</div><div id="probNote">-</div></div>
+  </div>
+
+  <div class="card" id="contextCard">
+    <h2>맥락 <span class="muted" style="font-weight:400">— 판단 재료 (예측 아님)</span></h2>
+    <div class="grid2">
+      <div>
+        <div class="sub-h">수급 · 외국인과 기관이 사고 있나</div>
+        <div id="flowBox" class="muted">불러오는 중…</div>
+      </div>
+      <div>
+        <div class="sub-h">시장 동조 · 혼자 움직이나 같이 움직이나</div>
+        <div id="marketBox" class="muted">불러오는 중…</div>
+      </div>
+    </div>
+    <div class="sub-h" style="margin-top:18px">현재 국면 · 과거에 이런 상태에서는</div>
+    <div id="regimeBox" class="muted">-</div>
+    <div class="sub-h" style="margin-top:18px">실적 발표 · 미리 알 수 있는 유일한 일정</div>
+    <div id="earnBox" class="muted">-</div>
+  </div>
+
+  <div class="card">
     <h2>예측 성적표: 과거 예측 vs 실제</h2>
     <p class="muted" style="margin-bottom:12px">매일 그날의 예상 범위가 자동 저장되고, 대상일이 지나면 실제 주가와 비교됩니다. 위에서 고른 <b>예측 기간 이내</b>의 기록이 모두 집계됩니다(1주 선택 시 1~5거래일 뒤 예측 전부).</p>
 
@@ -164,6 +206,17 @@
       현재 방식은 방향을 예측하지 않으므로 중심값이 기준선과 같습니다(설계상 1.000).
       <b>검증 건수가 적을 때는 우연의 영향이 큽니다</b> — 수십 건 이상 쌓인 뒤에 보세요.
     </p>
+
+    <div class="sub-h" style="margin-top:20px">임계값 확률 예보 성적</div>
+    <p class="muted" style="margin-bottom:10px;font-size:.82rem">
+      기록에 남은 그날의 변동성으로 예보를 그대로 재현해 실제와 대조합니다. <b>평균 예보 확률과 실제 발생률이 가까울수록 정확한 예보</b>입니다.
+    </p>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>예보</th><th class="num">채점 건수</th><th class="num">평균 예보 확률</th><th class="num">실제 발생률</th><th class="num">차이</th></tr></thead>
+        <tbody id="probScoreBody"><tr><td colspan="5" class="muted">결과가 확정된 예보가 쌓이면 표시됩니다.</td></tr></tbody>
+      </table>
+    </div>
 
     <p class="scroll-hint">표를 옆으로 밀면 적중 여부·오차가 보입니다 →</p>
     <div class="tscroll">
@@ -378,7 +431,28 @@ function nextBusinessDays(fromDate, n){
  * 모델을 수정할 때는 scripts/update_daily.js의 makeForecast도 반드시 동일하게 고칠 것.
  */
 const FC_DAYS = 20;   // 최대 1개월치를 만들어 두고 화면에서 5/10/20일로 잘라 쓴다
-const FC_Z80  = 1.2816;
+// 80% 구간 계수. 정규분포값 1.2816에 1.05를 곱해 보정했다.
+// 실제 수익률은 꼬리가 두꺼워 정규 가정만으로는 구간이 좁다 —
+// 10년 검증에서 적중률이 1주 79.0%, 2주 78.6%, 1개월 77.8%로 목표(80%)에 미달했고,
+// 1.05 보정 후 80.5% / 80.3% / 80.2%로 맞았다. 폭은 5% 넓어진다.
+const FC_Z80  = 1.2816 * 1.05;
+
+/* 임계값 도달 확률 — "앞으로 h거래일 안에 한 번이라도 ±pct%에 닿을 확률".
+ * 드리프트 0인 브라운 운동의 한쪽 배리어 도달 확률(반사원리): P = 2·Φ(-b/(σ√h)).
+ * 방향을 가정하지 않으므로 위아래가 대칭이다.
+ * 검증: 상승 임계값 BSS +0.039~+0.178 (전부 양수 = 과거 평균 빈도보다 정확).
+ *       하락 임계값은 과대 예보 경향이 있는데, 지난 10년 주가가 8.5배 오른 표본이라
+ *       그렇다. 이를 보정하면 과거 상승장을 미래에 복사하는 것이므로 보정하지 않는다. */
+function normCdf(x){
+  const t = 1/(1+0.2316419*Math.abs(x)), d = 0.3989423*Math.exp(-x*x/2);
+  const p = d*t*(0.3193815 + t*(-0.3565638 + t*(1.781478 + t*(-1.821256 + t*1.330274))));
+  return x > 0 ? 1-p : p;
+}
+function touchProb(vol, h, pct){
+  if(!vol || !h) return null;
+  const b = Math.abs(Math.log(1 + pct/100));
+  return Math.min(1, 2*normCdf(-b/(vol*Math.sqrt(h))));
+}
 
 // 20·60·250일 변동성 혼합 — 폭은 현행과 같으면서 구간 적중률이 더 높다 (백테스트: 1개월 75.8%→77.8%)
 function blendedVol(rets){
@@ -401,6 +475,7 @@ function makeForecast(data){
     // v는 중심값. 방향을 예측하지 않으므로 오늘 종가 그대로 유지된다.
     return { d:ds, v:last, lo:Math.round(last*Math.exp(-band)), hi:Math.round(last*Math.exp(band)) };
   });
+  // vol을 함께 기록해야 나중에 임계값 확률 예보를 그대로 재현해 채점할 수 있다
   return { pts, vol, base:last, m:2 };
 }
 
@@ -409,7 +484,7 @@ function loadStore(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{
 function saveStore(s){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){} }
 
 /* ============ 5. 렌더링 ============ */
-let chart=null, DATA=null, FC=null, STORE=null;
+let chart=null, DATA=null, FC=null, STORE=null, FLOW=null, MARKET=null;
 let H=5, RANGE='3M';                                   // H = 선택된 예측 기간(거래일)
 const HORIZON_NAME={5:'1주',10:'2주',20:'1개월'};
 
@@ -528,6 +603,60 @@ function renderSummary(data, tech, fc){
     +'애널리스트 컨센서스는 강한 매수(목표 '+fmt(REPORT_DATA.consensus.target)+'원)이나, 이는 예측이 아닌 참고 정보입니다.';
 }
 
+/* 임계값 확률 표. 기간·임계값은 고정 — 검증한 조합만 보여준다. */
+const PROB_H = [['1주',5],['1개월',20],['3개월',60]];
+const PROB_T = [-20,-10,-5,5,10,20];
+
+function renderProb(fc){
+  const el=document.getElementById('probTable');
+  if(!fc.vol){ el.innerHTML='<tbody><tr><td class="muted">이 날짜의 기록에는 변동성이 없어 확률을 계산할 수 없습니다.</td></tr></tbody>'; return; }
+  const head='<thead><tr><th>기간</th>'+PROB_T.map(t=>
+    '<th>'+(t>0?'+':'')+t+'%<small>'+fmt(fc.base*(1+t/100))+'원</small></th>').join('')+'</tr></thead>';
+  const body='<tbody>'+PROB_H.map(([nm,h])=>'<tr><td>'+nm+'</td>'+PROB_T.map(t=>{
+    const p=touchProb(fc.vol,h,t)*100;
+    return '<td class="pcell '+(t<0?'pdn':'pup')+'">'+p.toFixed(0)+'%</td>';
+  }).join('')+'</tr>').join('')+'</tbody>';
+  el.innerHTML=head+body;
+
+  const p20dn=touchProb(fc.vol,20,-10)*100, p20up=touchProb(fc.vol,20,10)*100;
+  const annual=fc.vol*Math.sqrt(252)*100;
+  document.getElementById('probNote').innerHTML =
+    '지금 변동성은 <b>연환산 '+annual.toFixed(0)+'%</b>입니다(10년 평균 34%). 이 상태라면 앞으로 한 달 안에 '
+    +'<b>'+fmt(fc.base*0.9)+'원(-10%)에 닿을 확률이 '+p20dn.toFixed(0)+'%</b>, '
+    +'<b>'+fmt(fc.base*1.1)+'원(+10%)에 닿을 확률이 '+p20up.toFixed(0)+'%</b>입니다. '
+    +'이 확률은 <b>변동성만으로</b> 계산되며 방향 예측이 들어가지 않습니다. '
+    +'10년 검증에서 상승 임계값 예보는 모두 “과거 평균 빈도를 말하는 것”보다 정확했습니다(BSS +0.04~+0.18). '
+    +'다만 <b>하락 확률은 다소 높게 나오는 경향</b>이 있습니다 — 지난 10년 주가가 8.5배 오른 구간이라 그렇습니다. '
+    +'이를 낮춰 잡으면 과거 상승장을 미래에 복사하는 셈이라 그대로 둡니다.';
+}
+
+/* 임계값 확률 예보 채점 — 기록에 남은 vol로 그날 예보를 그대로 재현해 실제와 대조 */
+function scoreProb(data){
+  const byDate={}; data.forEach(p=>byDate[p.d]=p.c);
+  const seq=data.map(p=>p.d);
+  const pos={}; seq.forEach((d,i)=>pos[d]=i);
+  const acc={};   // key: h|t → {n, sumP, hit}
+  Object.keys(STORE).sort().forEach(base=>{
+    const rec=STORE[base]; if(!rec.vol || pos[base]==null) return;
+    for(const [,h] of PROB_H){
+      const start=pos[base];
+      if(start+h >= seq.length) continue;                 // 아직 결과가 안 나온 예보는 채점하지 않는다
+      for(const t of PROB_T){
+        let hit=false;
+        for(let k=start+1;k<=start+h;k++){
+          const r=(byDate[seq[k]]/rec.base-1)*100;
+          if(t>0 ? r>=t : r<=t){ hit=true; break; }
+        }
+        const key=h+'|'+t;
+        const a=acc[key]=acc[key]||{n:0,sumP:0,hit:0,bs:0};
+        const p=touchProb(rec.vol,h,t);
+        a.n++; a.sumP+=p; a.hit+=hit?1:0; a.bs+=Math.pow(p-(hit?1:0),2);
+      }
+    }
+  });
+  return acc;
+}
+
 function renderHistory(data){
   const actualByDate={}; data.forEach(p=>actualByDate[p.d]=p.c);
   const lastDate=data[data.length-1].d;
@@ -580,6 +709,97 @@ function renderScoreCard(agg){
   const html=line(2,'현재 방식 (범위)')+line(1,'이전 방식 (예측선)');
   document.getElementById('scoreBody').innerHTML = html ||
     '<tr><td colspan="7" class="muted">'+HORIZON_NAME[H]+' 기준 누적 기록이 아직 없습니다.</td></tr>';
+}
+
+function renderProbScore(acc){
+  const rows=[];
+  for(const [nm,h] of PROB_H) for(const t of PROB_T){
+    const a=acc[h+'|'+t]; if(!a || !a.n) continue;
+    const pf=a.sumP/a.n*100, ac=a.hit/a.n*100, gap=ac-pf;
+    rows.push('<tr><td>'+nm+' 내 '+(t>0?'+':'')+t+'%</td>'
+      +'<td class="num">'+a.n+'건</td>'
+      +'<td class="num">'+pf.toFixed(0)+'%</td>'
+      +'<td class="num">'+ac.toFixed(0)+'%</td>'
+      +'<td class="num '+(a.n<20?'':(Math.abs(gap)<=12?'err-pos':'err-neg'))+'">'+(gap>=0?'+':'')+gap.toFixed(0)+'%p</td></tr>');
+  }
+  document.getElementById('probScoreBody').innerHTML = rows.length ? rows.join('')
+    : '<tr><td colspan="5" class="muted">결과가 확정된 예보가 아직 없습니다. 1주 예보는 5거래일, 3개월 예보는 60거래일 뒤에 채점됩니다.</td></tr>';
+}
+
+/* ── 맥락 카드: 전부 "예측 아님". 데이터가 없으면 해당 부분만 숨긴다 ── */
+function renderContext(data){
+  const last=data[data.length-1].c, lastDate=data[data.length-1].d;
+
+  // 수급 — 액면분할 미조정 수량이므로 반드시 거래량 대비 비율로만 쓴다
+  const fb=document.getElementById('flowBox');
+  if(FLOW && FLOW.rows && FLOW.rows.length>=20){
+    const R=FLOW.rows;
+    const sum=(k,n)=>R.slice(-n).reduce((s,x)=>s+(x[k]||0),0);
+    const rat=(k,n)=>{ const v=sum('vol',n); return v ? sum(k,n)/v*100 : null; };
+    const f2=x=>(x==null?'-':(x>=0?'+':'')+x.toFixed(1)+'%');
+    const cls=x=>x==null?'':(x>=0?'err-pos':'err-neg');
+    const hold=R[R.length-1].hold;
+    const stale=R[R.length-1].d < data[data.length-3].d;
+    fb.className='';
+    fb.innerHTML=
+      '<div class="kv"><span class="k">외국인 순매수 (5일, 거래량 대비)</span><span class="v '+cls(rat('frn',5))+'">'+f2(rat('frn',5))+'</span></div>'+
+      '<div class="kv"><span class="k">외국인 순매수 (20일)</span><span class="v '+cls(rat('frn',20))+'">'+f2(rat('frn',20))+'</span></div>'+
+      '<div class="kv"><span class="k">기관 순매수 (5일)</span><span class="v '+cls(rat('org',5))+'">'+f2(rat('org',5))+'</span></div>'+
+      '<div class="kv"><span class="k">기관 순매수 (20일)</span><span class="v '+cls(rat('org',20))+'">'+f2(rat('org',20))+'</span></div>'+
+      (hold!=null?'<div class="kv"><span class="k">외국인 보유율</span><span class="v">'+hold.toFixed(2)+'%</span></div>':'')+
+      '<div class="warnline">검증 결과 <b>수급으로는 방향을 예측하지 못했습니다.</b> 기관 순매수가 유일하게 통계적으로 유의했지만 2023년 이후 그 관계가 사라졌고, 실질 사례도 15건뿐이었습니다. 참고 정보로만 보세요.'
+      +(stale?' <b>(데이터 기준일 '+R[R.length-1].d+' — 갱신이 지연되고 있습니다)</b>':'')+'</div>';
+  } else {
+    fb.className='muted'; fb.textContent='수급 데이터를 불러오지 못했습니다. (비공식 경로라 간혹 실패합니다 — 예측에는 영향 없습니다)';
+  }
+
+  // 시장 동조
+  const mb=document.getElementById('marketBox');
+  if(MARKET && (MARKET.kospi||MARKET.hynix||MARKET.sox)){
+    const nm={kospi:'코스피',hynix:'SK하이닉스',sox:'반도체지수(SOX)'};
+    let h='';
+    for(const k of ['kospi','hynix','sox']){
+      const m=MARKET[k]; if(!m||m.corr60==null) continue;
+      const lvl=m.corr60>=0.7?'매우 높음':m.corr60>=0.5?'높음':m.corr60>=0.3?'보통':'낮음';
+      h+='<div class="kv"><span class="k">'+nm[k]+' 동조도 (60일)</span><span class="v">'+m.corr60.toFixed(2)+' <span class="muted" style="font-weight:400">'+lvl+'</span></span></div>';
+    }
+    mb.className=''; mb.innerHTML=h+
+      '<div class="warnline">삼성전자가 <b>+5% 이상 오른 날의 84%</b>는 코스피도 함께 올랐고, 삼성전자만 오른 날은 12%뿐이었습니다. 큰 움직임은 대부분 시장·업종 전체에서 옵니다.</div>';
+  } else {
+    mb.className='muted'; mb.textContent='시장 지표를 불러오지 못했습니다.';
+  }
+
+  // 현재 국면
+  const closes=data.map(p=>p.c);
+  const win=closes.slice(-250), hi52=Math.max(...win), pos=(last/hi52-1)*100;
+  const near=pos>=-3;
+  document.getElementById('regimeBox').className='';
+  document.getElementById('regimeBox').innerHTML=
+    '<div class="kv"><span class="k">52주 최고가 대비</span><span class="v">'+pos.toFixed(1)+'% ('+fmt(hi52)+'원)</span></div>'+
+    '<div class="kv"><span class="k">현재 상태</span><span class="v">'+(near?'신고가 부근 (-3% 이내)':'고점에서 물러난 상태')+'</span></div>'+
+    '<div class="kv"><span class="k">과거 같은 상태에서 한 달 내 +10% 도달</span><span class="v">'+(near?'47.7%':'19.1%')+'</span></div>'+
+    '<div class="kv"><span class="k">같은 상태에서 한 달 내 −10% 도달</span><span class="v">'+(near?'12.3%':'11.9%')+'</span></div>'+
+    '<div class="warnline"><b>이 빈도는 예측이 아니라 과거 기록입니다.</b> 10년 전체로는 신고가 부근일 때 상승 쪽으로 크게 기울었지만, '
+    +'<b>2022~2025년에는 이 관계가 정반대였습니다</b>(신고가 부근에서 +10% 3.9%, −10% 14.6%). '
+    +'상승장에서만 통하는 규칙이고, 지금이 어느 쪽인지는 지나봐야 압니다. 실질 사례도 13개 국면뿐입니다.</div>';
+
+  // 실적 발표 — 잠정실적은 분기 종료 직후(1·4·7·10월 초순)에 나온다
+  const dt=new Date(lastDate+'T00:00:00Z');
+  const y=dt.getUTCFullYear(), m=dt.getUTCMonth()+1, day=dt.getUTCDate();
+  const marks=[[1,7],[4,7],[7,7],[10,7]];
+  let ny=y, nm2=null;
+  for(const [mo] of marks){ if(mo>m || (mo===m && day<=12)){ nm2=mo; break; } }
+  if(nm2==null){ nm2=1; ny=y+1; }
+  const target=Date.UTC(ny,nm2-1,7);
+  const dleft=Math.round((target-Date.UTC(y,m-1,day))/86400000);
+  const inWindow=[1,4,7,10].includes(m) && day<=12;
+  document.getElementById('earnBox').className='';
+  document.getElementById('earnBox').innerHTML=
+    '<div class="kv"><span class="k">다음 잠정실적 발표 예상 시기</span><span class="v">'+ny+'년 '+nm2+'월 초순 (약 D-'+dleft+')</span></div>'+
+    '<div class="kv"><span class="k">현재</span><span class="v">'+(inWindow?'발표 구간 안':'발표 구간 밖')+'</span></div>'+
+    '<div class="warnline">실적 발표 주간(1·4·7·10월 초순)의 하루 변동은 평소의 <b>1.11배</b>였고, 이 앱의 변동성 모델은 그 구간을 약 <b>7% 낮게</b> 잡습니다. '
+    +'실제로 10년간 가장 큰 상승(2026-07-31 +26.8%)도 실적 발표가 계기였습니다. '
+    +'<b>정확한 발표일은 회사 공시로 확인하세요</b> — 위 날짜는 과거 패턴에 따른 추정입니다.</div>';
 }
 
 function buildChart(range){
@@ -656,17 +876,31 @@ function buildChart(range){
   // 오늘(최신 거래일) 기준 예측이 없으면 생성·저장
   if(!STORE[lastDate]){
     const fc=makeForecast(data);
-    STORE[lastDate]={ madeOn:new Date().toISOString().slice(0,10), base:fc.base, m:2, pts:fc.pts };
+    // vol을 함께 저장해야 임계값 확률 예보를 나중에 재현·채점할 수 있다 (update_daily.js와 동일 형식)
+    STORE[lastDate]={ madeOn:new Date().toISOString().slice(0,10), base:fc.base, m:2, vol:+fc.vol.toFixed(6), pts:fc.pts };
     saveStore(STORE);
   }
   const rec=STORE[lastDate];
   // 이전 방식으로 기록된 날이면 기록은 그대로 두고(예측-실제 비교의 공정성) 화면에는 현재 방식으로 표시한다.
   FC = (rec.m||1) >= 2 ? rec : makeForecast(data);
+  // 맥락 정보 (예측에는 쓰이지 않음 — 실패해도 앱은 정상 동작)
+  try{
+    const r = await fetchWithTimeout('./data/flow.json?t='+Date.now(), 6000);
+    if(r.ok) FLOW = await r.json();
+  }catch(e){}
+  try{
+    const r = await fetchWithTimeout('./data/market.json?t='+Date.now(), 6000);
+    if(r.ok) MARKET = await r.json();
+  }catch(e){}
+
   renderStats(data, live, src);
   const tech=renderTech(data);
   renderReport(data);
   renderSummary(data, tech, FC);
+  renderProb(FC);
   renderHistory(data);
+  renderProbScore(scoreProb(data));
+  try{ renderContext(data); }catch(e){ console.warn('맥락 카드 렌더 실패:', e); }
   buildChart(RANGE);
   document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('on'));
