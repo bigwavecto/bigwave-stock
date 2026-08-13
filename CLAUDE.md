@@ -87,10 +87,16 @@ index.html에 내장된 REPORT_DATA는 오프라인 폴백용이므로 가끔(�
 ## 배포 정보 (2026-08-13 완료)
 
 - 저장소: `bigwavecto/bigwave-stock` (공개)
-- 주소: https://bigwavecto.github.io/bigwave-stock/
-- Pages: `main` 브랜치 `/ (root)`
-
-- 자동 갱신: 평일 16:40 KST (`.github/workflows/daily.yml`)
+- **주소: https://stock.bigwave.im** (Vercel, 2026-08-13 이전)
+  - Vercel 프로젝트 `bigwave-stock` (팀: bigwave's projects, Hobby). 임시 주소 `bigwave-stock.vercel.app`도 살아 있다.
+  - DNS는 **후이즈에 그대로** 두고 서브도메인만 CNAME으로 연결했다.
+    `stock` → `5e172cd43718b792.vercel-dns-017.com`
+  - **네임서버를 Vercel(ns1/ns2.vercel-dns.com)로 옮기면 안 된다.** `bigwave.im`과 `www`가
+    118.67.131.217에서 별도 서비스 중이라 같이 죽는다. Vercel 화면의 "Vercel DNS" 탭이 그것이니 누르지 말 것.
+  - **Vercel Hobby는 비상업용 전용.** 빅웨이브가 수익을 내기 시작하면 Pro(월 $20)로 올려야 한다.
+  - 저장소를 비공개로 바꿔도 Vercel 서비스는 유지된다(그 경우 GitHub Pages만 죽는다).
+- 구 주소: `bigwavecto.github.io/bigwave-stock/` — Pages도 아직 살아 있다. 저장소를 비공개로 바꾸면 죽는다.
+- 자동 갱신: 평일 16:40 KST (`.github/workflows/daily.yml`). 데이터 커밋마다 Vercel이 자동 재배포한다.
 
 ### 작업 시작 전 반드시 확인할 것
 
