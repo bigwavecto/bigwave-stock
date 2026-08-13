@@ -130,118 +130,118 @@
   <div class="stale-warn" id="staleWarn"></div>
 
   <div class="price-row">
-    <div class="stat"><div class="k">현재가 (종가)</div><div class="v" id="curPrice">-</div></div>
-    <div class="stat"><div class="k">전일 대비</div><div class="v" id="chg">-</div></div>
-    <div class="stat"><div class="k">52주 최고</div><div class="v" id="hi52">-</div></div>
-    <div class="stat"><div class="k">52주 최저</div><div class="v" id="lo52">-</div></div>
-    <div class="stat"><div class="k">1년 수익률</div><div class="v" id="yret">-</div></div>
+    <div class="stat"><div class="k">지금 가격</div><div class="v" id="curPrice">-</div></div>
+    <div class="stat"><div class="k">어제보다</div><div class="v" id="chg">-</div></div>
+    <div class="stat"><div class="k">1년 중 가장 비쌌을 때</div><div class="v" id="hi52">-</div></div>
+    <div class="stat"><div class="k">1년 중 가장 쌌을 때</div><div class="v" id="lo52">-</div></div>
+    <div class="stat"><div class="k">1년 전보다</div><div class="v" id="yret">-</div></div>
   </div>
 
   <div class="summary-banner">
-    <div class="score-circle" id="scoreCircle"><span class="n" id="scoreN">-</span><span class="t">종합 신호</span></div>
-    <div class="summary-txt" id="summaryTxt">데이터 분석 중…</div>
+    <div class="score-circle" id="scoreCircle"><span class="n" id="scoreN">-</span><span class="t">지금 분위기</span></div>
+    <div class="summary-txt" id="summaryTxt">데이터를 보는 중이에요…</div>
   </div>
 
   <div class="card">
-    <h2>주가 차트 &amp; 예상 변동 범위</h2>
+    <h2>주가 흐름과 앞으로 예상 범위</h2>
     <div class="chart-tools">
-      <span class="tools-label">차트 기간</span>
+      <span class="tools-label">지난 기간</span>
       <button class="rbtn" data-r="1M">1개월</button>
       <button class="rbtn on" data-r="3M">3개월</button>
       <button class="rbtn" data-r="6M">6개월</button>
       <button class="rbtn" data-r="1Y">1년</button>
     </div>
     <div class="chart-tools">
-      <span class="tools-label">예측 기간</span>
+      <span class="tools-label">앞으로</span>
       <button class="hbtn on" data-h="5">1주</button>
       <button class="hbtn" data-h="10">2주</button>
       <button class="hbtn" data-h="20">1개월</button>
-      <span class="legend-note">── 실제 종가 &nbsp; ┅ 오늘 가격 기준선 &nbsp; ▨ 80% 예상 변동 범위</span>
+      <span class="legend-note">── 실제 주가 &nbsp; ┅ 오늘 가격 &nbsp; ▨ 10번 중 8번은 이 안</span>
     </div>
     <div id="chartBox"><canvas id="mainChart"></canvas></div>
   </div>
 
   <div class="card">
-    <h2>임계값 도달 확률 <span class="muted" style="font-weight:400">— 어디로 갈지가 아니라 얼마나 흔들릴지</span></h2>
+    <h2>이 가격에 닿을 가능성 <span class="muted" style="font-weight:400">오를지 내릴지가 아니라, 얼마나 흔들릴지예요</span></h2>
     <p class="muted" style="margin-bottom:12px">
-      “앞으로 며칠 안에 <b>한 번이라도</b> 그 가격에 닿을 확률”입니다. 도중에 스쳤다가 되돌아와도 도달로 셉니다.
-      방향을 예측하지 않으므로 <b>위아래가 대칭</b>입니다.
+      정해진 기간 안에 <b>한 번이라도</b> 그 가격을 찍을 가능성이에요. 찍었다가 다시 돌아와도 “닿았다”로 셉니다.
+      오를지 내릴지는 맞히지 않기 때문에 <b>위아래 숫자가 비슷하게</b> 나와요.
     </p>
-    <p class="scroll-hint">표를 옆으로 밀면 전체 구간이 보입니다 →</p>
+    <p class="scroll-hint">표를 옆으로 밀면 나머지도 보여요 →</p>
     <div class="tscroll"><table id="probTable"></table></div>
-    <div class="verdict"><div class="vt">🧭 읽는 법</div><div id="probNote">-</div></div>
+    <div class="verdict"><div class="vt">🧭 이렇게 보세요</div><div id="probNote">-</div></div>
   </div>
 
   <div class="card" id="contextCard">
-    <h2>맥락 <span class="muted" style="font-weight:400">— 판단 재료 (예측 아님)</span></h2>
+    <h2>참고 정보 <span class="muted" style="font-weight:400">예측이 아니라, 지금 상황이에요</span></h2>
     <div class="grid2">
       <div>
-        <div class="sub-h">수급 · 외국인과 기관이 사고 있나</div>
+        <div class="sub-h">외국인·기관이 사고 있나요</div>
         <div id="flowBox" class="muted">불러오는 중…</div>
       </div>
       <div>
-        <div class="sub-h">시장 동조 · 혼자 움직이나 같이 움직이나</div>
+        <div class="sub-h">혼자 움직이나요, 같이 움직이나요</div>
         <div id="marketBox" class="muted">불러오는 중…</div>
       </div>
     </div>
-    <div class="sub-h" style="margin-top:18px">현재 국면 · 과거에 이런 상태에서는</div>
+    <div class="sub-h" style="margin-top:18px">지금은 어디쯤인가요</div>
     <div id="regimeBox" class="muted">-</div>
-    <div class="sub-h" style="margin-top:18px">실적 발표 · 미리 알 수 있는 유일한 일정</div>
+    <div class="sub-h" style="margin-top:18px">다음 실적 발표는 언제인가요</div>
     <div id="earnBox" class="muted">-</div>
   </div>
 
   <div class="card">
-    <h2>예측 성적표: 과거 예측 vs 실제</h2>
-    <p class="muted" style="margin-bottom:12px">매일 그날의 예상 범위가 자동 저장되고, 대상일이 지나면 실제 주가와 비교됩니다. 위에서 고른 <b>예측 기간 이내</b>의 기록이 모두 집계됩니다(1주 선택 시 1~5거래일 뒤 예측 전부).</p>
+    <h2>성적표 <span class="muted" style="font-weight:400">이 앱이 실제로 얼마나 맞혔을까요</span></h2>
+    <p class="muted" style="margin-bottom:12px">매일 그날의 예상을 저장해 두고, 날짜가 지나면 실제 주가와 비교해요. 한 번 저장한 예상은 나중에 고치지 않아요. 위에서 고른 <b>기간 안에 들어가는 예상</b>이 모두 집계돼요.</p>
 
     <div class="scorecard tscroll">
       <table>
-        <thead><tr><th>방식</th><th class="num">검증 건수</th><th class="num">구간 적중률</th><th class="num">평균 범위 폭</th><th class="num">중심값 오차</th><th class="num">기준선 오차</th><th class="num">기준선 대비</th></tr></thead>
-        <tbody id="scoreBody"><tr><td colspan="7" class="muted">누적 기록이 쌓이면 성적이 표시됩니다.</td></tr></tbody>
+        <thead><tr><th>방식</th><th class="num">채점 횟수</th><th class="num">범위 안에 들어온 비율</th><th class="num">평균 범위</th><th class="num">가운데값 오차</th><th class="num">비교 기준 오차</th><th class="num">누가 더 정확?</th></tr></thead>
+        <tbody id="scoreBody"><tr><td colspan="7" class="muted">기록이 쌓이면 성적이 나와요.</td></tr></tbody>
       </table>
     </div>
     <p class="sc-note">
-      <b>구간 적중률</b>은 80%에 가까울수록 정직한 범위입니다. <b>기준선</b>은 “며칠 뒤에도 오늘 가격 그대로”라고만 말하는
-      랜덤워크로, 주가 예측이 쓸모 있는지 판정하는 표준 비교 대상입니다. <b>기준선 대비</b>가 1.000보다 크면 기준선보다 부정확했다는 뜻입니다.
-      현재 방식은 방향을 예측하지 않으므로 중심값이 기준선과 같습니다(설계상 1.000).
-      <b>검증 건수가 적을 때는 우연의 영향이 큽니다</b> — 수십 건 이상 쌓인 뒤에 보세요.
+      <b>범위 안에 들어온 비율</b>은 80%에 가까울수록 정직한 범위예요. 너무 높으면 범위를 쓸데없이 넓게 잡은 거고, 너무 낮으면 좁게 잡은 거예요.<br>
+      <b>비교 기준</b>은 아무 계산도 하지 않고 “며칠 뒤에도 오늘 가격 그대로”라고만 말하는 방식이에요. 주가 예측이 쓸모 있는지 가리는 시험대죠.
+      <b>누가 더 정확?</b> 이 1.000보다 크면 그 시험대보다 부정확했다는 뜻이에요. 지금 방식은 오를지 내릴지를 맞히지 않으니 가운데값이 기준과 같아서 1.000이 나와요.<br>
+      <b>채점 횟수가 적을 때는 운의 영향이 커요.</b> 수십 번 이상 쌓인 뒤에 보세요.
     </p>
 
-    <div class="sub-h" style="margin-top:20px">임계값 확률 예보 성적</div>
+    <div class="sub-h" style="margin-top:20px">“닿을 가능성” 예상은 얼마나 맞았나요</div>
     <p class="muted" style="margin-bottom:10px;font-size:.82rem">
-      기록에 남은 그날의 변동성으로 예보를 그대로 재현해 실제와 대조합니다. <b>평균 예보 확률과 실제 발생률이 가까울수록 정확한 예보</b>입니다.
+      그날 저장해 둔 값으로 예상을 그대로 다시 만들어 실제와 비교해요. <b>말한 가능성과 실제로 일어난 비율이 가까울수록</b> 정확한 예상이에요.
     </p>
     <div class="tscroll">
       <table>
-        <thead><tr><th>예보</th><th class="num">채점 건수</th><th class="num">평균 예보 확률</th><th class="num">실제 발생률</th><th class="num">차이</th></tr></thead>
-        <tbody id="probScoreBody"><tr><td colspan="5" class="muted">결과가 확정된 예보가 쌓이면 표시됩니다.</td></tr></tbody>
+        <thead><tr><th>예상</th><th class="num">채점 횟수</th><th class="num">말한 가능성</th><th class="num">실제로 일어난 비율</th><th class="num">차이</th></tr></thead>
+        <tbody id="probScoreBody"><tr><td colspan="5" class="muted">결과가 나온 예상이 쌓이면 보여드려요.</td></tr></tbody>
       </table>
     </div>
 
-    <p class="scroll-hint">표를 옆으로 밀면 적중 여부·오차가 보입니다 →</p>
+    <p class="scroll-hint">표를 옆으로 밀면 결과와 오차가 보여요 →</p>
     <div class="tscroll">
       <table id="histTable">
-        <thead><tr><th>예측 시행일</th><th>대상일</th><th class="num">경과</th><th class="num">예상 범위 (80%)</th><th class="num">폭</th><th class="num">실제 종가</th><th>적중</th><th class="num">중심값 오차</th></tr></thead>
-        <tbody id="histBody"><tr><td colspan="8" class="muted">아직 비교할 기록이 없습니다. 대상일이 지나면 예상 범위와 실제 주가가 비교됩니다.</td></tr></tbody>
+        <thead><tr><th>예상한 날</th><th>맞혀야 할 날</th><th class="num">며칠 뒤</th><th class="num">예상 범위</th><th class="num">넓이</th><th class="num">실제 주가</th><th>결과</th><th class="num">가운데값 오차</th></tr></thead>
+        <tbody id="histBody"><tr><td colspan="8" class="muted">아직 비교할 기록이 없어요. 날짜가 지나면 예상과 실제를 나란히 보여드려요.</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <div class="grid2">
     <div class="card">
-      <h2>기술적 지표 (실시간 계산)</h2>
+      <h2>차트 지표 <span class="muted" style="font-weight:400">지금 계산한 값이에요</span></h2>
       <table>
         <tbody id="techBody"></tbody>
       </table>
-      <div class="verdict"><div class="vt">🧭 종합평가 (지표 기반 자동 생성)</div><div id="techVerdict">-</div></div>
+      <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="techVerdict">-</div></div>
     </div>
 
     <div class="card">
-      <h2>전문가 목표주가 · 투자의견 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
+      <h2>증권사는 어떻게 보나요 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
       <table>
         <tbody id="expertBody"></tbody>
       </table>
-      <div class="verdict"><div class="vt">🧭 종합평가</div><div id="expertVerdict">-</div></div>
+      <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="expertVerdict">-</div></div>
       <p class="src">출처:
         <a href="https://bullstory.io/blog/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-%EC%A3%BC%EA%B0%80-%EC%A0%84%EB%A7%9D-2026-2%EB%B6%84%EA%B8%B0-%EC%98%81%EC%97%85%EC%9D%B4%EC%9D%B5-895%EC%A1%B0%EC%9B%90%EA%B3%BC-%EB%AA%A9%ED%91%9C%EC%A3%BC%EA%B0%80-493542%EC%9B%90-%EA%B7%B8-%EC%82%AC%EC%9D%B4%EC%9D%98-%EA%B0%84%EA%B7%B9" target="_blank">불스토리</a> ·
         <a href="https://www.thecommoditiesnews.com/news/articleView.html?idxno=11596" target="_blank">CNews</a> ·
@@ -252,9 +252,9 @@
   </div>
 
   <div class="card">
-    <h2>주가에 영향을 주는 핵심 요인 · 주요 동향 <span class="muted" style="font-weight:400" id="factorAsOf"></span></h2>
+    <h2>주가를 움직이는 것들 <span class="muted" style="font-weight:400" id="factorAsOf"></span></h2>
     <div class="grid2" id="factorGrid"></div>
-    <div class="verdict"><div class="vt">🧭 종합평가</div><div id="newsVerdict">-</div></div>
+    <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="newsVerdict">-</div></div>
     <p class="src">출처:
       <a href="https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026%EB%85%84-2%EB%B6%84%EA%B8%B0-%EC%8B%A4%EC%A0%81-%EB%B0%9C%ED%91%9C" target="_blank">삼성전자 뉴스룸(2분기 실적)</a> ·
       <a href="https://www.thelec.kr/news/articleView.html?idxno=60316" target="_blank">디일렉(컨퍼런스콜)</a> ·
@@ -266,34 +266,45 @@
   </div>
 
   <div class="card">
-    <h2>예측 방법 — 그리고 왜 방향을 예측하지 않는가</h2>
+    <h2>왜 “얼마가 된다”고 말하지 않나요?</h2>
     <p class="method">
-      이 앱은 <b>“며칠 뒤 얼마가 된다”고 말하지 않습니다.</b> 대신 <b>얼마나 흔들릴지의 범위</b>만 제시합니다.
-      2026년 8월 13일, 이전 방식(모멘텀 40% + 평균회귀 30% + 컨센서스 30%로 방향을 예측하던 모델)을
-      삼성전자 10년치 시세로 검증한 결과 다음이 확인되었기 때문입니다.<br><br>
+      이 앱은 <b>“일주일 뒤 30만원”</b> 같은 말을 하지 않아요. 대신 <b>얼마나 흔들릴지</b>만 알려드려요.
+      그렇게 바꾼 이유가 있어요.<br><br>
 
-      <b>① 방향 예측은 “오늘 가격 그대로”보다 부정확했습니다.</b> 2,385회 검증에서 1일·1주·1개월·3개월·6개월
-      <b>모든 기간에서</b> 졌습니다. 5거래일 평균 오차 3.34% vs 3.24%.<br>
-      <b>② 방향 적중률은 47.7%</b>로 동전 던지기(50%)보다 낮았습니다.<br>
-      <b>③ 요인을 늘려도 소용없었습니다.</b> SK하이닉스·필라델피아 반도체지수·나스닥·원달러·VIX·코스피 등
-      32개 요인을 넣어도 5거래일 예측에서 통계적으로 유의한 것은 1개(우연 기대치 1.6개), 1개월은 0개였습니다.
-      같은 요인으로 <b>같은 날</b> 등락을 설명하면 R² 70.5%인데, <b>하루 뒤</b>를 예측하면 2.3%로 떨어집니다.
-      정보는 이미 가격에 반영되어 있습니다.<br>
-      <b>④ 상승 확률(%) 예보도 실패했습니다.</b> 모델이 “75% 확률로 상승”이라고 말한 날들의 실제 상승률은
-      1주 51%, 1개월 42%였습니다.<br><br>
+      원래는 이 앱도 오를지 내릴지를 맞히려고 했어요. 그래서 <b>지난 10년치 삼성전자 주가로 2,385번 시험</b>해 봤어요.
+      매일 그날까지의 정보만 가지고 예측한 다음, 실제로 어떻게 됐는지 맞춰보는 방식으로요. 결과는 이랬어요.<br><br>
 
-      <b>반면 변동 폭은 예측할 수 있습니다.</b> 변동성은 뭉쳐서 나타나기 때문입니다 — 요즘 많이 흔들렸으면
-      당분간도 흔들립니다. 그래서 이 앱은 <b>20일·60일·250일 변동성을 혼합</b>해 80% 범위를 계산합니다.
-      같은 폭에서 구간 적중률이 더 높은 방식임을 검증했습니다(1개월 기준 75.8% → 77.8%).
-      기간이 멀수록 범위가 넓어지는 것은 불확실성이 커지기 때문이며, <b>범위가 넓다는 것 자체가 정보</b>입니다.<br><br>
+      <b>① 아무 계산도 안 하는 것보다 못했어요.</b><br>
+      “며칠 뒤에도 오늘 가격 그대로”라고만 말하는 게 오히려 더 정확했어요. 1일부터 6개월까지
+      <b>모든 기간에서</b> 졌습니다.<br><br>
 
-      예측은 하루에 한 번 생성·저장되며 같은 날 다시 열어도 바뀌지 않습니다.
-      한 번 기록된 예측은 나중에 고치지 않으므로, 위 성적표는 사후 보정 없는 실제 성적입니다.
-      1개월(20거래일)까지만 제공하는 이유는 3개월 이상에서는 범위가 ±90%까지 벌어져 화면에 담을 수 없고
-      구간 적중률도 73%로 떨어지기 때문입니다.
+      <b>② 오를지 내릴지 맞힌 비율은 47.7%였어요.</b><br>
+      동전을 던지면 50%인데, 그보다도 낮았어요.<br><br>
+
+      <b>③ 근거를 더 넣어봐도 소용없었어요.</b><br>
+      SK하이닉스, 반도체 지수, 나스닥, 환율, 코스피, 외국인·기관이 얼마나 사고팔았는지까지 <b>48가지</b>를 넣어봤지만
+      미래를 맞히는 데 도움이 되는 건 사실상 없었어요.<br>
+      재미있는 건, 같은 정보로 <b>“오늘 왜 올랐나”를 설명하는 건 아주 잘 된다</b>는 거예요(설명력 70%).
+      그런데 <b>하루만 앞서 맞히려고 하면 2%로 뚝 떨어져요.</b> 우리가 그 정보를 볼 때쯤이면
+      이미 가격에 다 반영돼 있기 때문이에요.<br><br>
+
+      <b>④ “오를 확률 75%” 같은 말도 안 맞았어요.</b><br>
+      그렇게 자신 있게 말한 날들을 모아보니 실제로 오른 건 절반 정도(1주 51%, 1개월 42%)였어요.<br><br>
+
+      <b>하지만 “얼마나 흔들릴지”는 맞힐 수 있어요.</b><br>
+      요즘 많이 흔들렸으면 당분간도 흔들리거든요. 이건 꽤 잘 들어맞아요.
+      그래서 이 앱은 최근 <b>20일·60일·250일의 흔들린 정도를 섞어서</b> 범위를 계산해요.
+      기간이 멀수록 범위가 넓어지는데, <b>범위가 넓다는 것 자체가 “지금은 알기 어렵다”는 정보</b>예요.<br><br>
+
+      예상은 하루에 한 번만 만들고, 같은 날 다시 열어도 바뀌지 않아요.
+      한 번 저장한 예상은 나중에 고치지 않으니, 위 성적표는 <b>손대지 않은 진짜 성적</b>이에요.<br>
+      1개월까지만 알려드리는 이유는, 3개월이 넘으면 범위가 ±90%까지 벌어져서
+      사실상 아무 말도 안 하는 것과 같아지기 때문이에요.
     </p>
     <div class="disclaimer">
-      ⚠️ 본 보고서는 정보 제공 목적으로 자동 생성된 자료이며, 투자 권유나 금융 자문이 아닙니다. 통계 모델의 예측은 급격한 뉴스·정책 변화를 반영하지 못하며, 특히 현재 삼성전자는 변동성이 매우 큰 구간에 있습니다. 투자 판단과 책임은 투자자 본인에게 있습니다.
+      ⚠️ 이 화면은 참고용으로 자동 만들어진 자료예요. <b>투자를 권하거나 상담해 드리는 것이 아니에요.</b>
+      갑작스러운 뉴스나 정책 변화는 계산에 들어가 있지 않고, 특히 요즘 삼성전자는 아주 크게 흔들리는 중이에요.
+      투자 결정과 그 결과는 본인에게 달려 있어요.
     </div>
   </div>
 
@@ -316,19 +327,19 @@ let REPORT_DATA = {
     { name: "한국투자증권", target: "650,000원" }
   ],
   rating: "매수 36 · 보유 1 · 매도 0",
-  ratingTag: "Strong Buy",
-  expertVerdict: "증권가는 사실상 만장일치 매수이며, 컨센서스 목표가(약 49.4만원)는 현재가의 두 배 수준입니다. 다만 목표가 범위가 37만~67만원으로 극단적으로 넓다는 것은 그만큼 밸류에이션 불확실성이 크다는 뜻이고, 상당수 목표가는 7월 급락 이전 강세장에서 산정됐습니다. 전문가 관점의 해석은 '방향은 위쪽, 속도는 미지수'입니다. 목표주가를 단기 도달 가격이 아니라 12개월 장기 방향성 지표로 읽는 것이 합리적입니다.",
+  ratingTag: "강한 매수",
+  expertVerdict: "증권사 37곳 중 36곳이 '사라'고 말하고 있어요. 평균 목표가는 약 49만원으로 지금 가격의 두 배쯤이에요. 그런데 낮게 본 곳은 37만원, 높게 본 곳은 67만원이에요. 차이가 이렇게 크다는 건 전문가들도 확신이 없다는 뜻이에요. 게다가 이 목표가들 상당수는 7월 급락 전에 매겨진 값이에요. 목표가는 '며칠 안에 갈 가격'이 아니라 '1년쯤 두고 보면 이 방향'이라는 뜻으로 읽는 게 맞아요.",
   factors: [
-    { cls:"pos", tag:"긍정", t:"역대 최대 실적 (2026년 2분기)", d:"매출 171.5조원, 영업이익 89.5조원으로 분기 사상 최대. AI 메모리 수요가 실적을 견인." },
-    { cls:"pos", tag:"긍정", t:"HBM4 고속 성장", d:"3분기 HBM4 매출이 전분기 대비 3배 이상 전망. 업계 최초 HBM4E 샘플 출하로 기술 리더십 입증." },
-    { cls:"pos", tag:"긍정", t:"메모리 슈퍼사이클 지속", d:"2026년 DRAM 수요가 공급을 2.1%p 상회. 서버→모바일→HBM 순차 가격 상승 구조로 최소 2027년까지 지속 전망. 아이폰용 DRAM 공급가 100% 인상 사례도." },
-    { cls:"pos", tag:"긍정", t:"파운드리 개선", d:"2나노 2세대 모바일 양산 시작, HBM 베이스 다이·미주 고객 수요로 매출 증가." },
-    { cls:"neg", tag:"위험", t:"7월 급락의 후유증", d:"6월 고점(362,500원) 이후 AI 거품 논란, 외국인 대량 매도, 단일종목 레버리지 ETF 청산이 겹치며 한때 -43% 급락. 변동성이 매우 큰 구간." },
-    { cls:"neg", tag:"위험", t:"중국 CXMT의 추격", d:"중국 최대 D램 업체 CXMT가 IPO로 14조원 실탄 확보, 30% 싼 D램으로 범용 시장 잠식 시도. 다만 EUV 장비 접근 불가로 첨단 공정 격차는 유지." },
-    { cls:"neg", tag:"위험", t:"AI 투자 회의론", d:"브로드컴 가이던스 하향 등으로 촉발된 AI 반도체 수요 지속성 논쟁. 뉴스 하나에 급등락하는 고감도 구간." },
-    { cls:"", tag:"중립", t:"DX(세트) 부문 부진", d:"부품(DS) 초호황과 달리 스마트폰·가전 부문은 메모리 원가 상승 부담으로 수익성 악화." }
+    { cls:"pos", tag:"좋은 소식", t:"역대 최대 실적을 냈어요", d:"2026년 2분기에 매출 171.5조원, 영업이익 89.5조원을 벌었어요. 분기 기준 역대 최대예요. AI에 쓰이는 메모리가 잘 팔린 덕분이에요." },
+    { cls:"pos", tag:"좋은 소식", t:"AI용 메모리(HBM4)가 잘 나가요", d:"3분기 HBM4 매출이 지난 분기의 3배를 넘을 거란 전망이에요. 다음 세대 제품 샘플도 업계에서 가장 먼저 내놨어요." },
+    { cls:"pos", tag:"좋은 소식", t:"메모리 값이 오르는 중이에요", d:"2026년에는 메모리를 사려는 곳이 만드는 양보다 많아요. 서버용부터 시작해 휴대폰용, AI용까지 차례로 값이 오르고 있고 2027년까지 이어질 거라고 봐요. 아이폰에 들어가는 메모리는 값이 두 배가 된 경우도 있어요." },
+    { cls:"pos", tag:"좋은 소식", t:"위탁생산 사업도 나아졌어요", d:"2나노 공정으로 휴대폰용 칩을 만들기 시작했어요. AI 메모리에 들어가는 부품과 미국 고객 주문도 늘고 있어요." },
+    { cls:"neg", tag:"걱정거리", t:"7월 급락의 후유증이 남았어요", d:"6월에 362,500원까지 올랐다가 한때 43%나 빠졌어요. AI 거품 논란, 외국인의 대량 매도, 한 종목에 몰아넣는 ETF가 한꺼번에 정리된 것이 겹쳤어요. 지금도 하루하루 크게 움직여요." },
+    { cls:"neg", tag:"걱정거리", t:"중국 CXMT가 쫓아오고 있어요", d:"중국 최대 메모리 회사 CXMT가 상장으로 14조원을 모았어요. 30% 싼 값에 팔면서 일반 메모리 시장을 노리고 있어요. 다만 최신 장비를 구하지 못해서 고급 제품 기술 차이는 아직 그대로예요." },
+    { cls:"neg", tag:"걱정거리", t:"AI 투자가 계속될지 의심이 나와요", d:"브로드컴이 전망치를 낮추면서 'AI 반도체 수요가 계속 갈까' 하는 의심이 커졌어요. 뉴스 하나에 주가가 크게 출렁이는 상태예요." },
+    { cls:"", tag:"그밖에", t:"휴대폰·가전은 부진해요", d:"반도체는 잘 나가는데 휴대폰과 가전은 메모리 값이 오른 만큼 원가 부담이 커져서 이익이 줄었어요." }
   ],
-  newsVerdict: "펀더멘털(역대급 실적·HBM4·슈퍼사이클)은 매우 강한 반면, 수급과 심리(AI 회의론·레버리지 청산·외국인 매도)는 불안정한 전형적인 '좋은 기업, 거친 주가' 국면입니다. 실적이 뒷받침되는 조정 구간은 장기 투자자에게 분할 매수 검토 영역이 될 수 있으나, 단기 매매는 급등락 위험이 큽니다. CXMT의 추격은 범용 D램 중심 이슈로, HBM 위주의 이익 구조에 미치는 영향은 아직 제한적입니다."
+  newsVerdict: "회사가 버는 돈은 아주 좋아요. 역대급 실적에 AI용 메모리도 잘 나가고, 메모리 값도 오르는 중이에요. 그런데 주가는 거칠어요. AI 회의론, 외국인 매도, ETF 정리 같은 것이 겹쳤거든요. '좋은 회사, 사나운 주가'인 셈이에요. 중국 CXMT의 추격은 일반 메모리 쪽 이야기라 삼성이 실제로 돈을 버는 AI용 메모리에 미치는 영향은 아직 크지 않아요. 다만 뉴스 하나에 하루 10% 넘게 움직이는 시기라는 점은 꼭 기억하세요."
 };
 const YAHOO_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/005930.KS?range=1y&interval=1d';
 const KR_HOLIDAYS = ['2026-08-17','2026-09-24','2026-09-25','2026-10-05','2026-10-09','2026-12-25','2026-12-31','2027-01-01','2027-02-16','2027-02-17','2027-02-18','2027-03-01'];
@@ -505,9 +516,9 @@ function renderStats(data, live, src){
   ye.textContent=(yr>=0?'+':'')+yr.toFixed(1)+'%';
   ye.className='v '+(yr>=0?'up':'down');
   const badge=document.getElementById('liveBadge');
-  badge.textContent = live?'실시간 · '+src:'오프라인 · '+src;
+  badge.textContent = live?'최신 · '+src:'저장된 데이터 · '+src;
   badge.className='badge '+(live?'live':'cache');
-  document.getElementById('asofLine').textContent='기준일: '+last.d+' 종가 · 열람 시각: '+new Date().toLocaleString('ko-KR');
+  document.getElementById('asofLine').textContent=last.d+' 장 마감 가격 기준이에요 · 지금 보고 계신 시각 '+new Date().toLocaleString('ko-KR');
 }
 
 function renderTech(data){
@@ -520,34 +531,34 @@ function renderTech(data){
   const rec=closes.slice(-60);
   const support=Math.min(...rec), resist=Math.max(...rec);
   const rows=[
-    ['20일 이동평균', fmt(s20)+'원', last>s20?['주가가 위 → 단기 상승 추세','pos']:['주가가 아래 → 단기 하락 추세','neg']],
-    ['60일 이동평균', fmt(s60)+'원', last>s60?['주가가 위 → 중기 상승 추세','pos']:['주가가 아래 → 중기 조정 국면','neg']],
-    ['120일 이동평균', fmt(s120)+'원', last>s120?['장기 상승 추세 유지','pos']:['장기 추세 이탈','neg']],
-    ['RSI (14일)', r.toFixed(1), r>70?['과매수 구간','neg']:r<30?['과매도 구간','pos']:['중립 구간','neu']],
-    ['연환산 변동성(20일)', vol20.toFixed(0)+'%', vol20>60?['변동성 매우 높음','neg']:vol20>35?['변동성 높음','neu']:['안정적','pos']],
-    ['최근 60일 지지선', fmt(support)+'원', ['최근 저점 부근 매수세 유입 가격대','neu']],
-    ['최근 60일 저항선', fmt(resist)+'원', ['돌파 시 추세 전환 신호 가격대','neu']],
+    ['최근 1개월 평균가', fmt(s20)+'원', last>s20?['지금 가격이 이보다 위 · 짧게 보면 오름세','pos']:['지금 가격이 이보다 아래 · 짧게 보면 내림세','neg']],
+    ['최근 3개월 평균가', fmt(s60)+'원', last>s60?['평균보다 위 · 중간 흐름도 오름세','pos']:['평균보다 아래 · 중간 흐름은 쉬어가는 중','neg']],
+    ['최근 6개월 평균가', fmt(s120)+'원', last>s120?['평균보다 위 · 긴 흐름도 오름세','pos']:['평균보다 아래 · 긴 흐름은 꺾인 상태','neg']],
+    ['과열·침체 지수 (RSI)', r.toFixed(1), r>70?['70 넘음 · 너무 달아올랐어요','neg']:r<30?['30 아래 · 많이 식었어요','pos']:['30~70 · 보통이에요','neu']],
+    ['얼마나 흔들리나 (1년 기준)', vol20.toFixed(0)+'%', vol20>60?['아주 심하게 흔들려요','neg']:vol20>35?['평소보다 많이 흔들려요','neu']:['잔잔한 편이에요','pos']],
+    ['최근 3개월 최저가', fmt(support)+'원', ['여기까지 내려오면 사려는 사람이 많았어요','neu']],
+    ['최근 3개월 최고가', fmt(resist)+'원', ['여기를 넘으면 분위기가 바뀌는 자리예요','neu']],
   ];
   document.getElementById('techBody').innerHTML = rows.map(([k,v,[t,c]])=>
     '<tr><td>'+k+'</td><td class="num"><b>'+v+'</b></td><td><span class="tag '+c+'">'+t+'</span></td></tr>').join('');
 
   // ── 기술적 지표 종합평가 (매번 최신 수치로 자동 생성) ──
   const trendCnt=[last>s20,last>s60,last>s120].filter(Boolean).length;
-  const trendTxt = trendCnt===3?'단기·중기·장기 추세가 모두 상승 정렬로, 기술적으로 가장 건강한 구조입니다'
-    : trendCnt===2?'추세 지표 3개 중 2개가 상승을 가리키는 회복 국면입니다'
-    : trendCnt===1?'추세 지표들이 엇갈리는 방향 탐색 구간입니다'
-    : '모든 이동평균 아래에 있는 기술적 하락 추세입니다';
-  const rsiTxt = r>70?'RSI('+r.toFixed(0)+')가 과매수권이라 단기 되돌림을 경계해야 합니다'
-    : r<30?'RSI('+r.toFixed(0)+')가 과매도권이라 기술적 반등 가능성이 있습니다'
-    : 'RSI는 '+r.toFixed(0)+'으로 중립권입니다';
-  const volTxt = vol20>60?'연환산 변동성이 '+vol20.toFixed(0)+'%로 매우 높아 하루 급등락이 일상적인 구간이므로 분할 접근이 필수적입니다'
-    : vol20>35?'변동성('+vol20.toFixed(0)+'%)은 다소 높은 편입니다'
-    : '변동성은 안정적인 수준입니다';
+  const trendTxt = trendCnt===3?'1개월·3개월·6개월 평균가를 모두 위에 두고 있어요. 흐름이 가장 좋을 때의 모습이에요'
+    : trendCnt===2?'세 평균가 중 두 개를 넘어섰어요. 회복하는 모습이에요'
+    : trendCnt===1?'평균가 위아래가 엇갈려요. 방향을 찾는 중이에요'
+    : '세 평균가를 모두 밑돌고 있어요. 흐름이 꺾인 상태예요';
+  const rsiTxt = r>70?'과열 지수가 '+r.toFixed(0)+'이라 좀 달아올랐어요. 잠깐 쉬어갈 수 있어요'
+    : r<30?'과열 지수가 '+r.toFixed(0)+'으로 많이 식었어요. 되돌아 오를 여지가 있어요'
+    : '과열 지수는 '+r.toFixed(0)+'으로 보통이에요';
+  const volTxt = vol20>60?'요즘 아주 심하게 흔들려요(1년 기준 '+vol20.toFixed(0)+'%). 하루에 크게 오르내리는 게 예삿일인 구간이에요'
+    : vol20>35?'평소보다 많이 흔들려요(1년 기준 '+vol20.toFixed(0)+'%)'
+    : '흔들림은 잔잔한 편이에요';
   const posPct=(last-support)/(resist-support)*100;
-  const posTxt='현재가는 최근 60일 가격대('+fmt(support)+'~'+fmt(resist)+'원)의 '+posPct.toFixed(0)+'% 지점에 있어 '
-    +(posPct<35?'지지선 부근입니다. 지지선이 무너지는지가 단기 관전 포인트입니다.'
-    : posPct>75?'저항선 부근입니다. 저항선 돌파 여부가 추세 전환의 관건입니다.'
-    : '박스권 중간입니다. 방향이 정해지기를 기다리는 자리입니다.');
+  const posTxt='지금 가격은 최근 3개월 가격대('+fmt(support)+'~'+fmt(resist)+'원)에서 '+posPct.toFixed(0)+'% 지점이에요. '
+    +(posPct<35?'바닥 쪽에 가까워요.'
+    : posPct>75?'천장 쪽에 가까워요.'
+    : '딱 중간쯤이에요.');
   document.getElementById('techVerdict').textContent = trendTxt+'. '+rsiTxt+'. '+volTxt+'. '+posTxt;
   return { s20,s60,s120,rsi:r,vol20 };
 }
@@ -557,15 +568,15 @@ function renderReport(data){
   const c=REPORT_DATA.consensus;
   const up=(c.target/last-1)*100;
   const rows=[
-    ['컨센서스 목표주가','<b>'+fmt(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'],
-    ['목표주가 범위', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원'],
-    ...REPORT_DATA.analysts.map(a=>[a.name,a.target]),
-    ['투자의견', REPORT_DATA.rating+' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>'],
-    ['현재가 대비 상승여력','<b class="'+(up>0?'err-pos':'err-neg')+'">'+(up>0?'+':'')+up.toFixed(1)+'%</b>']
+    ['증권사들이 보는 평균 목표가','<b>'+fmt(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'],
+    ['가장 낮게~높게 본 목표가', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원'],
+    ...REPORT_DATA.analysts.map(a=>[a.name+'이 본 목표가',a.target]),
+    ['증권사 의견', REPORT_DATA.rating+' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>'],
+    ['지금 가격보다','<b class="'+(up>0?'err-pos':'err-neg')+'">'+(up>0?'+':'')+up.toFixed(1)+'%</b>']
   ];
   document.getElementById('expertBody').innerHTML=rows.map(([k,v])=>'<tr><td>'+k+'</td><td class="num">'+v+'</td></tr>').join('');
-  document.getElementById('expertAsOf').textContent='· 조사 기준일 '+REPORT_DATA.updated;
-  document.getElementById('factorAsOf').textContent='· 조사 기준일 '+REPORT_DATA.updated;
+  document.getElementById('expertAsOf').textContent='· '+REPORT_DATA.updated+' 조사';
+  document.getElementById('factorAsOf').textContent='· '+REPORT_DATA.updated+' 조사';
   document.getElementById('expertVerdict').textContent=REPORT_DATA.expertVerdict;
   document.getElementById('newsVerdict').textContent=REPORT_DATA.newsVerdict;
   const half=Math.ceil(REPORT_DATA.factors.length/2);
@@ -576,31 +587,33 @@ function renderReport(data){
   if(days>=4){
     const w=document.getElementById('staleWarn');
     w.style.display='block';
-    w.textContent='⚠️ 전문가 의견·주요 동향 조사가 '+days+'일 지났습니다. 자동 갱신이 누락되었을 수 있으니 Claude에게 "보고서 갱신"을 요청해 주세요. (주가·차트·기술 지표·예측은 지금도 최신입니다)';
+    w.textContent='⚠️ 증권사 의견과 뉴스 정리가 '+days+'일 전 것이에요. Claude에게 "보고서 갱신"이라고 하면 새로 조사해 드려요. (주가·차트·지표·예상 범위는 지금도 최신이에요)';
   }
 }
 
 function renderSummary(data, tech, fc){
   const last=data[data.length-1].c;
   let score=0; const why=[];
-  if(last>tech.s20){score++; why.push('단기 추세 상승');} else {score--; why.push('단기 추세 하락');}
+  if(last>tech.s20){score++; why.push('짧은 흐름은 오름세');} else {score--; why.push('짧은 흐름은 내림세');}
   if(last>tech.s60){score++;} else {score--;}
-  if(tech.rsi<30){score++; why.push('과매도(반등 여지)');} else if(tech.rsi>70){score--; why.push('과매수(조정 여지)');}
+  if(tech.rsi<30){score++; why.push('많이 식어 있음');} else if(tech.rsi>70){score--; why.push('좀 달아올라 있음');}
   const up=(REPORT_DATA.consensus.target/last-1)*100;
-  if(up>30){score++; why.push('목표주가 대비 상승여력 '+up.toFixed(0)+'%');}
-  if(tech.vol20>60){score--; why.push('높은 변동성 주의');}
+  if(up>30){score++; why.push('증권사 목표가가 지금보다 '+up.toFixed(0)+'% 위');}
+  if(tech.vol20>60){score--; why.push('요즘 심하게 흔들리는 중');}
   // 예전에는 여기에 예측 방향(drift) 점수가 있었으나, 방향 예측이 검증에서 탈락해 제거했다.
-  const label = score>=3?['긍정적','var(--green)']:score>=1?['다소 긍정','var(--accent)']:score>=-1?['중립','var(--gold)']:['신중','var(--up)'];
+  const label = score>=3?['좋음','var(--green)']:score>=1?['조금 좋음','var(--accent)']:score>=-1?['보통','var(--gold)']:['조심','var(--up)'];
   const sc=document.getElementById('scoreCircle');
   sc.style.borderColor=label[1];
   document.getElementById('scoreN').textContent=label[0];
   const pt=fc.pts[H-1], nm=HORIZON_NAME[H];
   const w=(Math.sqrt(pt.hi/pt.lo)-1)*100;
   document.getElementById('summaryTxt').innerHTML =
-    '<b>'+nm+' 뒤 예상 변동 범위는 '+fmt(pt.lo)+'~'+fmt(pt.hi)+'원</b>입니다 (현재가 '+fmt(fc.base)+'원 기준 ±'+w.toFixed(0)+'%, 80% 확률). '
-    +'이 앱은 <b>오르내릴 방향을 예측하지 않습니다</b> — 10년 검증에서 방향 예측이 "오늘 가격 그대로"라고 말하는 것보다 부정확했기 때문입니다. '
-    +'대신 얼마나 흔들릴지의 범위만 제시합니다. 현재 지표 요약: '+why.join(', ')+'. '
-    +'애널리스트 컨센서스는 강한 매수(목표 '+fmt(REPORT_DATA.consensus.target)+'원)이나, 이는 예측이 아닌 참고 정보입니다.';
+    '<b>'+nm+' 뒤 가격은 '+fmt(pt.lo)+'~'+fmt(pt.hi)+'원</b> 사이일 가능성이 높아요. '
+    +'지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도고, <b>10번 중 8번</b>은 이 안에 들어와요.<br>'
+    +'이 앱은 <b>오를지 내릴지는 맞히지 않아요.</b> 지난 10년으로 확인해 보니 그런 예측이 '
+    +'“오늘 가격 그대로”라고 말하는 것보다도 안 맞았거든요. 대신 얼마나 흔들릴지만 알려드려요.<br>'
+    +'지금 상황을 요약하면 — '+why.join(', ')+'. '
+    +'증권사들은 목표가를 '+fmt(REPORT_DATA.consensus.target)+'원으로 보고 있는데, 이건 예측이 아니라 참고용이에요.';
 }
 
 /* 임계값 확률 표. 기간·임계값은 고정 — 검증한 조합만 보여준다. */
@@ -609,7 +622,7 @@ const PROB_T = [-20,-10,-5,5,10,20];
 
 function renderProb(fc){
   const el=document.getElementById('probTable');
-  if(!fc.vol){ el.innerHTML='<tbody><tr><td class="muted">이 날짜의 기록에는 변동성이 없어 확률을 계산할 수 없습니다.</td></tr></tbody>'; return; }
+  if(!fc.vol){ el.innerHTML='<tbody><tr><td class="muted">이날 기록에 필요한 값이 없어 계산하지 못했어요.</td></tr></tbody>'; return; }
   const head='<thead><tr><th>기간</th>'+PROB_T.map(t=>
     '<th>'+(t>0?'+':'')+t+'%<small>'+fmt(fc.base*(1+t/100))+'원</small></th>').join('')+'</tr></thead>';
   const body='<tbody>'+PROB_H.map(([nm,h])=>'<tr><td>'+nm+'</td>'+PROB_T.map(t=>{
@@ -621,13 +634,14 @@ function renderProb(fc){
   const p20dn=touchProb(fc.vol,20,-10)*100, p20up=touchProb(fc.vol,20,10)*100;
   const annual=fc.vol*Math.sqrt(252)*100;
   document.getElementById('probNote').innerHTML =
-    '지금 변동성은 <b>연환산 '+annual.toFixed(0)+'%</b>입니다(10년 평균 34%). 이 상태라면 앞으로 한 달 안에 '
-    +'<b>'+fmt(fc.base*0.9)+'원(-10%)에 닿을 확률이 '+p20dn.toFixed(0)+'%</b>, '
-    +'<b>'+fmt(fc.base*1.1)+'원(+10%)에 닿을 확률이 '+p20up.toFixed(0)+'%</b>입니다. '
-    +'이 확률은 <b>변동성만으로</b> 계산되며 방향 예측이 들어가지 않습니다. '
-    +'10년 검증에서 상승 임계값 예보는 모두 “과거 평균 빈도를 말하는 것”보다 정확했습니다(BSS +0.04~+0.18). '
-    +'다만 <b>하락 확률은 다소 높게 나오는 경향</b>이 있습니다 — 지난 10년 주가가 8.5배 오른 구간이라 그렇습니다. '
-    +'이를 낮춰 잡으면 과거 상승장을 미래에 복사하는 셈이라 그대로 둡니다.';
+    '요즘 삼성전자는 <b>1년 기준 '+annual.toFixed(0)+'%</b>만큼 흔들리고 있어요. 지난 10년 평균이 34%니까 지금은 꽤 심한 편이에요.<br>'
+    +'이대로라면 <b>한 달 안에 '+fmt(fc.base*0.9)+'원까지 내려갈 가능성이 '+p20dn.toFixed(0)+'%</b>, '
+    +'<b>'+fmt(fc.base*1.1)+'원까지 올라갈 가능성이 '+p20up.toFixed(0)+'%</b>예요.<br>'
+    +'이 숫자는 <b>흔들리는 정도만 보고</b> 계산해요. 오를지 내릴지는 넣지 않았어요. '
+    +'지난 10년으로 검증했을 때 이 방식은 실제로 잘 맞았어요.<br>'
+    +'한 가지만 기억해 주세요 — <b>내려갈 가능성이 조금 높게 나오는 편</b>이에요. '
+    +'지난 10년 동안 주가가 8.5배나 올랐기 때문인데, 그렇다고 숫자를 낮춰 잡으면 '
+    +'<b>“앞으로도 계속 오를 것”이라고 미리 정해버리는 셈</b>이라 일부러 그대로 뒀어요.';
 }
 
 /* 임계값 확률 예보 채점 — 기록에 남은 vol로 그날 예보를 그대로 재현해 실제와 대조 */
@@ -678,15 +692,15 @@ function renderHistory(data){
         +'<td class="num">'+fmt(pt.lo)+'~'+fmt(pt.hi)+'</td>'
         +'<td class="num">±'+width.toFixed(1)+'%</td>'
         +'<td class="num">'+fmt(act)+'</td>'
-        +'<td>'+(hit?'<span class="tag pos">적중</span>':'<span class="tag neg">이탈</span>')+'</td>'
+        +'<td>'+(hit?'<span class="tag pos">범위 안</span>':'<span class="tag neg">벗어남</span>')+'</td>'
         +'<td class="num '+(Math.abs(err)<2?'err-pos':'err-neg')+'">'+(err>=0?'+':'')+err.toFixed(2)+'%</td></tr>');
     });
   });
   rows.reverse();
   const MAXROWS=60, shown=rows.slice(0,MAXROWS);
-  if(rows.length>MAXROWS) shown.push('<tr><td colspan="8" class="muted">최근 '+MAXROWS+'건만 표시 (누적 '+rows.length+'건, 위 성적표는 전체 기준)</td></tr>');
+  if(rows.length>MAXROWS) shown.push('<tr><td colspan="8" class="muted">최근 '+MAXROWS+'건만 보여드려요 (전체 '+rows.length+'건이고, 위 성적표는 전부 반영돼 있어요)</td></tr>');
   document.getElementById('histBody').innerHTML = shown.length ? shown.join('')
-    : '<tr><td colspan="8" class="muted">아직 비교할 기록이 없습니다. 대상일이 지나면 예상 범위와 실제 주가가 비교됩니다.</td></tr>';
+    : '<tr><td colspan="8" class="muted">아직 비교할 기록이 없어요. 날짜가 지나면 예상과 실제를 나란히 보여드려요.</td></tr>';
   renderScoreCard(agg);
 }
 
@@ -706,9 +720,9 @@ function renderScoreCard(agg){
       +'<td class="num">'+maeRw.toFixed(2)+'%</td>'
       +'<td class="num '+(ratio<=1.001?'err-pos':'err-neg')+'">'+ratio.toFixed(3)+'</td></tr>';
   };
-  const html=line(2,'현재 방식 (범위)')+line(1,'이전 방식 (예측선)');
+  const html=line(2,'지금 방식 (범위로 알려주기)')+line(1,'예전 방식 (가격 하나 찍기)');
   document.getElementById('scoreBody').innerHTML = html ||
-    '<tr><td colspan="7" class="muted">'+HORIZON_NAME[H]+' 기준 누적 기록이 아직 없습니다.</td></tr>';
+    '<tr><td colspan="7" class="muted">'+HORIZON_NAME[H]+' 기준으로 채점할 기록이 아직 없어요.</td></tr>';
 }
 
 function renderProbScore(acc){
@@ -716,14 +730,14 @@ function renderProbScore(acc){
   for(const [nm,h] of PROB_H) for(const t of PROB_T){
     const a=acc[h+'|'+t]; if(!a || !a.n) continue;
     const pf=a.sumP/a.n*100, ac=a.hit/a.n*100, gap=ac-pf;
-    rows.push('<tr><td>'+nm+' 내 '+(t>0?'+':'')+t+'%</td>'
+    rows.push('<tr><td>'+nm+' 안에 '+(t>0?'+':'')+t+'% 닿기</td>'
       +'<td class="num">'+a.n+'건</td>'
       +'<td class="num">'+pf.toFixed(0)+'%</td>'
       +'<td class="num">'+ac.toFixed(0)+'%</td>'
       +'<td class="num '+(a.n<20?'':(Math.abs(gap)<=12?'err-pos':'err-neg'))+'">'+(gap>=0?'+':'')+gap.toFixed(0)+'%p</td></tr>');
   }
   document.getElementById('probScoreBody').innerHTML = rows.length ? rows.join('')
-    : '<tr><td colspan="5" class="muted">결과가 확정된 예보가 아직 없습니다. 1주 예보는 5거래일, 3개월 예보는 60거래일 뒤에 채점됩니다.</td></tr>';
+    : '<tr><td colspan="5" class="muted">아직 결과가 나온 예상이 없어요. 1주짜리는 5일 뒤, 3개월짜리는 60일 뒤에 채점돼요.</td></tr>';
 }
 
 /* ── 맥락 카드: 전부 "예측 아님". 데이터가 없으면 해당 부분만 숨긴다 ── */
@@ -742,31 +756,35 @@ function renderContext(data){
     const stale=R[R.length-1].d < data[data.length-3].d;
     fb.className='';
     fb.innerHTML=
-      '<div class="kv"><span class="k">외국인 순매수 (5일, 거래량 대비)</span><span class="v '+cls(rat('frn',5))+'">'+f2(rat('frn',5))+'</span></div>'+
-      '<div class="kv"><span class="k">외국인 순매수 (20일)</span><span class="v '+cls(rat('frn',20))+'">'+f2(rat('frn',20))+'</span></div>'+
-      '<div class="kv"><span class="k">기관 순매수 (5일)</span><span class="v '+cls(rat('org',5))+'">'+f2(rat('org',5))+'</span></div>'+
-      '<div class="kv"><span class="k">기관 순매수 (20일)</span><span class="v '+cls(rat('org',20))+'">'+f2(rat('org',20))+'</span></div>'+
-      (hold!=null?'<div class="kv"><span class="k">외국인 보유율</span><span class="v">'+hold.toFixed(2)+'%</span></div>':'')+
-      '<div class="warnline">검증 결과 <b>수급으로는 방향을 예측하지 못했습니다.</b> 기관 순매수가 유일하게 통계적으로 유의했지만 2023년 이후 그 관계가 사라졌고, 실질 사례도 15건뿐이었습니다. 참고 정보로만 보세요.'
-      +(stale?' <b>(데이터 기준일 '+R[R.length-1].d+' — 갱신이 지연되고 있습니다)</b>':'')+'</div>';
+      '<div class="kv"><span class="k">외국인, 최근 1주</span><span class="v '+cls(rat('frn',5))+'">'+f2(rat('frn',5))+'</span></div>'+
+      '<div class="kv"><span class="k">외국인, 최근 1개월</span><span class="v '+cls(rat('frn',20))+'">'+f2(rat('frn',20))+'</span></div>'+
+      '<div class="kv"><span class="k">기관, 최근 1주</span><span class="v '+cls(rat('org',5))+'">'+f2(rat('org',5))+'</span></div>'+
+      '<div class="kv"><span class="k">기관, 최근 1개월</span><span class="v '+cls(rat('org',20))+'">'+f2(rat('org',20))+'</span></div>'+
+      (hold!=null?'<div class="kv"><span class="k">외국인이 가진 비율</span><span class="v">'+hold.toFixed(2)+'%</span></div>':'')+
+      '<div class="warnline">＋면 산 것, －면 판 거예요. 전체 거래량과 비교한 값이에요.<br>'
+      +'다만 <b>이걸로 앞날을 맞힐 수는 없었어요.</b> 지난 10년을 확인해 보니 외국인이 사고파는 건 전혀 도움이 안 됐고, '
+      +'기관 쪽은 예전엔 조금 통했지만 2023년부터는 그것도 사라졌어요. 그냥 참고만 하세요.'
+      +(stale?' <b>(자료가 '+R[R.length-1].d+'까지예요. 갱신이 늦어지고 있어요)</b>':'')+'</div>';
   } else {
-    fb.className='muted'; fb.textContent='수급 데이터를 불러오지 못했습니다. (비공식 경로라 간혹 실패합니다 — 예측에는 영향 없습니다)';
+    fb.className='muted'; fb.textContent='이 자료를 가져오지 못했어요. 가끔 있는 일이고, 예상 범위 계산에는 영향이 없어요.';
   }
 
   // 시장 동조
   const mb=document.getElementById('marketBox');
   if(MARKET && (MARKET.kospi||MARKET.hynix||MARKET.sox)){
-    const nm={kospi:'코스피',hynix:'SK하이닉스',sox:'반도체지수(SOX)'};
+    const nm={kospi:'코스피와',hynix:'SK하이닉스와',sox:'미국 반도체 지수와'};
     let h='';
     for(const k of ['kospi','hynix','sox']){
       const m=MARKET[k]; if(!m||m.corr60==null) continue;
-      const lvl=m.corr60>=0.7?'매우 높음':m.corr60>=0.5?'높음':m.corr60>=0.3?'보통':'낮음';
-      h+='<div class="kv"><span class="k">'+nm[k]+' 동조도 (60일)</span><span class="v">'+m.corr60.toFixed(2)+' <span class="muted" style="font-weight:400">'+lvl+'</span></span></div>';
+      const lvl=m.corr60>=0.7?'거의 똑같이 움직여요':m.corr60>=0.5?'많이 닮았어요':m.corr60>=0.3?'조금 닮았어요':'따로 노는 편이에요';
+      h+='<div class="kv"><span class="k">'+nm[k]+'</span><span class="v">'+lvl+' <span class="muted" style="font-weight:400">'+m.corr60.toFixed(2)+'</span></span></div>';
     }
     mb.className=''; mb.innerHTML=h+
-      '<div class="warnline">삼성전자가 <b>+5% 이상 오른 날의 84%</b>는 코스피도 함께 올랐고, 삼성전자만 오른 날은 12%뿐이었습니다. 큰 움직임은 대부분 시장·업종 전체에서 옵니다.</div>';
+      '<div class="warnline">최근 3개월 동안 얼마나 같이 움직였는지예요. 1에 가까울수록 똑같이 움직인 거예요.<br>'
+      +'삼성전자가 <b>하루에 5% 넘게 오른 날 중 84%</b>는 코스피도 같이 올랐어요. 삼성전자만 오른 날은 12%뿐이었고요. '
+      +'<b>큰 움직임은 대부분 시장 전체에서 와요.</b> 삼성전자 뉴스만 보는 것보다 시장 분위기를 함께 보는 게 나아요.</div>';
   } else {
-    mb.className='muted'; mb.textContent='시장 지표를 불러오지 못했습니다.';
+    mb.className='muted'; mb.textContent='시장 자료를 가져오지 못했어요.';
   }
 
   // 현재 국면
@@ -775,13 +793,15 @@ function renderContext(data){
   const near=pos>=-3;
   document.getElementById('regimeBox').className='';
   document.getElementById('regimeBox').innerHTML=
-    '<div class="kv"><span class="k">52주 최고가 대비</span><span class="v">'+pos.toFixed(1)+'% ('+fmt(hi52)+'원)</span></div>'+
-    '<div class="kv"><span class="k">현재 상태</span><span class="v">'+(near?'신고가 부근 (-3% 이내)':'고점에서 물러난 상태')+'</span></div>'+
-    '<div class="kv"><span class="k">과거 같은 상태에서 한 달 내 +10% 도달</span><span class="v">'+(near?'47.7%':'19.1%')+'</span></div>'+
-    '<div class="kv"><span class="k">같은 상태에서 한 달 내 −10% 도달</span><span class="v">'+(near?'12.3%':'11.9%')+'</span></div>'+
-    '<div class="warnline"><b>이 빈도는 예측이 아니라 과거 기록입니다.</b> 10년 전체로는 신고가 부근일 때 상승 쪽으로 크게 기울었지만, '
-    +'<b>2022~2025년에는 이 관계가 정반대였습니다</b>(신고가 부근에서 +10% 3.9%, −10% 14.6%). '
-    +'상승장에서만 통하는 규칙이고, 지금이 어느 쪽인지는 지나봐야 압니다. 실질 사례도 13개 국면뿐입니다.</div>';
+    '<div class="kv"><span class="k">1년 중 가장 비쌌을 때보다</span><span class="v">'+pos.toFixed(1)+'% ('+fmt(hi52)+'원)</span></div>'+
+    '<div class="kv"><span class="k">지금 위치는</span><span class="v">'+(near?'거의 1년 최고가 근처예요':'최고가에서 내려온 상태예요')+'</span></div>'+
+    '<div class="kv"><span class="k">예전에 이런 위치였을 때, 한 달 안에 10% 오른 적</span><span class="v">'+(near?'47.7%':'19.1%')+'</span></div>'+
+    '<div class="kv"><span class="k">같은 상황에서 한 달 안에 10% 내린 적</span><span class="v">'+(near?'12.3%':'11.9%')+'</span></div>'+
+    '<div class="warnline"><b>이건 예측이 아니라 과거에 그랬다는 기록이에요.</b> 지난 10년을 통틀어 보면 '
+    +'최고가 근처일 때 오르는 쪽으로 많이 기울었어요. 그런데 <b>2022~2025년에는 완전히 반대였어요</b> '
+    +'(최고가 근처인데 오른 경우 3.9%, 내린 경우 14.6%).<br>'
+    +'결국 <b>“오르던 게 계속 오른다”는 얘기</b>인데, 흐름이 꺾이면 그대로 틀려요. '
+    +'그리고 지금이 어느 쪽인지는 지나봐야 알 수 있어요. 비슷한 상황이 13번밖에 없어서 확신하기도 어렵고요.</div>';
 
   // 실적 발표 — 잠정실적은 분기 종료 직후(1·4·7·10월 초순)에 나온다
   const dt=new Date(lastDate+'T00:00:00Z');
@@ -795,11 +815,12 @@ function renderContext(data){
   const inWindow=[1,4,7,10].includes(m) && day<=12;
   document.getElementById('earnBox').className='';
   document.getElementById('earnBox').innerHTML=
-    '<div class="kv"><span class="k">다음 잠정실적 발표 예상 시기</span><span class="v">'+ny+'년 '+nm2+'월 초순 (약 D-'+dleft+')</span></div>'+
-    '<div class="kv"><span class="k">현재</span><span class="v">'+(inWindow?'발표 구간 안':'발표 구간 밖')+'</span></div>'+
-    '<div class="warnline">실적 발표 주간(1·4·7·10월 초순)의 하루 변동은 평소의 <b>1.11배</b>였고, 이 앱의 변동성 모델은 그 구간을 약 <b>7% 낮게</b> 잡습니다. '
-    +'실제로 10년간 가장 큰 상승(2026-07-31 +26.8%)도 실적 발표가 계기였습니다. '
-    +'<b>정확한 발표일은 회사 공시로 확인하세요</b> — 위 날짜는 과거 패턴에 따른 추정입니다.</div>';
+    '<div class="kv"><span class="k">다음 실적 발표</span><span class="v">'+ny+'년 '+nm2+'월 초 · '+(dleft<=0?'이번 주':'약 '+dleft+'일 뒤')+'</span></div>'+
+    '<div class="kv"><span class="k">지금은</span><span class="v">'+(inWindow?'발표 기간이에요':'발표 기간이 아니에요')+'</span></div>'+
+    '<div class="warnline">삼성전자는 1·4·7·10월 초에 실적을 발표해요. <b>이 시기엔 평소보다 1.1배쯤 더 크게 움직여요.</b> '
+    +'위 예상 범위는 이걸 조금 좁게 잡는 편이니, 발표 주간에는 더 흔들릴 수 있다고 생각하세요.<br>'
+    +'실제로 지난 10년 중 가장 크게 오른 날(2026년 7월 31일, 하루에 +26.8%)도 실적 발표가 계기였어요.<br>'
+    +'<b>정확한 날짜는 회사 공시를 확인하세요.</b> 위 날짜는 지금까지의 패턴으로 짐작한 거예요.</div>';
 }
 
 function buildChart(range){
