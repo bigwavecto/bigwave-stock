@@ -1,0 +1,7 @@
+# Claude Code 로컬 설정 (권한 허용 목록 등 — 개인 환경 전용, 공개 저장소에 올리지 않는다)
+.claude/
+
+# OS/에디터 부산물
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -38,12 +38,24 @@ report.json과 predictions.json도 같은 방식으로 로드하며, 실패하�
 
 index.html에 내장된 REPORT_DATA는 오프라인 폴백용이므로 가끔(월 1회 정도) report.json 내용으로 동기화해주면 좋다.
 
-## 배포 절차 (최초 1회)
+## 배포 정보 (2026-08-13 완료)
 
-1. 이 폴더를 GitHub 저장소로 생성·푸시 (공개 저장소 — Pages 무료 사용 조건)
-2. 저장소 Settings → Pages → Source: `main` 브랜치 `/ (root)` 선택
-3. Actions 탭 → "일일 데이터 갱신" → "Run workflow"로 1회 수동 실행 (data/prices.json 첫 생성)
-4. `https://<계정명>.github.io/<저장소명>/` 접속 확인 — 상단 배지가 "실시간 · 저장소 자동 갱신"이면 성공
+- 저장소: `bigwavecto/bigwave-stock` (공개)
+- 주소: https://bigwavecto.github.io/bigwave-stock/
+- Pages: `main` 브랜치 `/ (root)`
+
+- 자동 갱신: 평일 16:40 KST (`.github/workflows/daily.yml`)
+
+### 작업 시작 전 반드시 확인할 것
+
+1. **`gh auth switch`를 실행하지 말 것.** 이 PC의 gh 계정 구성은 어느 계정이 활성이든 푸시·워크플로 실행이 되도록 이미 정리돼 있다. 전환하면 오히려 깨진다.
+2. **커밋 신원은 저장소 로컬 설정으로 고정돼 있다.** 새로 clone하면 다시 설정해야 한다.
+3. 위 1·2의 구체적인 계정명·설정값·배경은 **공개 저장소에 두지 않는다.** 로컬 전용 문서 `.claude/PRIVATE-NOTES.md`(gitignore됨)와 Claude 메모리에 있다. 메모리는 세션 시작 시 자동 로드되므로 별도 조치 없이 인지된다.
+4. Git Bash에서 `gh api` 호출 시 경로 앞 슬래시를 빼야 한다(`user/repository_invitations`). 붙이면 MSYS가 파일경로로 바꿔 실패한다.
+
+### 작업 이력
+
+`.claude/WORKLOG.md`에 날짜순으로 누적한다(로컬 전용, gitignore됨). **작업을 마치면 반드시 항목을 추가한다.** 다음 세션이 경위를 파악하는 1차 자료이며, 세션 시작 시 자동으로 읽힌다.
 
 ## 검증 방법
 
