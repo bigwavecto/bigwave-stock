@@ -25,6 +25,14 @@
 - `data/report.json` — 조사 데이터(전문가 의견·동향·종합평가). 수동 갱신 대상.
 - `scripts/update_daily.js` — Actions가 실행. 시세 수집 + 예측 계산·누적 + 수급·시장지표 수집. **수급/시장지표 수집은 실패해도 전체를 중단시키지 않는다**(비공식 경로라 깨질 수 있음). 앱도 해당 파일이 없으면 그 카드만 "불러오지 못했습니다"로 표시한다.
 - `.github/workflows/daily.yml` — 평일 16:40 KST 자동 실행 + 수동 실행 버튼.
+- `vercel.json` — Vercel 배포 설정. 빌드는 없고 **헤더만** 잡는다. 각 항목의 이유:
+  - `manifest.webmanifest`에 `Content-Type: application/manifest+json`을 직접 지정 —
+    Vercel 기본 MIME 목록에 `.webmanifest`가 없을 수 있고, 틀리면 **"홈 화면에 추가"가 안 된다.**
+  - `sw.js`·`index.html`·`data/`는 `max-age=0, must-revalidate` — 매일 갱신되는 내용이다.
+    특히 서비스 워커가 캐시에 갇히면 사용자가 옛 화면에서 못 벗어난다.
+  - `icons/`·`vendor/`는 1년 캐시 — 내용이 바뀌지 않는다.
+  - **JSON에 주석을 넣지 말 것.** `"//"` 같은 키를 쓰면 Vercel이 스키마 검사에서
+    `should NOT have additional property` 오류로 배포를 거부한다(실제로 겪음).
 - `manifest.webmanifest`, `sw.js`, `icons/`, `vendor/chart.umd.min.js` — PWA(홈 화면에 추가) 구성.
   - **`index.html`을 고치면 `sw.js`의 `CACHE` 버전을 올릴 것.** 안 올리면 정적 파일이 옛 캐시로 남는다.
   - HTML·데이터는 네트워크 우선이라 온라인이면 항상 최신을 본다. 아이콘·Chart.js만 캐시 우선.
