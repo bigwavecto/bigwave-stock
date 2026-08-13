@@ -31,8 +31,14 @@
   .card h2{font-size:1.05rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
   .card h2::before{content:'';width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block}
   .chart-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
-  .rbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
-  .rbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .rbtn,.hbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
+  .rbtn.on,.hbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tools-label{font-size:.75rem;color:var(--sub);font-weight:700;margin-right:2px}
+  .scorecard{margin-bottom:14px}
+  .scorecard table{font-size:.82rem}
+  .scorecard th{padding:6px 10px}
+  .scorecard td{padding:7px 10px}
+  .sc-note{color:var(--sub);font-size:.75rem;margin-top:8px;line-height:1.6}
   .legend-note{color:var(--sub);font-size:.75rem;margin-left:auto}
   #chartBox{position:relative;height:420px;width:100%;min-width:0;overflow:hidden}
   #mainChart{display:block;max-width:100%}
@@ -86,7 +92,8 @@
     .card{padding:18px 14px}
     .summary-banner{padding:16px 14px}
     /* 기간 버튼: 손가락 터치 최소 크기 44px 확보 */
-    .rbtn{min-height:44px;padding:0 16px;display:inline-flex;align-items:center;font-size:.85rem}
+    .rbtn,.hbtn{min-height:44px;padding:0 16px;display:inline-flex;align-items:center;font-size:.85rem}
+    .tools-label{width:100%;margin-bottom:-4px}
     .legend-note{margin-left:0;width:100%}
     /* 기술적 지표 표: [항목 | 값] 한 줄, 설명 태그는 아래 줄 전체 폭 */
     #techBody tr{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:3px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -123,25 +130,46 @@
   </div>
 
   <div class="card">
-    <h2>주가 차트 &amp; 향후 5거래일 예측</h2>
+    <h2>주가 차트 &amp; 예상 변동 범위</h2>
     <div class="chart-tools">
+      <span class="tools-label">차트 기간</span>
       <button class="rbtn" data-r="1M">1개월</button>
       <button class="rbtn on" data-r="3M">3개월</button>
       <button class="rbtn" data-r="6M">6개월</button>
       <button class="rbtn" data-r="1Y">1년</button>
-      <span class="legend-note">── 실제 종가 &nbsp; ┅ 오늘의 5일 예측(음영: 80% 신뢰구간) &nbsp; ┅ 과거 예측(실제와 비교)</span>
+    </div>
+    <div class="chart-tools">
+      <span class="tools-label">예측 기간</span>
+      <button class="hbtn on" data-h="5">1주</button>
+      <button class="hbtn" data-h="10">2주</button>
+      <button class="hbtn" data-h="20">1개월</button>
+      <span class="legend-note">── 실제 종가 &nbsp; ┅ 오늘 가격 기준선 &nbsp; ▨ 80% 예상 변동 범위</span>
     </div>
     <div id="chartBox"><canvas id="mainChart"></canvas></div>
   </div>
 
   <div class="card">
-    <h2>예측 기록: 과거 예측 vs 실제</h2>
-    <p class="muted" style="margin-bottom:10px">앱을 여는 날마다 그날의 5일 예측이 이 브라우저에 자동 저장됩니다. 다음 날부터는 어제까지의 예측과 실제 주가를 비교해 정확도를 확인할 수 있습니다.</p>
-    <p class="scroll-hint">표를 옆으로 밀면 오차·적중 여부가 보입니다 →</p>
+    <h2>예측 성적표: 과거 예측 vs 실제</h2>
+    <p class="muted" style="margin-bottom:12px">매일 그날의 예상 범위가 자동 저장되고, 대상일이 지나면 실제 주가와 비교됩니다. 위에서 고른 <b>예측 기간 이내</b>의 기록이 모두 집계됩니다(1주 선택 시 1~5거래일 뒤 예측 전부).</p>
+
+    <div class="scorecard tscroll">
+      <table>
+        <thead><tr><th>방식</th><th class="num">검증 건수</th><th class="num">구간 적중률</th><th class="num">평균 범위 폭</th><th class="num">중심값 오차</th><th class="num">기준선 오차</th><th class="num">기준선 대비</th></tr></thead>
+        <tbody id="scoreBody"><tr><td colspan="7" class="muted">누적 기록이 쌓이면 성적이 표시됩니다.</td></tr></tbody>
+      </table>
+    </div>
+    <p class="sc-note">
+      <b>구간 적중률</b>은 80%에 가까울수록 정직한 범위입니다. <b>기준선</b>은 “며칠 뒤에도 오늘 가격 그대로”라고만 말하는
+      랜덤워크로, 주가 예측이 쓸모 있는지 판정하는 표준 비교 대상입니다. <b>기준선 대비</b>가 1.000보다 크면 기준선보다 부정확했다는 뜻입니다.
+      현재 방식은 방향을 예측하지 않으므로 중심값이 기준선과 같습니다(설계상 1.000).
+      <b>검증 건수가 적을 때는 우연의 영향이 큽니다</b> — 수십 건 이상 쌓인 뒤에 보세요.
+    </p>
+
+    <p class="scroll-hint">표를 옆으로 밀면 적중 여부·오차가 보입니다 →</p>
     <div class="tscroll">
       <table id="histTable">
-        <thead><tr><th>예측 시행일</th><th>대상일</th><th class="num">예측가</th><th class="num">실제 종가</th><th class="num">오차</th><th>구간 적중</th></tr></thead>
-        <tbody id="histBody"><tr><td colspan="6" class="muted">아직 비교할 기록이 없습니다. 내일 이후 다시 열면 오늘 예측과 실제 주가가 비교됩니다.</td></tr></tbody>
+        <thead><tr><th>예측 시행일</th><th>대상일</th><th class="num">경과</th><th class="num">예상 범위 (80%)</th><th class="num">폭</th><th class="num">실제 종가</th><th>적중</th><th class="num">중심값 오차</th></tr></thead>
+        <tbody id="histBody"><tr><td colspan="8" class="muted">아직 비교할 기록이 없습니다. 대상일이 지나면 예상 범위와 실제 주가가 비교됩니다.</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -185,14 +213,31 @@
   </div>
 
   <div class="card">
-    <h2>예측 방법 (5거래일 예측이 계산되는 방식)</h2>
+    <h2>예측 방법 — 그리고 왜 방향을 예측하지 않는가</h2>
     <p class="method">
-      이 앱의 예측은 세 가지 신호를 결합한 통계 모델입니다.<br><br>
-      <b>① 추세(모멘텀) 40%</b> — 최근 10거래일 수익률의 지수가중평균으로 단기 방향성을 측정합니다.<br>
-      <b>② 평균회귀 30%</b> — 주가가 20일 이동평균에서 멀어지면 되돌아가려는 힘을 반영합니다.<br>
-      <b>③ 전문가 컨센서스 30%</b> — 최신 컨센서스 목표주가까지의 상승여력을 1년(252거래일)에 걸쳐 나눈 기대 수익률을 반영합니다.<br><br>
-      음영 구간은 최근 20일 변동성 기반의 <b>80% 신뢰구간</b>입니다. 예측일이 멀어질수록 구간이 넓어지는 것은 불확실성이 커지기 때문입니다.
-      하루 예상 변동폭은 ±1.5%로 제한해 극단값을 방지합니다. 예측은 하루에 한 번 생성·저장되며 같은 날 다시 열어도 바뀌지 않습니다.
+      이 앱은 <b>“며칠 뒤 얼마가 된다”고 말하지 않습니다.</b> 대신 <b>얼마나 흔들릴지의 범위</b>만 제시합니다.
+      2026년 8월 13일, 이전 방식(모멘텀 40% + 평균회귀 30% + 컨센서스 30%로 방향을 예측하던 모델)을
+      삼성전자 10년치 시세로 검증한 결과 다음이 확인되었기 때문입니다.<br><br>
+
+      <b>① 방향 예측은 “오늘 가격 그대로”보다 부정확했습니다.</b> 2,385회 검증에서 1일·1주·1개월·3개월·6개월
+      <b>모든 기간에서</b> 졌습니다. 5거래일 평균 오차 3.34% vs 3.24%.<br>
+      <b>② 방향 적중률은 47.7%</b>로 동전 던지기(50%)보다 낮았습니다.<br>
+      <b>③ 요인을 늘려도 소용없었습니다.</b> SK하이닉스·필라델피아 반도체지수·나스닥·원달러·VIX·코스피 등
+      32개 요인을 넣어도 5거래일 예측에서 통계적으로 유의한 것은 1개(우연 기대치 1.6개), 1개월은 0개였습니다.
+      같은 요인으로 <b>같은 날</b> 등락을 설명하면 R² 70.5%인데, <b>하루 뒤</b>를 예측하면 2.3%로 떨어집니다.
+      정보는 이미 가격에 반영되어 있습니다.<br>
+      <b>④ 상승 확률(%) 예보도 실패했습니다.</b> 모델이 “75% 확률로 상승”이라고 말한 날들의 실제 상승률은
+      1주 51%, 1개월 42%였습니다.<br><br>
+
+      <b>반면 변동 폭은 예측할 수 있습니다.</b> 변동성은 뭉쳐서 나타나기 때문입니다 — 요즘 많이 흔들렸으면
+      당분간도 흔들립니다. 그래서 이 앱은 <b>20일·60일·250일 변동성을 혼합</b>해 80% 범위를 계산합니다.
+      같은 폭에서 구간 적중률이 더 높은 방식임을 검증했습니다(1개월 기준 75.8% → 77.8%).
+      기간이 멀수록 범위가 넓어지는 것은 불확실성이 커지기 때문이며, <b>범위가 넓다는 것 자체가 정보</b>입니다.<br><br>
+
+      예측은 하루에 한 번 생성·저장되며 같은 날 다시 열어도 바뀌지 않습니다.
+      한 번 기록된 예측은 나중에 고치지 않으므로, 위 성적표는 사후 보정 없는 실제 성적입니다.
+      1개월(20거래일)까지만 제공하는 이유는 3개월 이상에서는 범위가 ±90%까지 벌어져 화면에 담을 수 없고
+      구간 적중률도 73%로 떨어지기 때문입니다.
     </p>
     <div class="disclaimer">
       ⚠️ 본 보고서는 정보 제공 목적으로 자동 생성된 자료이며, 투자 권유나 금융 자문이 아닙니다. 통계 모델의 예측은 급격한 뉴스·정책 변화를 반영하지 못하며, 특히 현재 삼성전자는 변동성이 매우 큰 구간에 있습니다. 투자 판단과 책임은 투자자 본인에게 있습니다.
@@ -319,29 +364,44 @@ function nextBusinessDays(fromDate, n){
   return out;
 }
 
+/* 예측 모델 v2 — 방향은 예측하지 않고 "변동 범위"만 제시한다.
+ *
+ * 왜 바꿨나 (10년 2,385회 워크포워드 백테스트 결과):
+ *   - 기존 방향 예측(모멘텀 0.4 + 평균회귀 0.3 + 컨센서스 0.3)은 1일~6개월 모든 기간에서
+ *     랜덤워크(="며칠 뒤에도 오늘 가격")보다 부정확했다. 5일 오차 3.34% vs 3.24%.
+ *   - 방향 적중률 47.7%로 동전 던지기 이하였고, 예측 방향과 실제 수익률의 상관은 -0.08이었다.
+ *   - 하이닉스·반도체지수·나스닥·환율·VIX 등 32개 요인을 넣어도 예측력이 없었다
+ *     (5일 1개/32개 유의, 1개월 0개/32개). 같은 요인으로 "같은 날"을 설명하면 R² 70.5%,
+ *     "하루 뒤"를 예측하면 2.3%로 떨어진다 — 정보는 이미 가격에 반영돼 있다.
+ *   - 반면 변동 폭(변동성)은 예측 가능하다. 그래서 범위만 남겼다.
+ *
+ * 모델을 수정할 때는 scripts/update_daily.js의 makeForecast도 반드시 동일하게 고칠 것.
+ */
+const FC_DAYS = 20;   // 최대 1개월치를 만들어 두고 화면에서 5/10/20일로 잘라 쓴다
+const FC_Z80  = 1.2816;
+
+// 20·60·250일 변동성 혼합 — 폭은 현행과 같으면서 구간 적중률이 더 높다 (백테스트: 1개월 75.8%→77.8%)
+function blendedVol(rets){
+  const vars = [20,60,250].map(n=>{
+    const w = rets.slice(-Math.min(n, rets.length));
+    return Math.pow(stdev(w), 2);
+  });
+  return Math.sqrt(vars.reduce((a,b)=>a+b,0)/vars.length);
+}
+
 function makeForecast(data){
   const closes = data.map(p=>p.c);
   const last = closes[closes.length-1];
   const rets=[]; for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
-  // ① 모멘텀: 최근 10일 수익률 지수가중평균
-  const alpha=2/(10+1); let mom=0;
-  rets.slice(-10).forEach(r=>{ mom = alpha*r + (1-alpha)*mom; });
-  // ② 평균회귀: 20일 이평 대비 이격
-  const s20 = sma(closes,20);
-  const rev = s20 ? 0.06*Math.log(s20/last) : 0;
-  // ③ 애널리스트 컨센서스
-  const ana = Math.log(REPORT_DATA.consensus.target/last)/252;
-  let drift = 0.4*mom + 0.3*rev + 0.3*ana;
-  drift = Math.max(-0.015, Math.min(0.015, drift)); // 하루 ±1.5% 제한
-  const vol = stdev(rets.slice(-20));
-  const days = nextBusinessDays(data[data.length-1].d, 5);
+  const vol = blendedVol(rets);
+  const days = nextBusinessDays(data[data.length-1].d, FC_DAYS);
   const pts = days.map((ds,i)=>{
     const t=i+1;
-    const v = last*Math.exp(drift*t);
-    const band = 1.2816*vol*Math.sqrt(t);
-    return { d:ds, v:Math.round(v), lo:Math.round(last*Math.exp(drift*t-band)), hi:Math.round(last*Math.exp(drift*t+band)) };
+    const band = FC_Z80*vol*Math.sqrt(t);
+    // v는 중심값. 방향을 예측하지 않으므로 오늘 종가 그대로 유지된다.
+    return { d:ds, v:last, lo:Math.round(last*Math.exp(-band)), hi:Math.round(last*Math.exp(band)) };
   });
-  return { pts, drift, vol, mom, rev, ana, base:last };
+  return { pts, vol, base:last, m:2 };
 }
 
 /* ============ 4. 예측 저장/비교 ============ */
@@ -350,6 +410,8 @@ function saveStore(s){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); 
 
 /* ============ 5. 렌더링 ============ */
 let chart=null, DATA=null, FC=null, STORE=null;
+let H=5, RANGE='3M';                                   // H = 선택된 예측 기간(거래일)
+const HORIZON_NAME={5:'1주',10:'2주',20:'1개월'};
 
 function renderStats(data, live, src){
   const last=data[data.length-1], prev=data[data.length-2];
@@ -451,37 +513,73 @@ function renderSummary(data, tech, fc){
   if(tech.rsi<30){score++; why.push('과매도(반등 여지)');} else if(tech.rsi>70){score--; why.push('과매수(조정 여지)');}
   const up=(REPORT_DATA.consensus.target/last-1)*100;
   if(up>30){score++; why.push('목표주가 대비 상승여력 '+up.toFixed(0)+'%');}
-  if(fc.drift>0){score++;} else {score--;}
   if(tech.vol20>60){score--; why.push('높은 변동성 주의');}
+  // 예전에는 여기에 예측 방향(drift) 점수가 있었으나, 방향 예측이 검증에서 탈락해 제거했다.
   const label = score>=3?['긍정적','var(--green)']:score>=1?['다소 긍정','var(--accent)']:score>=-1?['중립','var(--gold)']:['신중','var(--up)'];
   const sc=document.getElementById('scoreCircle');
   sc.style.borderColor=label[1];
   document.getElementById('scoreN').textContent=label[0];
-  const dir=fc.drift>0?'완만한 상승':'완만한 하락';
+  const pt=fc.pts[H-1], nm=HORIZON_NAME[H];
+  const w=(Math.sqrt(pt.hi/pt.lo)-1)*100;
   document.getElementById('summaryTxt').innerHTML =
-    '통계 모델은 향후 5거래일간 <b>'+dir+'</b> 흐름을 예상합니다 (5일 후 예상가 <b>'+fmt(fc.pts[4].v)+'원</b>, 80% 신뢰구간 '+fmt(fc.pts[4].lo)+'~'+fmt(fc.pts[4].hi)+'원). '
-    +'판단 근거: '+why.join(', ')+'. 애널리스트 컨센서스는 강한 매수(목표 '+fmt(REPORT_DATA.consensus.target)+'원)이나, 최근 변동성이 큰 구간임을 유의하세요.';
+    '<b>'+nm+' 뒤 예상 변동 범위는 '+fmt(pt.lo)+'~'+fmt(pt.hi)+'원</b>입니다 (현재가 '+fmt(fc.base)+'원 기준 ±'+w.toFixed(0)+'%, 80% 확률). '
+    +'이 앱은 <b>오르내릴 방향을 예측하지 않습니다</b> — 10년 검증에서 방향 예측이 "오늘 가격 그대로"라고 말하는 것보다 부정확했기 때문입니다. '
+    +'대신 얼마나 흔들릴지의 범위만 제시합니다. 현재 지표 요약: '+why.join(', ')+'. '
+    +'애널리스트 컨센서스는 강한 매수(목표 '+fmt(REPORT_DATA.consensus.target)+'원)이나, 이는 예측이 아닌 참고 정보입니다.';
 }
 
 function renderHistory(data){
   const actualByDate={}; data.forEach(p=>actualByDate[p.d]=p.c);
   const lastDate=data[data.length-1].d;
-  const rows=[];
-  const keys=Object.keys(STORE).sort();
-  keys.forEach(base=>{
-    const p=STORE[base];
-    p.pts.forEach(pt=>{
-      if(pt.d<=lastDate && actualByDate[pt.d]!=null && pt.d>base){
-        const act=actualByDate[pt.d];
-        const err=(pt.v-act)/act*100;
-        const hit=act>=pt.lo&&act<=pt.hi;
-        rows.push('<tr><td>'+base+'</td><td>'+pt.d+'</td><td class="num">'+fmt(pt.v)+'</td><td class="num">'+fmt(act)+'</td>'
-          +'<td class="num '+(Math.abs(err)<2?'err-pos':'err-neg')+'">'+(err>=0?'+':'')+err.toFixed(2)+'%</td>'
-          +'<td>'+(hit?'<span class="tag pos">적중</span>':'<span class="tag neg">이탈</span>')+'</td></tr>');
-      }
+  const rows=[]; const agg={1:[],2:[]};
+  Object.keys(STORE).sort().forEach(base=>{
+    const p=STORE[base], ver=(p.m||1);
+    // 선택한 기간 "이내" 전체를 평가한다. 각 점은 그 자체로 하나의 80% 범위 예측이므로
+    // 함께 모아도 적중률 목표(80%)는 동일하다. 기다리지 않고 바로 성적을 볼 수 있다.
+    p.pts.slice(0, H).forEach((pt,j)=>{
+      if(!(pt.d<=lastDate && actualByDate[pt.d]!=null && pt.d>base)) return;
+      const act=actualByDate[pt.d];
+      const err=(pt.v-act)/act*100;              // 중심값 오차
+      const errRw=(p.base-act)/act*100;          // 기준선(랜덤워크) 오차
+      const hit=act>=pt.lo&&act<=pt.hi;
+      const width=(Math.sqrt(pt.hi/pt.lo)-1)*100;
+      agg[ver].push({ err:Math.abs(err), errRw:Math.abs(errRw), hit, width });
+      rows.push('<tr><td>'+base+(ver<2?' <span class="tag neu">이전</span>':'')+'</td><td>'+pt.d+'</td>'
+        +'<td class="num">'+(j+1)+'일</td>'
+        +'<td class="num">'+fmt(pt.lo)+'~'+fmt(pt.hi)+'</td>'
+        +'<td class="num">±'+width.toFixed(1)+'%</td>'
+        +'<td class="num">'+fmt(act)+'</td>'
+        +'<td>'+(hit?'<span class="tag pos">적중</span>':'<span class="tag neg">이탈</span>')+'</td>'
+        +'<td class="num '+(Math.abs(err)<2?'err-pos':'err-neg')+'">'+(err>=0?'+':'')+err.toFixed(2)+'%</td></tr>');
     });
   });
-  if(rows.length) document.getElementById('histBody').innerHTML=rows.join('');
+  rows.reverse();
+  const MAXROWS=60, shown=rows.slice(0,MAXROWS);
+  if(rows.length>MAXROWS) shown.push('<tr><td colspan="8" class="muted">최근 '+MAXROWS+'건만 표시 (누적 '+rows.length+'건, 위 성적표는 전체 기준)</td></tr>');
+  document.getElementById('histBody').innerHTML = shown.length ? shown.join('')
+    : '<tr><td colspan="8" class="muted">아직 비교할 기록이 없습니다. 대상일이 지나면 예상 범위와 실제 주가가 비교됩니다.</td></tr>';
+  renderScoreCard(agg);
+}
+
+function renderScoreCard(agg){
+  const line=(ver,label)=>{
+    const a=agg[ver]; if(!a.length) return '';
+    const n=a.length, avg=f=>a.reduce((s,x)=>s+f(x),0)/n;
+    const hit=a.filter(x=>x.hit).length/n*100;
+    const mae=avg(x=>x.err), maeRw=avg(x=>x.errRw);
+    const ratio=maeRw>0?mae/maeRw:1;
+    // 적중률은 80%가 목표 — 크게 벗어나면 빨강. 표본이 적을 때는 색을 칠하지 않는다.
+    const hitCls = n<20 ? '' : (Math.abs(hit-80)<=12?'err-pos':'err-neg');
+    return '<tr><td>'+label+'</td><td class="num">'+n+'건</td>'
+      +'<td class="num '+hitCls+'">'+hit.toFixed(0)+'%</td>'
+      +'<td class="num">±'+avg(x=>x.width).toFixed(1)+'%</td>'
+      +'<td class="num">'+mae.toFixed(2)+'%</td>'
+      +'<td class="num">'+maeRw.toFixed(2)+'%</td>'
+      +'<td class="num '+(ratio<=1.001?'err-pos':'err-neg')+'">'+ratio.toFixed(3)+'</td></tr>';
+  };
+  const html=line(2,'현재 방식 (범위)')+line(1,'이전 방식 (예측선)');
+  document.getElementById('scoreBody').innerHTML = html ||
+    '<tr><td colspan="7" class="muted">'+HORIZON_NAME[H]+' 기준 누적 기록이 아직 없습니다.</td></tr>';
 }
 
 function buildChart(range){
@@ -489,9 +587,10 @@ function buildChart(range){
   const data=DATA.slice(-nDays);
   const lastDate=DATA[DATA.length-1].d;
   // 라벨: 실제 날짜 + 예측 날짜(중복 제거, 정렬)
+  const fcPts=FC.pts.slice(0,H);
   const labelSet=new Set(data.map(p=>p.d));
-  FC.pts.forEach(p=>labelSet.add(p.d));
-  Object.values(STORE).forEach(pr=>pr.pts.forEach(p=>{ if(p.d>=data[0].d) labelSet.add(p.d); }));
+  fcPts.forEach(p=>labelSet.add(p.d));
+  Object.values(STORE).forEach(pr=>{ if((pr.m||1)<2) pr.pts.forEach(p=>{ if(p.d>=data[0].d) labelSet.add(p.d); }); });
   const labels=[...labelSet].sort();
   const idx={}; labels.forEach((d,i)=>idx[d]=i);
   const mk=()=>new Array(labels.length).fill(null);
@@ -500,23 +599,23 @@ function buildChart(range){
   const fLine=mk(), fLo=mk(), fHi=mk();
   const lastC=DATA[DATA.length-1].c;
   if(idx[lastDate]!=null){ fLine[idx[lastDate]]=lastC; fLo[idx[lastDate]]=lastC; fHi[idx[lastDate]]=lastC; }
-  FC.pts.forEach(p=>{ fLine[idx[p.d]]=p.v; fLo[idx[p.d]]=p.lo; fHi[idx[p.d]]=p.hi; });
+  fcPts.forEach(p=>{ fLine[idx[p.d]]=p.v; fLo[idx[p.d]]=p.lo; fHi[idx[p.d]]=p.hi; });
 
   const datasets=[
     { label:'실제 종가', data:actual, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.06)', borderWidth:2, pointRadius:0, pointHitRadius:6, tension:.25, fill:false },
-    { label:'신뢰구간 상단', data:fHi, borderColor:'rgba(15,157,110,0)', backgroundColor:'rgba(15,157,110,.1)', pointRadius:0, borderWidth:0, fill:'+1', tension:.25 },
-    { label:'신뢰구간 하단', data:fLo, borderColor:'rgba(15,157,110,0)', pointRadius:0, borderWidth:0, fill:false, tension:.25 },
-    { label:'오늘의 5일 예측', data:fLine, borderColor:'#0f9d6e', borderDash:[6,4], borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#0f9d6e', tension:.25, fill:false },
+    { label:'예상범위 상단', data:fHi, borderColor:'rgba(15,157,110,0)', backgroundColor:'rgba(15,157,110,.1)', pointRadius:0, borderWidth:0, fill:'+1', tension:.25 },
+    { label:'예상범위 하단', data:fLo, borderColor:'rgba(15,157,110,0)', pointRadius:0, borderWidth:0, fill:false, tension:.25 },
+    { label:HORIZON_NAME[H]+' 예상 범위 (80%)', data:fLine, borderColor:'#0f9d6e', borderDash:[6,4], borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#0f9d6e', tension:0, fill:false },
   ];
-  // 과거 예측 오버레이 (최근 5건)
-  const past=Object.keys(STORE).sort().filter(b=>b<lastDate).slice(-5);
+  // 이전 방식으로 기록된 과거 예측선만 오버레이 (현재 방식은 방향을 예측하지 않아 표시할 선이 없다)
+  const past=Object.keys(STORE).sort().filter(b=>b<lastDate && (STORE[b].m||1)<2).slice(-5);
   past.forEach((b,i)=>{
     const arr=mk();
     const baseIdx=idx[b];
     if(baseIdx!=null) arr[baseIdx]=STORE[b].base;
     let anyVisible=false;
     STORE[b].pts.forEach(p=>{ if(idx[p.d]!=null){ arr[idx[p.d]]=p.v; anyVisible=true; } });
-    if(anyVisible) datasets.push({ label:b+' 예측', data:arr, borderColor:'rgba(224,123,26,'+(0.55+0.09*i)+')', borderDash:[3,4], borderWidth:1.8, pointRadius:2.5, pointBackgroundColor:'#e07b1a', tension:.25, fill:false });
+    if(anyVisible) datasets.push({ label:b+' 예측(이전 방식)', data:arr, borderColor:'rgba(224,123,26,'+(0.55+0.09*i)+')', borderDash:[3,4], borderWidth:1.8, pointRadius:2.5, pointBackgroundColor:'#e07b1a', tension:.25, fill:false });
   });
 
   if(chart) chart.destroy();
@@ -527,7 +626,7 @@ function buildChart(range){
       responsive:true, maintainAspectRatio:false,
       interaction:{ mode:'index', intersect:false },
       plugins:{
-        legend:{ labels:{ color:'#5b6785', filter:i=>!i.text.includes('신뢰구간') } },
+        legend:{ labels:{ color:'#5b6785', filter:i=>!i.text.includes('예상범위') } },
         tooltip:{ callbacks:{ label:c=>c.dataset.label+': '+(c.parsed.y!=null?fmt(c.parsed.y)+'원':'-') } }
       },
       scales:{
@@ -557,20 +656,31 @@ function buildChart(range){
   // 오늘(최신 거래일) 기준 예측이 없으면 생성·저장
   if(!STORE[lastDate]){
     const fc=makeForecast(data);
-    STORE[lastDate]={ madeOn:new Date().toISOString().slice(0,10), base:fc.base, pts:fc.pts };
+    STORE[lastDate]={ madeOn:new Date().toISOString().slice(0,10), base:fc.base, m:2, pts:fc.pts };
     saveStore(STORE);
   }
-  FC={ pts:STORE[lastDate].pts, base:STORE[lastDate].base, drift:Math.log(STORE[lastDate].pts[4].v/STORE[lastDate].base)/5, vol:0 };
+  const rec=STORE[lastDate];
+  // 이전 방식으로 기록된 날이면 기록은 그대로 두고(예측-실제 비교의 공정성) 화면에는 현재 방식으로 표시한다.
+  FC = (rec.m||1) >= 2 ? rec : makeForecast(data);
   renderStats(data, live, src);
   const tech=renderTech(data);
   renderReport(data);
   renderSummary(data, tech, FC);
   renderHistory(data);
-  buildChart('3M');
+  buildChart(RANGE);
   document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
-    buildChart(b.dataset.r);
+    RANGE=b.dataset.r;
+    buildChart(RANGE);
+  }));
+  document.querySelectorAll('.hbtn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.hbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    H=+b.dataset.h;
+    renderSummary(data, tech, FC);   // 요약문·성적표·표·차트가 모두 선택 기간을 따른다
+    renderHistory(data);
+    buildChart(RANGE);
   }));
   // 화면 회전 등으로 폭이 줄어들 때 Chart.js 캔버스가 큰 크기 그대로 남아
   // 페이지가 옆으로 밀리는 것을 막는다 (넓어질 때는 자동 처리됨)

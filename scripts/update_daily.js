@@ -48,24 +48,36 @@ function nextBusinessDays(fromDate, n){
   return out;
 }
 
-// index.html의 makeForecast와 동일한 모델
-function makeForecast(rows, targetPrice){
+/* 예측 모델 v2 — index.html의 makeForecast와 동일해야 한다.
+ *
+ * 방향을 예측하지 않고 변동 범위만 낸다. 이전의 방향 예측 모델은 10년 2,385회 백테스트에서
+ * 랜덤워크("며칠 뒤에도 오늘 가격")보다 모든 기간에서 부정확했고(5일 3.34% vs 3.24%),
+ * 방향 적중률 47.7%로 동전 던지기 이하였다. 32개 요인을 넣어도 예측력이 없었다.
+ * 반면 변동성은 예측 가능하므로 범위만 남겼다. 자세한 근거는 index.html의 주석 참조.
+ */
+const FC_DAYS = 20;   // 1개월치까지 저장 → 앱에서 1주/2주/1개월로 잘라 쓴다
+const FC_Z80  = 1.2816;
+
+// 20·60·250일 변동성 혼합 — 폭은 그대로면서 구간 적중률이 더 높다
+function blendedVol(rets){
+  const vars = [20,60,250].map(n=>{
+    const w = rets.slice(-Math.min(n, rets.length));
+    return Math.pow(stdev(w), 2);
+  });
+  return Math.sqrt(vars.reduce((a,b)=>a+b,0)/vars.length);
+}
+
+function makeForecast(rows){
   const closes = rows.map(p=>p.c);
   const last = closes[closes.length-1];
   const rets=[]; for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
-  const alpha=2/11; let mom=0;
-  rets.slice(-10).forEach(r=>{ mom = alpha*r + (1-alpha)*mom; });
-  const s20 = sma(closes,20);
-  const rev = s20 ? 0.06*Math.log(s20/last) : 0;
-  const ana = Math.log(targetPrice/last)/252;
-  let drift = 0.4*mom + 0.3*rev + 0.3*ana;
-  drift = Math.max(-0.015, Math.min(0.015, drift));
-  const vol = stdev(rets.slice(-20));
-  const days = nextBusinessDays(rows[rows.length-1].d, 5);
+  const vol = blendedVol(rets);
+  const days = nextBusinessDays(rows[rows.length-1].d, FC_DAYS);
   return days.map((ds,i)=>{
     const t=i+1;
-    const band = 1.2816*vol*Math.sqrt(t);
-    return { d:ds, v:Math.round(last*Math.exp(drift*t)), lo:Math.round(last*Math.exp(drift*t-band)), hi:Math.round(last*Math.exp(drift*t+band)) };
+    const band = FC_Z80*vol*Math.sqrt(t);
+    // v는 중심값. 방향을 예측하지 않으므로 오늘 종가 그대로다.
+    return { d:ds, v:last, lo:Math.round(last*Math.exp(-band)), hi:Math.round(last*Math.exp(band)) };
   });
 }
 
@@ -81,11 +93,12 @@ function makeForecast(rows, targetPrice){
   let preds = {};
   try{ preds = JSON.parse(fs.readFileSync(predPath,'utf8')); }catch(e){}
   if(!preds[lastDate]){
-    const report = JSON.parse(fs.readFileSync(path.join(DATA_DIR,'report.json'),'utf8'));
-    const pts = makeForecast(rows, report.consensus.target);
-    preds[lastDate] = { madeOn: new Date().toISOString().slice(0,10), base: rows[rows.length-1].c, pts };
+    const pts = makeForecast(rows);
+    // m: 모델 버전. 1 = 방향 예측(폐기), 2 = 범위. 기존 기록은 절대 고치지 않는다.
+    preds[lastDate] = { madeOn: new Date().toISOString().slice(0,10), base: rows[rows.length-1].c, m: 2, pts };
     fs.writeFileSync(predPath, JSON.stringify(preds, null, 1));
-    console.log('predictions.json에', lastDate, '예측 추가:', pts.map(p=>p.d+'→'+p.v).join(', '));
+    const p5 = pts[4], p20 = pts[19];
+    console.log('predictions.json에', lastDate, '범위 추가 | 1주', p5.lo+'~'+p5.hi, '| 1개월', p20.lo+'~'+p20.hi);
   } else {
     console.log(lastDate, '예측은 이미 존재 — 건너뜀');
   }
