@@ -53,6 +53,17 @@
   .rbtn,.hbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
   .rbtn.on,.hbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
   .tools-label{font-size:.75rem;color:var(--sub);font-weight:700;margin-right:2px}
+  /* 종목 전환 */
+  .symbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .sbtn{background:var(--card);border:1px solid var(--line);color:var(--sub);border-radius:999px;
+    padding:8px 16px;cursor:pointer;font-size:.88rem;font-weight:700;min-height:40px;
+    display:inline-flex;align-items:center;gap:7px}
+  .sbtn:hover{border-color:var(--rule-strong,#c3cbd8)}
+  .sbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .sbtn .code{font-size:.72rem;font-weight:600;opacity:.7;font-variant-numeric:tabular-nums}
+  .sbtn.on .code{opacity:.85}
+  .sbtn .px{font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .sbtn.soon{cursor:default;opacity:.6;font-weight:600}
   .scorecard{margin-bottom:14px}
   .scorecard table{font-size:.82rem}
   .scorecard th{padding:6px 10px}
@@ -172,6 +183,9 @@
       border-bottom:1px solid var(--line);padding:0 0 8px;margin-bottom:6px}
     .vtable td:first-child::before{content:none}
     .vtable td.empty{display:none}
+    /* #histTable td{white-space:nowrap}(가로 스크롤용)이 .vtable td를 특정성으로 이긴다.
+       세로 카드형에서는 줄바꿈이 돼야 하므로 id를 포함해 더 구체적으로 되돌린다. */
+    #histTable.vtable td, #histTable.vtable th{white-space:normal}
     /* 세로 카드형으로 바뀌면 가로 스크롤 안내와 그림자는 필요 없다 */
     .tscroll:has(.vtable){background:none;overflow-x:visible}
     /* 세로 카드형으로 바뀐 표에는 "옆으로 밀어보세요" 안내가 필요 없다.
@@ -199,10 +213,11 @@
 <div class="wrap">
 
   <header>
-    <h1>삼성전자 주가 리포트</h1>
-    <span class="ticker">KRX 005930</span>
+    <h1 id="pageTitle">주가 리포트</h1>
+    <span class="ticker" id="tickerLine"></span>
     <span id="liveBadge" class="badge cache">데이터 불러오는 중…</span>
   </header>
+  <div class="symbar" id="symBar"></div>
   <div class="asof" id="asofLine">-</div>
   <div class="stale-warn" id="staleWarn"></div>
   <div class="install-tip" id="installTip"></div>
@@ -358,7 +373,7 @@
       이 앱은 <b>“일주일 뒤 30만원”</b> 같은 말을 하지 않아요. 대신 <b>얼마나 흔들릴지</b>만 알려드려요.
       그렇게 바꾼 이유가 있어요.<br><br>
 
-      원래는 이 앱도 오를지 내릴지를 맞히려고 했어요. 그래서 <b>지난 10년치 삼성전자 주가로 2,385번 시험</b>해 봤어요.
+      원래는 이 앱도 오를지 내릴지를 맞히려고 했어요. 그래서 <b>지난 10년치 주가로 2,385번 시험</b>해 봤어요.
       매일 그날까지의 정보만 가지고 예측한 다음, 실제로 어떻게 됐는지 맞춰보는 방식으로요. 결과는 이랬어요.<br><br>
 
       <b>① 아무 계산도 안 하는 것보다 못했어요.</b><br>
@@ -369,7 +384,7 @@
       동전을 던지면 50%인데, 그보다도 낮았어요.<br><br>
 
       <b>③ 근거를 더 넣어봐도 소용없었어요.</b><br>
-      SK하이닉스, 반도체 지수, 나스닥, 환율, 코스피, 외국인·기관이 얼마나 사고팔았는지까지 <b>48가지</b>를 넣어봤지만
+      동종업계 종목, 반도체 지수, 나스닥, 환율, 코스피, 외국인·기관이 얼마나 사고팔았는지까지 <b>48가지</b>를 넣어봤지만
       미래를 맞히는 데 도움이 되는 건 사실상 없었어요.<br>
       재미있는 건, 같은 정보로 <b>“오늘 왜 올랐나”를 설명하는 건 아주 잘 된다</b>는 거예요(설명력 70%).
       그런데 <b>하루만 앞서 맞히려고 하면 2%로 뚝 떨어져요.</b> 우리가 그 정보를 볼 때쯤이면
@@ -388,11 +403,7 @@
       1개월까지만 알려드리는 이유는, 3개월이 넘으면 범위가 ±90%까지 벌어져서
       사실상 아무 말도 안 하는 것과 같아지기 때문이에요.
     </p>
-    <div class="disclaimer">
-      ⚠️ 이 화면은 참고용으로 자동 만들어진 자료예요. <b>투자를 권하거나 상담해 드리는 것이 아니에요.</b>
-      갑작스러운 뉴스나 정책 변화는 계산에 들어가 있지 않고, 특히 요즘 삼성전자는 아주 크게 흔들리는 중이에요.
-      투자 결정과 그 결과는 본인에게 달려 있어요.
-    </div>
+    <div class="disclaimer" id="disclaimer"></div>
   </div>
 
 </div>
@@ -412,11 +423,24 @@
 // 폴백 데이터: 2026-08-12 기준 최근 1년 실제 종가 (날짜YYMMDD,종가,거래량백만주)
 const FALLBACK = "250812,71100,15.8;250813,71900,12.3;250814,71600,11.9;250818,70000,13.6;250819,70000,10.5;250820,70500,17.4;250821,70600,18.8;250822,71400,9.3;250825,71500,10.3;250826,70300,14.7;250827,70600,10.5;250828,69600,11.6;250829,69700,11.7;250901,67600,12.0;250902,69100,10.6;250903,69800,10.3;250904,70100,12.3;250905,69500,11.5;250908,70100,9.3;250909,71500,14.9;250910,72600,21.9;250911,73400,20.8;250912,75400,28.2;250915,76500,19.9;250916,79400,28.2;250917,78200,20.9;250918,80300,25.6;250922,83500,27.5;250923,84700,23.6;250924,85400,18.3;250925,86100,19.7;250926,83300,24.1;250929,84200,13.1;250930,83900,16.3;251001,86000,22.0;251002,89750,49.9;251010,94400,35.3;251013,93300,23.9;251014,91600,35.5;251015,95000,21.1;251016,97700,28.1;251017,97900,22.7;251020,98100,17.6;251021,97500,22.8;251022,98600,15.9;251023,96500,18.5;251024,98800,18.8;251027,102000,22.2;251028,99500,20.0;251029,100500,20.9;251030,104100,34.6;251031,107500,54.8;251103,111100,30.1;251104,104900,30.5;251105,100600,44.8;251106,99200,28.7;251107,97900,22.9;251110,100600,23.8;251111,103500,27.7;251112,103100,19.4;251113,102800,20.8;251114,97200,21.8;251117,100600,17.2;251118,97800,18.7;251119,96500,19.0;251120,100600,25.4;251121,94800,23.1;251124,96700,29.8;251125,99300,16.1;251126,102800,21.3;251127,103500,16.5;251128,100500,15.3;251201,100800,10.9;251202,103400,13.6;251203,104500,14.7;251204,105100,11.9;251205,108400,19.8;251208,109500,15.5;251209,108400,13.7;251210,108000,12.4;251211,107300,23.0;251212,108900,14.2;251215,104800,20.6;251216,102800,18.9;251217,107900,22.3;251218,107600,20.4;251219,106300,25.9;251222,110500,24.9;251223,111500,20.4;251224,111100,12.5;251226,117000,34.0;251229,119500,19.7;251230,119900,19.7;260102,128500,30.5;260105,138100,42.9;260106,138900,45.3;260107,141000,46.3;260108,138800,41.4;260109,139000,29.5;260112,138800,26.3;260113,137600,22.4;260114,140300,18.4;260115,143900,24.7;260116,148900,30.0;260119,149300,22.8;260120,145200,24.1;260121,149500,31.7;260122,152300,32.1;260123,152100,25.4;260126,152100,20.6;260127,159500,29.4;260128,162400,29.5;260129,160700,36.1;260130,160500,40.6;260202,150400,39.7;260203,167500,36.5;260204,169100,29.9;260205,159300,38.4;260206,158600,36.4;260209,166400,25.1;260210,165800,19.4;260211,167800,22.8;260212,178600,41.3;260213,181200,34.5;260219,190000,27.0;260220,190100,24.2;260223,193000,26.4;260224,200000,28.1;260225,203500,27.0;260226,218000,30.1;260227,216500,51.8;260303,195100,54.9;260304,172200,89.4;260305,191600,54.0;260306,188200,29.5;260309,173500,43.1;260310,187900,33.5;260311,190000,24.3;260312,187900,20.4;260313,183500,19.6;260316,188700,19.7;260317,193900,20.3;260318,208500,25.1;260319,200500,19.9;260320,199400,35.3;260323,186300,30.3;260324,189700,25.5;260325,189000,23.0;260326,180100,32.1;260327,180100,29.1;260330,176300,22.3;260331,167200,38.7;260401,189650,32.4;260402,178400,38.6;260403,186200,20.2;260406,193100,20.6;260407,196500,30.8;260408,210500,35.9;260409,204000,42.3;260410,206000,18.2;260413,201000,19.6;260414,206500,23.7;260415,211000,24.1;260416,217500,21.5;260417,216000,18.1;260420,214500,17.1;260421,219000,16.8;260422,217500,16.8;260423,224500,34.5;260424,219500,19.6;260427,224500,22.9;260428,222000,18.4;260429,226000,20.4;260430,220500,22.2;260504,232500,32.9;260506,266000,53.1;260507,271500,41.4;260508,268500,25.9;260511,285500,36.0;260512,279000,41.2;260513,284000,35.5;260514,296000,39.3;260515,270500,38.1;260518,281000,33.6;260519,275500,30.8;260520,276000,35.7;260521,299500,36.2;260522,292500,18.4;260526,299000,23.4;260527,307000,33.9;260528,299500,30.2;260529,317000,37.2;260601,349000,45.1;260602,360500,44.7;260604,351500,34.8;260605,329000,33.7;260608,295500,38.9;260609,322000,30.1;260610,302500,0.0;260611,299000,31.4;260612,322500,31.0;260615,337000,21.5;260616,343000,17.5;260617,346500,18.1;260618,362500,32.8;260619,354000,43.3;260622,353500,24.3;260623,310000,41.3;260624,340500,47.8;260625,358500,36.2;260626,339500,39.7;260629,323000,35.4;260630,334000,29.2;260701,314500,25.0;260702,286000,38.9;260703,309500,31.5;260706,318000,23.9;260707,296000,32.4;260708,277500,33.5;260709,278000,29.7;260710,285000,20.1;260713,254500,31.9;260714,263000,40.1;260715,279500,24.9;260716,255000,27.0;260720,244000,26.8;260721,259000,20.4;260722,260500,22.3;260723,270000,16.0;260724,249500,26.2;260727,254000,23.3;260728,220000,41.6;260729,208500,65.6;260730,207000,46.7;260731,262500,58.5;260803,239500,27.8;260804,240000,29.4;260805,246000,22.6;260806,230500,26.1;260807,231000,20.5;260810,230000,16.3;260811,239500,23.3;260812,255500,27.1";
 
+/* 종목 설정. data/symbols.json을 못 받으면 이 값으로 동작한다(로컬 파일 실행 등).
+   stats는 각 종목 10년 데이터로 검증한 값 — 다른 종목 값을 쓰면 화면이 거짓이 된다. */
+let SYMBOLS = [{
+  code:"005930", name:"삼성전자", yahoo:"005930.KS",
+  peer:{ code:"000660", name:"SK하이닉스", yahoo:"000660.KS" },
+  stats:{ z1:1.04, regime:{ nearUp:41.7, nearDn:11.5, farUp:17.3, farDn:11.1,
+            byPeriod:[{p:"2019~2022",up:36.1,dn:3.0},{p:"2022~2025",up:3.9,dn:14.6},{p:"2025~현재",up:86.5,dn:12.6}] },
+          market:{ withMarketPct:84, soloPct:16 }, earnings:1.11, vol10y:34, growth10y:8.6 }
+}];
+let SYM = SYMBOLS[0];                       // 현재 보고 있는 종목
+const ST = () => (SYM.stats || {});
+
 /* ==================================================================
-   REPORT_DATA: 조사로 채워지는 영역 (Claude가 매일 예약 작업으로 갱신)
+   REPORT_DATA: 조사로 채워지는 영역 (종목별 data/<코드>/report.json)
    - updated: 조사 기준일. 이 날짜가 오래되면 화면에 경고가 표시됩니다.
+   - 아래 값은 삼성전자 오프라인 폴백. 다른 종목은 파일에서만 온다.
    ================================================================== */
-let REPORT_DATA = {
+const REPORT_FALLBACK = {
   updated: "2026-08-12",
   consensus: { target: 493542, asOf: "2026-08-06", rangeLo: 370000, rangeHi: 670000 },
   analysts: [
@@ -438,9 +462,12 @@ let REPORT_DATA = {
   ],
   newsVerdict: "회사가 버는 돈은 아주 좋아요. 역대급 실적에 AI용 메모리도 잘 나가고, 메모리 값도 오르는 중이에요. 그런데 주가는 거칠어요. AI 회의론, 외국인 매도, ETF 정리 같은 것이 겹쳤거든요. '좋은 회사, 사나운 주가'인 셈이에요. 중국 CXMT의 추격은 일반 메모리 쪽 이야기라 삼성이 실제로 돈을 버는 AI용 메모리에 미치는 영향은 아직 크지 않아요. 다만 뉴스 하나에 하루 10% 넘게 움직이는 시기라는 점은 꼭 기억하세요."
 };
-const YAHOO_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/005930.KS?range=1y&interval=1d';
+let REPORT_DATA = REPORT_FALLBACK;
+const yahooUrl = s => 'https://query1.finance.yahoo.com/v8/finance/chart/'+s+'?range=1y&interval=1d';
 const KR_HOLIDAYS = ['2026-08-17','2026-09-24','2026-09-25','2026-10-05','2026-10-09','2026-12-25','2026-12-31','2027-01-01','2027-02-16','2027-02-17','2027-02-18','2027-03-01'];
-const STORE_KEY = 'ssn005930_predictions_v1';
+// 종목별 저장 키. 005930은 기존 키와 정확히 같아 예전 기록이 그대로 이어진다.
+const storeKey = () => 'ssn' + SYM.code + '_predictions_v1';
+const dataUrl = f => './data/' + SYM.code + '/' + f + '.json?t=' + Date.now();
 
 function parseCompact(s){
   return s.split(';').map(r=>{
@@ -469,16 +496,17 @@ function parseYahoo(obj){
 async function loadData(){
   // 0) GitHub Pages로 배포된 경우: Actions가 매일 갱신하는 저장소 데이터를 최우선 사용
   try{
-    const r = await fetchWithTimeout('./data/prices.json?t='+Date.now(), 6000);
+    const r = await fetchWithTimeout(dataUrl('prices'), 6000);
     if(r.ok){
       const j = await r.json();
       if(j.rows && j.rows.length>100) return { data:j.rows, live:true, src:'저장소 자동 갱신 ('+j.updated+')' };
     }
   }catch(e){ /* 로컬 파일로 열었을 때는 실패하는 것이 정상 → 아래 방식으로 진행 */ }
+  const YU = yahooUrl(SYM.yahoo);
   const sources = [
-    { name:'야후 파이낸스 (직접)', url: YAHOO_URL },
-    { name:'야후 파이낸스 (프록시)', url: 'https://r.jina.ai/' + YAHOO_URL },
-    { name:'야후 파이낸스 (프록시2)', url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(YAHOO_URL) },
+    { name:'야후 파이낸스 (직접)', url: YU },
+    { name:'야후 파이낸스 (프록시)', url: 'https://r.jina.ai/' + YU },
+    { name:'야후 파이낸스 (프록시2)', url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(YU) },
   ];
   for(const s of sources){
     try{
@@ -492,6 +520,8 @@ async function loadData(){
       if(data.length > 100) return { data, live:true, src:s.name };
     }catch(e){ /* 다음 소스 시도 */ }
   }
+  // 내장 폴백은 삼성전자 것뿐이다. 다른 종목은 여기까지 오면 표시할 게 없다.
+  if(SYM.code !== '005930') return { data:null, live:false, src:'데이터를 가져오지 못했어요' };
   return { data: parseCompact(FALLBACK), live:false, src:'저장된 데이터 (2026-08-12 기준)' };
 }
 
@@ -539,11 +569,12 @@ function nextBusinessDays(fromDate, n){
  * 모델을 수정할 때는 scripts/update_daily.js의 makeForecast도 반드시 동일하게 고칠 것.
  */
 const FC_DAYS = 20;   // 최대 1개월치를 만들어 두고 화면에서 5/10/20일로 잘라 쓴다
-// 80% 구간 계수. 정규분포값 1.2816에 1.05를 곱해 보정했다.
-// 실제 수익률은 꼬리가 두꺼워 정규 가정만으로는 구간이 좁다 —
-// 10년 검증에서 적중률이 1주 79.0%, 2주 78.6%, 1개월 77.8%로 목표(80%)에 미달했고,
-// 1.05 보정 후 80.5% / 80.3% / 80.2%로 맞았다. 폭은 5% 넓어진다.
-const FC_Z80  = 1.2816 * 1.05;
+// 80% 구간 계수 = 정규분포값 1.2816 × 종목별 보정 배수(z1).
+// 실제 수익률은 꼬리가 두꺼워 정규 가정만으로는 구간이 좁다. z1은 종목마다 10년
+// 데이터로 적중률이 80%에 가장 가까워지는 값을 찾아 symbols.json에 적어 둔 값이다.
+// **다른 종목 값을 돌려쓰지 말 것** — 화면의 "10번 중 8번" 약속이 거짓이 된다.
+const Z80 = 1.2816;
+const fcZ = () => Z80 * (ST().z1 || 1);
 
 /* 임계값 도달 확률 — "앞으로 h거래일 안에 한 번이라도 ±pct%에 닿을 확률".
  * 드리프트 0인 브라운 운동의 한쪽 배리어 도달 확률(반사원리): P = 2·Φ(-b/(σ√h)).
@@ -577,9 +608,10 @@ function makeForecast(data){
   const rets=[]; for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
   const vol = blendedVol(rets);
   const days = nextBusinessDays(data[data.length-1].d, FC_DAYS);
+  const z = fcZ();
   const pts = days.map((ds,i)=>{
     const t=i+1;
-    const band = FC_Z80*vol*Math.sqrt(t);
+    const band = z*vol*Math.sqrt(t);
     // v는 중심값. 방향을 예측하지 않으므로 오늘 종가 그대로 유지된다.
     return { d:ds, v:last, lo:Math.round(last*Math.exp(-band)), hi:Math.round(last*Math.exp(band)) };
   });
@@ -672,11 +704,12 @@ function renderReport(data){
   const last=data[data.length-1].c;
   const c=REPORT_DATA.consensus;
   const up=(c.target/last-1)*100;
+  // 조사에서 확인 못 한 항목은 아예 표시하지 않는다 (없는 값을 지어내지 않기 위해)
   const rows=[
     ['증권사들이 보는 평균 목표가','<b>'+fmt(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'],
-    ['가장 낮게~높게 본 목표가', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원'],
-    ...REPORT_DATA.analysts.map(a=>[a.name+'이 본 목표가',a.target]),
-    ['증권사 의견', REPORT_DATA.rating+' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>'],
+    ...(c.rangeLo&&c.rangeHi ? [['가장 낮게~높게 본 목표가', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원']] : []),
+    ...(REPORT_DATA.analysts||[]).map(a=>[a.name+'이 본 목표가',a.target]),
+    ...(REPORT_DATA.rating ? [['증권사 의견', REPORT_DATA.rating+(REPORT_DATA.ratingTag?' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>':'')]] : []),
     ['지금 가격보다','<b class="'+(up>0?'err-pos':'err-neg')+'">'+(up>0?UPI:DNI)+' '+(up>0?'+':'')+up.toFixed(1)+'%</b>']
   ];
   document.getElementById('expertBody').innerHTML=rows.map(([k,v])=>'<tr><td>'+k+'</td><td class="num">'+v+'</td></tr>').join('');
@@ -697,11 +730,11 @@ function renderReport(data){
   document.getElementById('factorGrid').innerHTML='<div>'+REPORT_DATA.factors.slice(0,half).map(mkF).join('')+'</div><div>'+REPORT_DATA.factors.slice(half).map(mkF).join('')+'</div>';
   // 조사 데이터가 오래되면 경고 표시
   const days=Math.floor((Date.now()-new Date(REPORT_DATA.updated+'T00:00:00').getTime())/86400000);
+  const w=document.getElementById('staleWarn');
   if(days>=4){
-    const w=document.getElementById('staleWarn');
     w.style.display='block';
     w.textContent='⚠️ 증권사 의견과 뉴스 정리가 '+days+'일 전 것이에요. Claude에게 "보고서 갱신"이라고 하면 새로 조사해 드려요. (주가·차트·지표·예상 범위는 지금도 최신이에요)';
-  }
+  } else { w.style.display='none'; }
 }
 
 function renderSummary(data, tech, fc){
@@ -755,8 +788,11 @@ function renderProb(fc){
 
   const p20dn=touchProb(fc.vol,20,-10)*100, p20up=touchProb(fc.vol,20,10)*100;
   const annual=fc.vol*Math.sqrt(252)*100;
+  const v10=ST().vol10y;
+  const lvl = v10 ? (annual>v10*1.5?'꽤 심한 편이에요':annual<v10*0.7?'평소보다 잔잔해요':'평소와 비슷해요') : '';
   document.getElementById('probNote').innerHTML =
-    '요즘 삼성전자는 <b>1년 기준 '+annual.toFixed(0)+'%</b>만큼 흔들리고 있어요. 지난 10년 평균이 34%니까 지금은 꽤 심한 편이에요.<br>'
+    '요즘 '+SYM.name+'는 <b>1년 기준 '+annual.toFixed(0)+'%</b>만큼 흔들리고 있어요. '
+    +(v10?'이 종목의 지난 10년 평균이 '+v10+'%니까 지금은 '+lvl+'.':'')+'<br>'
     +'이대로라면 <b>한 달 안에 '+fmt(fc.base*0.9)+'원까지 내려갈 가능성이 '+p20dn.toFixed(0)+'%</b>, '
     +'<b>'+fmt(fc.base*1.1)+'원까지 올라갈 가능성이 '+p20up.toFixed(0)+'%</b>예요.<br>'
     +'이 숫자는 <b>흔들리는 정도만 보고</b> 계산해요. 오를지 내릴지는 넣지 않았어요. '
@@ -907,18 +943,24 @@ function renderContext(data){
 
   // 시장 동조
   const mb=document.getElementById('marketBox');
-  if(MARKET && (MARKET.kospi||MARKET.hynix||MARKET.sox)){
-    const nm={kospi:'코스피와',hynix:'SK하이닉스와',sox:'미국 반도체 지수와'};
+  if(MARKET && (MARKET.kospi||MARKET.peer||MARKET.sox)){
+    const nm={kospi:'코스피와',peer:(MARKET.peerName||SYM.peer&&SYM.peer.name||'동종업체')+'와',sox:'미국 반도체 지수와'};
     let h='';
-    for(const k of ['kospi','hynix','sox']){
+    for(const k of ['kospi','peer','sox']){
       const m=MARKET[k]; if(!m||m.corr60==null) continue;
       const lvl=m.corr60>=0.7?'거의 똑같이 움직여요':m.corr60>=0.5?'많이 닮았어요':m.corr60>=0.3?'조금 닮았어요':'따로 노는 편이에요';
       h+='<div class="kv"><span class="k">'+nm[k]+'</span><span class="v">'+lvl+' <span class="muted" style="font-weight:400">'+m.corr60.toFixed(2)+'</span></span></div>';
     }
+    const mk=ST().market||{};
     mb.className=''; mb.innerHTML=h+
       '<div class="warnline">최근 3개월 동안 얼마나 같이 움직였는지예요. 1에 가까울수록 똑같이 움직인 거예요.<br>'
-      +'삼성전자가 <b>하루에 5% 넘게 오른 날 중 84%</b>는 코스피도 같이 올랐어요. 삼성전자만 오른 날은 12%뿐이었고요. '
-      +'<b>큰 움직임은 대부분 시장 전체에서 와요.</b> 삼성전자 뉴스만 보는 것보다 시장 분위기를 함께 보는 게 나아요.</div>';
+      +(mk.withMarketPct!=null
+        ? SYM.name+'가 <b>하루에 5% 넘게 오른 날 중 '+mk.withMarketPct+'%</b>는 코스피도 같이 올랐어요. '
+          +'혼자만 오른 날은 '+mk.soloPct+'%였고요. '
+          +(mk.withMarketPct>=80
+            ? '<b>큰 움직임은 대부분 시장 전체에서 와요.</b> 이 종목 뉴스만 보는 것보다 시장 분위기를 함께 보는 게 나아요.'
+            : '<b>시장을 따라가는 편이지만 혼자 움직이는 날도 적지 않아요.</b> 이 종목 자체 소식도 함께 챙기는 게 좋아요.')
+        : '')+'</div>';
   } else {
     mb.className='muted'; mb.textContent='시장 자료를 가져오지 못했어요.';
   }
@@ -931,13 +973,28 @@ function renderContext(data){
   document.getElementById('regimeBox').innerHTML=
     '<div class="kv"><span class="k">1년 중 가장 비쌌을 때보다</span><span class="v '+(pos>=0?'up':'down')+'">'+(pos>=0?UPI:DNI)+' '+pos.toFixed(1)+'% <span class="muted" style="font-weight:400">('+fmt(hi52)+'원)</span></span></div>'+
     '<div class="kv"><span class="k">지금 위치는</span><span class="v">'+(near?'거의 1년 최고가 근처예요':'최고가에서 내려온 상태예요')+'</span></div>'+
-    '<div class="kv"><span class="k">예전에 이런 위치였을 때, 한 달 안에 10% 오른 적</span><span class="v up">'+UPI+' '+(near?'47.7%':'19.1%')+'</span></div>'+
-    '<div class="kv"><span class="k">같은 상황에서 한 달 안에 10% 내린 적</span><span class="v down">'+DNI+' '+(near?'12.3%':'11.9%')+'</span></div>'+
-    '<div class="warnline"><b>이건 예측이 아니라 과거에 그랬다는 기록이에요.</b> 지난 10년을 통틀어 보면 '
-    +'최고가 근처일 때 오르는 쪽으로 많이 기울었어요. 그런데 <b>2022~2025년에는 완전히 반대였어요</b> '
-    +'(최고가 근처인데 오른 경우 3.9%, 내린 경우 14.6%).<br>'
-    +'결국 <b>“오르던 게 계속 오른다”는 얘기</b>인데, 흐름이 꺾이면 그대로 틀려요. '
-    +'그리고 지금이 어느 쪽인지는 지나봐야 알 수 있어요. 비슷한 상황이 13번밖에 없어서 확신하기도 어렵고요.</div>';
+    (()=>{
+      const rg=ST().regime; if(!rg) return '';
+      const up=near?rg.nearUp:rg.farUp, dn=near?rg.nearDn:rg.farDn;
+      const gapNear=rg.nearUp-rg.nearDn, gapFar=rg.farUp-rg.farDn;
+      // 신고가 부근이 그 외보다 확실히 상승 쪽으로 기울 때만 "기울었다"고 말한다
+      const meaningful=(gapNear-gapFar)>=10;
+      const flip=(rg.byPeriod||[]).filter(p=>p.up<p.dn);
+      return '<div class="kv"><span class="k">예전에 이런 위치였을 때, 한 달 안에 10% 오른 적</span><span class="v up">'+UPI+' '+up+'%</span></div>'+
+        '<div class="kv"><span class="k">같은 상황에서 한 달 안에 10% 내린 적</span><span class="v down">'+DNI+' '+dn+'%</span></div>'+
+        '<div class="warnline"><b>이건 예측이 아니라 과거에 그랬다는 기록이에요.</b> '
+        +(meaningful
+          ? '이 종목은 지난 10년을 통틀어 보면 최고가 근처일 때 오르는 쪽으로 기울었어요'
+            +'(최고가 근처 '+rg.nearUp+'% vs 그 외 '+rg.farUp+'%). '
+          : '다만 이 종목은 최고가 근처일 때와 아닐 때가 <b>별로 다르지 않았어요</b>'
+            +'(최고가 근처 '+rg.nearUp+'% vs 그 외 '+rg.farUp+'%). 위치만 보고 판단하기 어렵다는 뜻이에요. ')
+        +(flip.length
+          ? '<br>게다가 <b>'+flip.map(p=>p.p).join(', ')+'에는 반대였어요</b>'
+            +'(최고가 근처인데 오른 경우 '+flip[0].up+'%, 내린 경우 '+flip[0].dn+'%). '
+            +'<b>흐름이 꺾이면 그대로 틀려요.</b> 지금이 어느 쪽인지는 지나봐야 알 수 있어요.'
+          : '<br>시기에 따라 달라질 수 있으니 참고만 하세요.')
+        +'</div>';
+    })();
 
   // 실적 발표 — 잠정실적은 분기 종료 직후(1·4·7·10월 초순)에 나온다
   const dt=new Date(lastDate+'T00:00:00Z');
@@ -953,9 +1010,8 @@ function renderContext(data){
   document.getElementById('earnBox').innerHTML=
     '<div class="kv"><span class="k">다음 실적 발표</span><span class="v">'+ny+'년 '+nm2+'월 초 · '+(dleft<=0?'이번 주':'약 '+dleft+'일 뒤')+'</span></div>'+
     '<div class="kv"><span class="k">지금은</span><span class="v">'+(inWindow?'발표 기간이에요':'발표 기간이 아니에요')+'</span></div>'+
-    '<div class="warnline">삼성전자는 1·4·7·10월 초에 실적을 발표해요. <b>이 시기엔 평소보다 1.1배쯤 더 크게 움직여요.</b> '
-    +'위 예상 범위는 이걸 조금 좁게 잡는 편이니, 발표 주간에는 더 흔들릴 수 있다고 생각하세요.<br>'
-    +'실제로 지난 10년 중 가장 크게 오른 날(2026년 7월 31일, 하루에 +26.8%)도 실적 발표가 계기였어요.<br>'
+    '<div class="warnline">'+SYM.name+'는 1·4·7·10월 초에 실적을 발표해요. '
+    +(ST().earnings ? '<b>이 시기엔 평소보다 '+ST().earnings+'배쯤 더 크게 움직여요.</b> 발표 주간에는 위 예상 범위보다 더 흔들릴 수 있다고 생각하세요.<br>' : '')
     +'<b>정확한 날짜는 회사 공시를 확인하세요.</b> 위 날짜는 지금까지의 패턴으로 짐작한 거예요.</div>';
 }
 
@@ -1092,23 +1148,53 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('[sw] 등록 실패', e)));
 }
 
-/* ============ 7. 초기화 ============ */
-(async function(){
+/* ============ 7. 종목 전환 ============ */
+let TECH=null;
+const SYM_KEY='ssn_last_symbol';
+
+function renderSymBar(){
+  const bar=document.getElementById('symBar');
+  bar.innerHTML = SYMBOLS.map(s=>
+    '<button class="sbtn'+(s.code===SYM.code?' on':'')+'" data-code="'+s.code+'">'
+    +s.name+'<span class="code">'+s.code+'</span></button>').join('')
+    + '<span class="sbtn soon" title="준비 중">종목 추가 예정</span>';
+  bar.querySelectorAll('.sbtn[data-code]').forEach(b=>b.addEventListener('click',()=>{
+    if(b.dataset.code===SYM.code) return;
+    showSymbol(b.dataset.code);
+  }));
+}
+
+async function showSymbol(code){
+  const found=SYMBOLS.find(s=>s.code===code);
+  if(found) SYM=found;
+  try{ localStorage.setItem(SYM_KEY, SYM.code); }catch(e){}
+  // 주소에 남겨 두면 새로고침·공유·홈 화면 아이콘에서 같은 종목으로 열린다
+  try{ history.replaceState(null,'', location.pathname+'?code='+SYM.code); }catch(e){}
+  document.getElementById('pageTitle').textContent = SYM.name+' 주가 리포트';
+  document.getElementById('tickerLine').textContent = 'KRX '+SYM.code;
+  document.title = SYM.name+' 주가 리포트';
+  renderSymBar();
+
   const { data, live, src } = await loadData();
+  if(!data){
+    document.getElementById('liveBadge').textContent='데이터 없음';
+    document.getElementById('asofLine').textContent=SYM.name+' 데이터를 가져오지 못했어요. 잠시 뒤 다시 열어보세요.';
+    return;
+  }
   DATA=data;
-  // 저장소에 최신 조사 데이터(report.json)가 있으면 내장 데이터 대신 사용
+
+  REPORT_DATA = (SYM.code==='005930') ? REPORT_FALLBACK : null;
   try{
-    const r = await fetchWithTimeout('./data/report.json?t='+Date.now(), 6000);
+    const r = await fetchWithTimeout(dataUrl('report'), 6000);
     if(r.ok){ const j = await r.json(); if(j && j.updated) REPORT_DATA = j; }
   }catch(e){}
+
   STORE=loadStore();
-  // 저장소에 예측 기록(predictions.json)이 있으면 병합 (저장소 기록 우선 → 기기와 무관하게 동일한 기록)
   try{
-    const r = await fetchWithTimeout('./data/predictions.json?t='+Date.now(), 6000);
+    const r = await fetchWithTimeout(dataUrl('predictions'), 6000);
     if(r.ok){ const j = await r.json(); STORE = Object.assign({}, STORE, j); }
   }catch(e){}
   const lastDate=data[data.length-1].d;
-  // 오늘(최신 거래일) 기준 예측이 없으면 생성·저장
   if(!STORE[lastDate]){
     const fc=makeForecast(data);
     // vol을 함께 저장해야 임계값 확률 예보를 나중에 재현·채점할 수 있다 (update_daily.js와 동일 형식)
@@ -1118,25 +1204,50 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   const rec=STORE[lastDate];
   // 이전 방식으로 기록된 날이면 기록은 그대로 두고(예측-실제 비교의 공정성) 화면에는 현재 방식으로 표시한다.
   FC = (rec.m||1) >= 2 ? rec : makeForecast(data);
+
   // 맥락 정보 (예측에는 쓰이지 않음 — 실패해도 앱은 정상 동작)
-  try{
-    const r = await fetchWithTimeout('./data/flow.json?t='+Date.now(), 6000);
-    if(r.ok) FLOW = await r.json();
-  }catch(e){}
-  try{
-    const r = await fetchWithTimeout('./data/market.json?t='+Date.now(), 6000);
-    if(r.ok) MARKET = await r.json();
-  }catch(e){}
+  FLOW=null; MARKET=null;
+  try{ const r = await fetchWithTimeout(dataUrl('flow'), 6000); if(r.ok) FLOW = await r.json(); }catch(e){}
+  try{ const r = await fetchWithTimeout(dataUrl('market'), 6000); if(r.ok) MARKET = await r.json(); }catch(e){}
 
   renderStats(data, live, src);
-  const tech=renderTech(data);
-  renderReport(data);
-  renderSummary(data, tech, FC);
+  TECH=renderTech(data);
+  renderAll();
+  document.getElementById('disclaimer').innerHTML =
+    '⚠️ 이 화면은 참고용으로 자동 만들어진 자료예요. <b>투자를 권하거나 상담해 드리는 것이 아니에요.</b> '
+    +'갑작스러운 뉴스나 정책 변화는 계산에 들어가 있지 않아요. '
+    +(ST().vol10y ? SYM.name+'는 지난 10년 평균 변동성이 '+ST().vol10y+'%로 큰 편이에요. ' : '')
+    +'투자 결정과 그 결과는 본인에게 달려 있어요.';
+}
+
+// 기간 버튼·종목 전환 후 화면 전체를 다시 그린다
+function renderAll(){
+  if(!DATA) return;
+  if(REPORT_DATA) renderReport(DATA); else document.getElementById('staleWarn').style.display='none';
+  renderSummary(DATA, TECH, FC);
   renderProb(FC);
-  renderHistory(data);
-  renderProbScore(scoreProb(data));
-  try{ renderContext(data); }catch(e){ console.warn('맥락 카드 렌더 실패:', e); }
+  renderHistory(DATA);
+  renderProbScore(scoreProb(DATA));
+  try{ renderContext(DATA); }catch(e){ console.warn('맥락 카드 렌더 실패:', e); }
   buildChart(RANGE);
+}
+
+/* ============ 8. 초기화 ============ */
+(async function(){
+  // 종목 목록 (실패하면 내장 폴백 = 삼성전자만)
+  try{
+    const r = await fetchWithTimeout('./data/symbols.json?t='+Date.now(), 6000);
+    if(r.ok){ const j = await r.json(); if(j && j.symbols && j.symbols.length) SYMBOLS = j.symbols; }
+  }catch(e){}
+
+  // 어떤 종목을 보여줄지: 주소 → 지난번 선택 → 첫 종목
+  const q=new URLSearchParams(location.search).get('code');
+  let start = SYMBOLS.find(s=>s.code===q);
+  if(!start){ try{ start = SYMBOLS.find(s=>s.code===localStorage.getItem(SYM_KEY)); }catch(e){} }
+  SYM = start || SYMBOLS[0];
+
+  await showSymbol(SYM.code);
+
   document.querySelectorAll('.rbtn').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
@@ -1147,9 +1258,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     document.querySelectorAll('.hbtn').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
     H=+b.dataset.h;
-    renderSummary(data, tech, FC);   // 요약문·성적표·표·차트가 모두 선택 기간을 따른다
-    renderHistory(data);
-    buildChart(RANGE);
+    renderAll();   // 요약문·성적표·표·차트가 모두 선택 기간을 따른다
   }));
   // 차트 확대 보기
   const box=document.getElementById('chartBox');

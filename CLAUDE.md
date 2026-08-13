@@ -6,7 +6,20 @@
 
 - `index.html` — 앱 전체 (HTML+CSS+JS 단일 파일). Chart.js는 cdnjs에서 로드.
 - `data/prices.json` — 최근 1년 시세. Actions가 매일 갱신. `{updated, rows:[{d,c,v}]}` (d=날짜, c=종가, v=거래량 백만주)
-- `data/predictions.json` — 예측 기록 누적. `{ "기준일": {madeOn, base, m, vol, pts:[{d,v,lo,hi}]} }` (m=모델 버전, vol=그날의 일간 혼합변동성, pts는 20거래일치). 한번 기록된 예측은 절대 수정하지 않는다(예측-실제 비교의 공정성). **vol이 있어야 임계값 확률 예보를 나중에 재현·채점할 수 있다.**
+### 여러 종목 구조 (2026-08-13~)
+
+- `data/symbols.json` — 종목 목록 + **종목별 검증 상수**(`stats`). 앱과 스크립트 모두 이 파일을 읽는다.
+  - **`stats`는 그 종목 10년 데이터로 직접 계산한 값이다. 다른 종목 값을 복사하면 화면에 거짓이 뜬다.**
+    (예: 신고가 부근 효과는 삼성 41.7% vs 17.3%로 크지만, 하이닉스는 40.2% vs 35.5%로 사실상 없다.
+     시장 동조도 삼성 84% / 하이닉스 69%, 10년 변동성 34% / 46%로 다르다.)
+  - 종목을 추가하면 `scratchpad/symbol_stats.js` 같은 스크립트로 **반드시 다시 계산**할 것.
+- 종목별 데이터는 `data/<종목코드>/{prices,predictions,report,flow,market}.json`.
+- 화면 전환: 상단 버튼 또는 `?code=000660`. 마지막 선택은 localStorage에 남는다.
+- localStorage 키는 `ssn<코드>_predictions_v1` — 005930은 기존 키와 같아 예전 기록이 이어진다.
+- `report.json`은 항목이 빠져도 된다(`rangeLo/rangeHi`, `rating` 등). **확인 못 한 값은 넣지 말 것.**
+  앱이 빠진 항목의 줄을 알아서 감춘다.
+
+- `data/<종목코드>/predictions.json` — 예측 기록 누적. `{ "기준일": {madeOn, base, m, vol, pts:[{d,v,lo,hi}]} }` (m=모델 버전, vol=그날의 일간 혼합변동성, pts는 20거래일치). 한번 기록된 예측은 절대 수정하지 않는다(예측-실제 비교의 공정성). **vol이 있어야 임계값 확률 예보를 나중에 재현·채점할 수 있다.**
 - `data/flow.json` — 수급(외국인·기관 순매수). `{updated, rows:[{d,vol,org,frn,hold}]}` 최근 250거래일. **맥락 정보이고 예측에 쓰이지 않는다.**
 - `data/market.json` — 시장 동조 지표. `{updated, kospi:{corr60,chg1}, hynix:…, sox:…}`. 역시 맥락 정보.
 - `data/report.json` — 조사 데이터(전문가 의견·동향·종합평가). 수동 갱신 대상.
