@@ -23,9 +23,10 @@ function checkParity() {
     const out = execSync('node ' + JSON.stringify(path.join(__dirname, 'parity.js')), { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     return out.trim();
   } catch (e) {
-    errors.push('모델 이중 구현이 어긋났습니다 (index.html ↔ scripts/update_daily.js)\n'
-      + String(e.stdout || '').trim().split('\n').map(l => '    ' + l).join('\n')
-      + String(e.stderr || '').trim().split('\n').map(l => '    ' + l).join('\n'));
+    // parity.js 는 성공 줄을 stdout, 실패 줄을 stderr 에 쓴다. 둘을 합쳐 한 번만 보여준다.
+    const detail = [String(e.stdout || '').trim(), String(e.stderr || '').trim()]
+      .filter(Boolean).join('\n').split('\n').map(l => '    ' + l).join('\n');
+    errors.push('모델 이중 구현이 어긋났습니다 (index.html ↔ scripts/update_daily.js)\n' + detail);
     return null;
   }
 }

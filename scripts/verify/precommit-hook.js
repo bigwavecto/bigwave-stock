@@ -32,12 +32,17 @@ if (/SKIP_PREFLIGHT=1/.test(cmd)) {
 }
 
 try {
-  const out = execFileSync(process.execPath, [path.join(__dirname, 'preflight.js')], { encoding: 'utf8' });
+  // stdio를 명시하지 않으면 execFileSync가 자식 stderr를 부모로 흘리면서 동시에 캡처해
+  // 같은 메시지가 두 번 출력된다. 셋 다 못 박아 캡처만 되게 한다.
+  const out = execFileSync(process.execPath, [path.join(__dirname, 'preflight.js')],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   process.stdout.write(out);
   process.exit(0);
 } catch (e) {
-  const text = String(e.stdout || '') + String(e.stderr || '');
-  console.error(text.trim());
+  // preflight가 같은 내용을 stdout·stderr 양쪽에 남기는 경우가 있어 중복을 걷어낸다
+  const a = String(e.stdout || '').trim(), b = String(e.stderr || '').trim();
+  const text = (a && b && b.includes(a)) ? b : (a && b && a.includes(b)) ? a : [a, b].filter(Boolean).join('\n');
+  console.error(text);
   console.error('\n커밋을 멈췄습니다. 위 문제를 고친 뒤 다시 시도하세요.');
   console.error('정말 이대로 커밋해야 한다면 명령 앞에 SKIP_PREFLIGHT=1 을 붙이세요.');
   process.exit(2);
