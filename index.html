@@ -74,6 +74,14 @@
   .lead .hl{color:var(--accent)}
   .lead .up{color:var(--up)} .lead .down{color:var(--down)}
   .sub-h{font-size:.82rem;font-weight:800;color:var(--txt);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  /* 묶음 제목 — 검증된 것 / 사실 정보 / 사람들 의견을 화면에서 갈라 보여준다.
+     세 묶음의 성격이 다르다는 것이 카드 제목만으로는 드러나지 않았다. */
+  .group-h{display:flex;align-items:center;gap:10px;margin:30px 2px 12px;font-size:.8rem;font-weight:800;color:var(--sub);letter-spacing:.01em}
+  .group-h::after{content:'';flex:1;height:1px;background:var(--line)}
+  .group-h .gn{font-weight:600;color:var(--sub);opacity:.85}
+  .group-h .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .group-h.fact .dot{background:var(--sub)}
+  .group-h.opinion .dot{background:var(--gold)}
   .kv{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;padding:5px 0;border-bottom:1px dashed var(--line)}
   .kv:last-child{border-bottom:0}
   .kv .k{color:var(--sub)}
@@ -89,9 +97,13 @@
   #chartBox{position:relative;height:420px;width:100%;min-width:0;overflow:hidden}
   #mainChart{display:block;max-width:100%}
   .summary-banner{display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:linear-gradient(120deg,rgba(37,99,235,.07),rgba(15,157,110,.05));border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
-  .score-circle{width:108px;height:108px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 7px;text-align:center;line-height:1.2;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
-  .score-circle .n{font-size:1.1rem;word-break:keep-all}
-  .score-circle .t{font-size:.62rem;font-weight:600;color:var(--sub);white-space:nowrap}
+  /* 상단 원형 표시. 2026-08-14에 "지금 분위기"(방향 판정) 배지를 여기서 걷어내고
+     검증된 정보인 "지금 얼마나 흔들리는지"로 바꿨다 — docs/adr/007.
+     등급에 따라 테두리 색을 바꾸지 않는 것도 의도다. 흔들림은 좋고 나쁨이 아니라
+     크고 작음이다. 색으로 신호를 주면 없앤 배지가 그대로 돌아온다. */
+  .vol-circle{width:108px;height:108px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 7px;text-align:center;line-height:1.2;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
+  .vol-circle .n{font-size:1.02rem;word-break:keep-all}
+  .vol-circle .t{font-size:.62rem;font-weight:600;color:var(--sub);white-space:nowrap}
   .summary-txt{flex:1;min-width:260px;font-size:.92rem}
   .summary-txt b{color:var(--gold)}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
@@ -195,6 +207,10 @@
     #chartBox{height:320px}
     .card{padding:18px 14px}
     .summary-banner{padding:16px 14px}
+    /* 모바일에서는 원형 표시 아래로 내려 한 줄을 다 쓰게 한다.
+       min-width:260px로 두면 320px에서 배너 안쪽이 3px 밀리고, 그냥 0으로 풀면
+       원 옆에 119px로 끼어들어 글자가 넘친다. 둘 다 겪었다. */
+    .summary-txt{flex-basis:100%;min-width:0}
     /* 기간 버튼: 손가락 터치 최소 크기 44px 확보 */
     .rbtn,.hbtn{min-height:44px;padding:0 16px;display:inline-flex;align-items:center;font-size:.85rem}
     .tools-label{width:100%;margin-bottom:-4px}
@@ -231,9 +247,11 @@
   </div>
 
   <div class="summary-banner">
-    <div class="score-circle" id="scoreCircle"><span class="n" id="scoreN">-</span><span class="t">지금 분위기</span></div>
+    <div class="vol-circle" id="volCircle"><span class="n" id="volN">-</span><span class="t">지금 흔들림</span></div>
     <div class="summary-txt" id="summaryTxt">데이터를 보는 중이에요…</div>
   </div>
+
+  <div class="group-h"><span class="dot"></span>이 앱이 실제로 확인한 것 <span class="gn">— 10년치로 시험해 맞는다고 확인한 내용이에요</span></div>
 
   <div class="card">
     <h2>주가 흐름과 앞으로 예상 범위</h2>
@@ -266,25 +284,6 @@
     <p class="scroll-hint no-hint-mobile">표를 옆으로 밀면 나머지도 보여요 →</p>
     <div class="tscroll"><table id="probTable" class="vtable"></table></div>
     <div class="verdict"><div class="vt">🧭 이렇게 보세요</div><div id="probNote">-</div></div>
-  </div>
-
-  <div class="card" id="contextCard">
-    <h2>참고 정보 <span class="muted" style="font-weight:400">예측이 아니라, 지금 상황이에요</span></h2>
-    <p class="lead">숫자로 앞날을 맞히진 못하지만, <span class="hl">지금 무슨 일이 벌어지고 있는지</span>는 알려드릴 수 있어요.</p>
-    <div class="grid2">
-      <div>
-        <div class="sub-h">외국인·기관이 사고 있나요</div>
-        <div id="flowBox" class="muted">불러오는 중…</div>
-      </div>
-      <div>
-        <div class="sub-h">혼자 움직이나요, 같이 움직이나요</div>
-        <div id="marketBox" class="muted">불러오는 중…</div>
-      </div>
-    </div>
-    <div class="sub-h" style="margin-top:18px">지금은 어디쯤인가요</div>
-    <div id="regimeBox" class="muted">-</div>
-    <div class="sub-h" style="margin-top:18px">다음 실적 발표는 언제인가요</div>
-    <div id="earnBox" class="muted">-</div>
   </div>
 
   <div class="card">
@@ -325,30 +324,53 @@
     </div>
   </div>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>차트 지표 <span class="muted" style="font-weight:400">지금 계산한 값이에요</span></h2>
-      <p class="lead" id="techLead">-</p>
-      <table>
-        <tbody id="techBody"></tbody>
-      </table>
-      <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="techVerdict">-</div></div>
-    </div>
+  <div class="group-h fact"><span class="dot"></span>지금 벌어지고 있는 일 <span class="gn">— 앞날을 맞히는 데는 쓰지 않는, 이미 일어난 사실이에요</span></div>
 
-    <div class="card">
-      <h2>증권사는 어떻게 보나요 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
-      <p class="lead" id="expertLead">-</p>
-      <table>
-        <tbody id="expertBody"></tbody>
-      </table>
-      <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="expertVerdict">-</div></div>
-      <p class="src">출처:
-        <a href="https://bullstory.io/blog/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-%EC%A3%BC%EA%B0%80-%EC%A0%84%EB%A7%9D-2026-2%EB%B6%84%EA%B8%B0-%EC%98%81%EC%97%85%EC%9D%B4%EC%9D%B5-895%EC%A1%B0%EC%9B%90%EA%B3%BC-%EB%AA%A9%ED%91%9C%EC%A3%BC%EA%B0%80-493542%EC%9B%90-%EA%B7%B8-%EC%82%AC%EC%9D%B4%EC%9D%98-%EA%B0%84%EA%B7%B9" target="_blank">불스토리</a> ·
-        <a href="https://www.thecommoditiesnews.com/news/articleView.html?idxno=11596" target="_blank">CNews</a> ·
-        <a href="https://www.infostockdaily.co.kr/news/articleView.html?idxno=217228" target="_blank">인포스탁데일리</a> ·
-        <a href="https://www.investing.com/equities/samsung-electronics-co-ltd-consensus-estimates" target="_blank">Investing.com</a>
-      </p>
+  <div class="card" id="contextCard">
+    <h2>지금 상황 <span class="muted" style="font-weight:400">예측이 아니라, 지금까지 실제로 일어난 일이에요</span></h2>
+    <p class="lead" id="nowLead">-</p>
+    <p class="muted" style="margin-bottom:14px">
+      아래 숫자는 전부 <b>이미 일어난 일</b>이에요. 앞날을 맞히는 데는 쓰지 않아요 —
+      10년치로 확인해 보니 이 숫자들로는 오를지 내릴지를 알 수 없었거든요.
+      딱 하나 <b>얼마나 흔들리는지</b>만 위 예상 범위 계산에 쓰여요.
+    </p>
+
+    <div class="sub-h">가격이 어디쯤 와 있나요</div>
+    <table>
+      <tbody id="techBody"></tbody>
+    </table>
+
+    <div class="grid2" style="margin-top:20px">
+      <div>
+        <div class="sub-h">외국인·기관이 사고 있나요</div>
+        <div id="flowBox" class="muted">불러오는 중…</div>
+      </div>
+      <div>
+        <div class="sub-h">혼자 움직이나요, 같이 움직이나요</div>
+        <div id="marketBox" class="muted">불러오는 중…</div>
+      </div>
     </div>
+    <div class="sub-h" style="margin-top:20px">1년 최고가와 비교하면</div>
+    <div id="regimeBox" class="muted">-</div>
+    <div class="sub-h" style="margin-top:20px">다음 실적 발표는 언제인가요</div>
+    <div id="earnBox" class="muted">-</div>
+  </div>
+
+  <div class="group-h opinion"><span class="dot"></span>사람들이 보는 것 <span class="gn">— 조사해서 옮겨 온 의견이에요. 맞는지는 확인할 수 없어요</span></div>
+
+  <div class="card">
+    <h2>증권사는 어떻게 보나요 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
+    <p class="lead" id="expertLead">-</p>
+    <table>
+      <tbody id="expertBody"></tbody>
+    </table>
+    <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="expertVerdict">-</div></div>
+    <p class="src">출처:
+      <a href="https://bullstory.io/blog/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-%EC%A3%BC%EA%B0%80-%EC%A0%84%EB%A7%9D-2026-2%EB%B6%84%EA%B8%B0-%EC%98%81%EC%97%85%EC%9D%B4%EC%9D%B5-895%EC%A1%B0%EC%9B%90%EA%B3%BC-%EB%AA%A9%ED%91%9C%EC%A3%BC%EA%B0%80-493542%EC%9B%90-%EA%B7%B8-%EC%82%AC%EC%9D%B4%EC%9D%98-%EA%B0%84%EA%B7%B9" target="_blank">불스토리</a> ·
+      <a href="https://www.thecommoditiesnews.com/news/articleView.html?idxno=11596" target="_blank">CNews</a> ·
+      <a href="https://www.infostockdaily.co.kr/news/articleView.html?idxno=217228" target="_blank">인포스탁데일리</a> ·
+      <a href="https://www.investing.com/equities/samsung-electronics-co-ltd-consensus-estimates" target="_blank">Investing.com</a>
+    </p>
   </div>
 
   <div class="card">
@@ -365,6 +387,8 @@
       <a href="https://www.newspim.com/news/view/20260720001033" target="_blank">뉴스핌(CXMT 분석)</a>
     </p>
   </div>
+
+  <div class="group-h"><span class="dot"></span>이 앱은 어떻게 계산하나요 <span class="gn">— 무엇을 해봤고 무엇이 안 됐는지</span></div>
 
   <div class="card">
     <h2>왜 “얼마가 된다”고 말하지 않나요?</h2>
@@ -654,50 +678,57 @@ function renderStats(data, live, src){
   document.getElementById('asofLine').textContent=last.d+' 장 마감 가격 기준이에요 · 지금 보고 계신 시각 '+new Date().toLocaleString('ko-KR');
 }
 
+/* 지금 흔들림(1년 기준 %). 화면 여러 곳에서 같은 숫자를 써야 하므로 한 곳에서 뽑는다.
+   예상 범위를 만든 값(FC.vol)과 같은 값이어야 상단 배지와 표가 어긋나지 않는다. */
+function volNowPct(data){
+  let v = (FC && FC.vol) ? FC.vol : null;
+  if(v==null){
+    const closes=data.map(p=>p.c), rets=[];
+    for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
+    v = blendedVol(rets);
+  }
+  return v*Math.sqrt(252)*100;
+}
+
+/* "지금 상황" 카드의 숫자표.
+   2026-08-14에 방향 해석 문구를 전부 걷어냈다 — 평균가 이격·RSI·고저 위치는
+   10년 검증에서 이후 수익률을 전혀 예측하지 못했다(docs/adr/006, 007).
+   숫자 자체는 사실이므로 남기되 "짧게 보면 오름세" 같은 해석은 붙이지 않는다.
+   흔들림만 실제로 예상 범위 계산에 쓰이므로, 그 사실을 표에 드러낸다. */
 function renderTech(data){
   const closes=data.map(p=>p.c);
   const last=closes[closes.length-1];
   const s20=sma(closes,20), s60=sma(closes,60), s120=sma(closes,120);
   const r=rsi(closes);
-  const rets=[]; for(let i=closes.length-20;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
-  const vol20=stdev(rets)*Math.sqrt(252)*100;
   const rec=closes.slice(-60);
   const support=Math.min(...rec), resist=Math.max(...rec);
+  const volA=volNowPct(data);
+  const base10=ST().vol10y||null;
+  const ratio=base10 ? volA/base10 : null;
+
+  // 평균가·최저·최고는 "지금 가격이 그보다 몇 % 위/아래인가"라는 사실만 적는다
+  const gap=b=>{ const d=(last/b-1)*100;
+    return [(d>=0?UPI:DNI)+' 지금 가격이 '+Math.abs(d).toFixed(1)+'% '+(d>=0?'위':'아래'),'neu']; };
   const rows=[
-    ['최근 1개월 평균가', fmt(s20)+'원', last>s20?[UPI+' 지금 가격이 이보다 위 · 짧게 보면 오름세','pos']:[DNI+' 지금 가격이 이보다 아래 · 짧게 보면 내림세','neg']],
-    ['최근 3개월 평균가', fmt(s60)+'원', last>s60?[UPI+' 평균보다 위 · 중간 흐름도 오름세','pos']:[DNI+' 평균보다 아래 · 중간 흐름은 쉬어가는 중','neg']],
-    ['최근 6개월 평균가', fmt(s120)+'원', last>s120?[UPI+' 평균보다 위 · 긴 흐름도 오름세','pos']:[DNI+' 평균보다 아래 · 긴 흐름은 꺾인 상태','neg']],
-    ['과열·침체 지수 (RSI)', r.toFixed(1), r>70?['🔥 70 넘음 · 너무 달아올랐어요','neg']:r<30?['🧊 30 아래 · 많이 식었어요','pos']:['30~70 · 보통이에요','neu']],
-    ['얼마나 흔들리나 (1년 기준)', vol20.toFixed(0)+'%', vol20>60?['⚡ 아주 심하게 흔들려요','neg']:vol20>35?['평소보다 많이 흔들려요','neu']:['잔잔한 편이에요','pos']],
-    ['최근 3개월 최저가', fmt(support)+'원', [DNI+' 여기까지 내려오면 사려는 사람이 많았어요','neu']],
-    ['최근 3개월 최고가', fmt(resist)+'원', [UPI+' 여기를 넘으면 분위기가 바뀌는 자리예요','neu']],
+    ['최근 1개월 평균가', fmt(s20)+'원', gap(s20)],
+    ['최근 3개월 평균가', fmt(s60)+'원', gap(s60)],
+    ['최근 6개월 평균가', fmt(s120)+'원', gap(s120)],
+    ['최근 3개월 최저가', fmt(support)+'원', gap(support)],
+    ['최근 3개월 최고가', fmt(resist)+'원', gap(resist)],
+    ['과열·침체 지수 (RSI)', r.toFixed(1),
+      [(r>70?'🔥 70 위 · 흔히 과열이라 불러요':r<30?'🧊 30 아래 · 흔히 침체라 불러요':'30~70 · 흔히 보통이라 불러요'),'neu']],
+    ['얼마나 흔들리나 (1년 기준)', volA.toFixed(0)+'%',
+      ['✅ 이 값만 위 예상 범위 계산에 쓰여요'+(ratio!=null?' · 지난 10년 평균은 '+base10+'%':''),'pos']],
   ];
   document.getElementById('techBody').innerHTML = rows.map(([k,v,[t,c]])=>
     '<tr><td>'+k+'</td><td class="num"><b>'+v+'</b></td><td><span class="tag '+c+'">'+t+'</span></td></tr>').join('');
 
-  // ── 기술적 지표 종합평가 (매번 최신 수치로 자동 생성) ──
-  const trendCnt=[last>s20,last>s60,last>s120].filter(Boolean).length;
-  const trendTxt = trendCnt===3?'1개월·3개월·6개월 평균가를 모두 위에 두고 있어요. 흐름이 가장 좋을 때의 모습이에요'
-    : trendCnt===2?'세 평균가 중 두 개를 넘어섰어요. 회복하는 모습이에요'
-    : trendCnt===1?'평균가 위아래가 엇갈려요. 방향을 찾는 중이에요'
-    : '세 평균가를 모두 밑돌고 있어요. 흐름이 꺾인 상태예요';
-  const rsiTxt = r>70?'과열 지수가 '+r.toFixed(0)+'이라 좀 달아올랐어요. 잠깐 쉬어갈 수 있어요'
-    : r<30?'과열 지수가 '+r.toFixed(0)+'으로 많이 식었어요. 되돌아 오를 여지가 있어요'
-    : '과열 지수는 '+r.toFixed(0)+'으로 보통이에요';
-  const volTxt = vol20>60?'요즘 아주 심하게 흔들려요(1년 기준 '+vol20.toFixed(0)+'%). 하루에 크게 오르내리는 게 예삿일인 구간이에요'
-    : vol20>35?'평소보다 많이 흔들려요(1년 기준 '+vol20.toFixed(0)+'%)'
-    : '흔들림은 잔잔한 편이에요';
-  const posPct=(last-support)/(resist-support)*100;
-  const posTxt='지금 가격은 최근 3개월 가격대('+fmt(support)+'~'+fmt(resist)+'원)에서 '+posPct.toFixed(0)+'% 지점이에요. '
-    +(posPct<35?'바닥 쪽에 가까워요.'
-    : posPct>75?'천장 쪽에 가까워요.'
-    : '딱 중간쯤이에요.');
-  document.getElementById('techVerdict').textContent = trendTxt+'. '+rsiTxt+'. '+volTxt+'. '+posTxt;
-  document.getElementById('techLead').innerHTML =
-    (trendCnt>=2?'<span class="up">'+UPI+'</span> ':'<span class="down">'+DNI+'</span> ')
-    +'평균가 3개 중 <span class="hl">'+trendCnt+'개</span>를 넘어섰고, '
-    +(vol20>60?'요즘 <span class="up">아주 심하게</span> 흔들려요.':vol20>35?'평소보다 <span class="up">많이</span> 흔들려요.':'흔들림은 잔잔한 편이에요.');
-  return { s20,s60,s120,rsi:r,vol20 };
+  // 한 줄 요약도 사실만 — 어느 쪽으로 갈지는 말하지 않는다
+  document.getElementById('nowLead').innerHTML =
+    '지금 가격은 최근 3개월 <span class="hl">'+fmt(support)+'~'+fmt(resist)+'원</span> 안에 있고, '
+    +(ratio!=null
+      ? '요즘 흔들림은 지난 10년 평균의 <span class="hl">'+ratio.toFixed(1)+'배</span>예요.'
+      : '요즘 흔들림은 1년 기준 <span class="hl">'+volA.toFixed(0)+'%</span>예요.');
 }
 
 function renderReport(data){
@@ -737,32 +768,40 @@ function renderReport(data){
   } else { w.style.display='none'; }
 }
 
-function renderSummary(data, tech, fc){
-  const last=data[data.length-1].c;
-  let score=0; const why=[];
-  if(last>tech.s20){score++; why.push('짧은 흐름은 오름세');} else {score--; why.push('짧은 흐름은 내림세');}
-  if(last>tech.s60){score++;} else {score--;}
-  if(tech.rsi<30){score++; why.push('많이 식어 있음');} else if(tech.rsi>70){score--; why.push('좀 달아올라 있음');}
-  const up=(REPORT_DATA.consensus.target/last-1)*100;
-  if(up>30){score++; why.push('증권사 목표가가 지금보다 '+up.toFixed(0)+'% 위');}
-  if(tech.vol20>60){score--; why.push('요즘 심하게 흔들리는 중');}
-  // 예전에는 여기에 예측 방향(drift) 점수가 있었으나, 방향 예측이 검증에서 탈락해 제거했다.
-  const label = score>=3?['좋음','var(--green)']:score>=1?['조금 좋음','var(--accent)']:score>=-1?['보통','var(--gold)']:['조심','var(--up)'];
-  const sc=document.getElementById('scoreCircle');
-  sc.style.borderColor=label[1];
-  document.getElementById('scoreN').textContent=label[0];
+/* 상단 요약.
+   여기에는 "지금 분위기"(좋음/조금 좋음/보통/조심) 원형 배지가 있었다.
+   두 종목 10년치로 채점해 보니 등급과 이후 수익률이 무관했고, 하이닉스에서는
+   순서가 완전히 뒤집혔다. 게다가 바로 아래 "오를지 내릴지는 맞히지 않아요"와
+   정면으로 모순됐다. 2026-08-14에 점수 로직째로 제거했다 — docs/adr/007.
+   되살리려는 논의가 나오면 그 문서의 "되돌리려면"을 먼저 읽을 것.
+   대신 검증된 정보인 "지금 얼마나 흔들리는지"를 보여준다. */
+function renderSummary(data, fc){
   const pt=fc.pts[H-1], nm=HORIZON_NAME[H];
   const w=(Math.sqrt(pt.hi/pt.lo)-1)*100;
+  const volA=volNowPct(data);
+  const base10=ST().vol10y||null;
+  const ratio=base10 ? volA/base10 : null;
+  const word = ratio==null ? ''
+    : ratio<0.8 ? '평소보다 잔잔해요'
+    : ratio<1.2 ? '평소만큼 흔들려요'
+    : ratio<1.6 ? '평소보다 많이 흔들려요'
+    : '평소보다 아주 많이 흔들려요';
+  // 등급에 따라 색을 바꾸지 않는다. 흔들림은 좋고 나쁨이 아니라 크고 작음이다.
+  document.getElementById('volN').textContent =
+    ratio==null ? volA.toFixed(0)+'%' : '평소의 '+ratio.toFixed(1)+'배';
+
   document.getElementById('chartLead').innerHTML =
     '<span class="down">'+DNI+' '+fmt(pt.lo)+'원</span> ~ <span class="up">'+UPI+' '+fmt(pt.hi)+'원</span>. '
     +nm+' 뒤 가격은 <span class="hl">10번 중 8번</span> 이 안에 있어요.';
   document.getElementById('summaryTxt').innerHTML =
     '<b>'+nm+' 뒤 가격은 '+fmt(pt.lo)+'~'+fmt(pt.hi)+'원</b> 사이일 가능성이 높아요. '
     +'지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도고, <b>10번 중 8번</b>은 이 안에 들어와요.<br>'
+    +(ratio!=null
+      ? '요즘 '+SYM.name+'는 <b>'+word+'</b>. 1년 기준으로 '+volA.toFixed(0)+'%인데 지난 10년 평균은 '+base10+'%였어요. '
+        +'흔들림이 커지면 예상 범위도 그만큼 넓어져요.<br>'
+      : '')
     +'이 앱은 <b>오를지 내릴지는 맞히지 않아요.</b> 지난 10년으로 확인해 보니 그런 예측이 '
-    +'“오늘 가격 그대로”라고 말하는 것보다도 안 맞았거든요. 대신 얼마나 흔들릴지만 알려드려요.<br>'
-    +'지금 상황을 요약하면 — '+why.join(', ')+'. '
-    +'증권사들은 목표가를 '+fmt(REPORT_DATA.consensus.target)+'원으로 보고 있는데, 이건 예측이 아니라 참고용이에요.';
+    +'“오늘 가격 그대로”라고 말하는 것보다도 안 맞았거든요. 대신 얼마나 흔들릴지만 알려드려요.';
 }
 
 /* 임계값 확률 표. 기간·임계값은 고정 — 검증한 조합만 보여준다. */
@@ -1149,7 +1188,6 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 
 /* ============ 7. 종목 전환 ============ */
-let TECH=null;
 const SYM_KEY='ssn_last_symbol';
 
 function renderSymBar(){
@@ -1211,7 +1249,7 @@ async function showSymbol(code){
   try{ const r = await fetchWithTimeout(dataUrl('market'), 6000); if(r.ok) MARKET = await r.json(); }catch(e){}
 
   renderStats(data, live, src);
-  TECH=renderTech(data);
+  renderTech(data);
   renderAll();
   document.getElementById('disclaimer').innerHTML =
     '⚠️ 이 화면은 참고용으로 자동 만들어진 자료예요. <b>투자를 권하거나 상담해 드리는 것이 아니에요.</b> '
@@ -1224,7 +1262,7 @@ async function showSymbol(code){
 function renderAll(){
   if(!DATA) return;
   if(REPORT_DATA) renderReport(DATA); else document.getElementById('staleWarn').style.display='none';
-  renderSummary(DATA, TECH, FC);
+  renderSummary(DATA, FC);
   renderProb(FC);
   renderHistory(DATA);
   renderProbScore(scoreProb(DATA));
