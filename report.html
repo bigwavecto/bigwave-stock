@@ -551,7 +551,8 @@ let SYMBOLS = [{
   peer:{ code:"000660", name:"SK하이닉스", yahoo:"000660.KS" },
   stats:{ z1:1.04, regime:{ nearUp:41.7, nearDn:11.5, farUp:17.3, farDn:11.1,
             byPeriod:[{p:"2019~2022",up:36.1,dn:3.0},{p:"2022~2025",up:3.9,dn:14.6},{p:"2025~현재",up:86.5,dn:12.6}] },
-          market:{ withMarketPct:84, soloPct:16 }, earnings:1.11, vol10y:34, growth10y:8.6 }
+          market:{ withMarketPct:84, soloPct:16 }, earnings:1.11, histYears:9.8,
+          volBase:{ pct:34, years:9.8 }, growth:{ x:8.6, years:9.8 } }
 }];
 let SYM = SYMBOLS[0];                       // 현재 보고 있는 종목
 const ST = () => (SYM.stats || {});
@@ -781,6 +782,16 @@ function renderStats(data, live, src){
   document.getElementById('asofLine').textContent=last.d+' 장 마감 가격 기준이에요 · 지금 보고 계신 시각 '+new Date().toLocaleString('ko-KR');
 }
 
+/* "평소" 기준값 — 그 종목의 흔들림 기준과 **그 기준이 몇 년치인지**를 함께 돌려준다.
+   3년치 종목을 "평소"라고 부르면 거짓말이 된다(3년 창은 10년 기준보다 1.4배 높게 나온다).
+   기준 기간을 화면에 밝히면 사실이 된다 — docs/adr/008.
+   5년 미만이면 이 값을 만들지 않는다. 그때는 화면이 절대값(연 %)만 보여준다. */
+function volBaseOf(){
+  const b=ST().volBase;
+  if(!b || !b.pct || !b.years || b.years<4.5) return null;
+  return { pct:b.pct, years:b.years, label: b.years>=9.5 ? '10년' : '지난 '+Math.round(b.years)+'년' };
+}
+
 /* 지금 흔들림(1년 기준 %). 화면 여러 곳에서 같은 숫자를 써야 하므로 한 곳에서 뽑는다.
    예상 범위를 만든 값(FC.vol)과 같은 값이어야 상단 배지와 표가 어긋나지 않는다. */
 function volNowPct(data){
@@ -806,8 +817,7 @@ function renderTech(data){
   const rec=closes.slice(-60);
   const support=Math.min(...rec), resist=Math.max(...rec);
   const volA=volNowPct(data);
-  const base10=ST().vol10y||null;
-  const ratio=base10 ? volA/base10 : null;
+  const vb=volBaseOf(), ratio=vb ? volA/vb.pct : null;
 
   // 평균가·최저·최고는 "지금 가격이 그보다 몇 % 위/아래인가"라는 사실만 적는다
   const gap=b=>{ const d=(last/b-1)*100;
@@ -821,7 +831,7 @@ function renderTech(data){
     ['과열·침체 지수 (RSI)', r.toFixed(1),
       [(r>70?'🔥 70 위 · 흔히 과열이라 불러요':r<30?'🧊 30 아래 · 흔히 침체라 불러요':'30~70 · 흔히 보통이라 불러요'),'neu']],
     ['얼마나 흔들리나 (1년 기준)', volA.toFixed(0)+'%',
-      ['✅ 이 값만 위 예상 범위 계산에 쓰여요'+(ratio!=null?' · 지난 10년 평균은 '+base10+'%':''),'pos']],
+      ['✅ 이 값만 위 예상 범위 계산에 쓰여요'+(vb?' · '+vb.label+' 평균은 '+vb.pct+'%':''),'pos']],
   ];
   document.getElementById('techBody').innerHTML = rows.map(([k,v,[t,c]])=>
     '<tr><td>'+k+'</td><td class="num"><b>'+v+'</b></td><td><span class="tag '+c+'">'+t+'</span></td></tr>').join('');
@@ -830,7 +840,7 @@ function renderTech(data){
   document.getElementById('nowLead').innerHTML =
     '지금 가격은 최근 3개월 <span class="hl">'+fmt(support)+'~'+fmt(resist)+'원</span> 안에 있고, '
     +(ratio!=null
-      ? '요즘 흔들림은 지난 10년 평균의 <span class="hl">'+ratio.toFixed(1)+'배</span>예요.'
+      ? '요즘 흔들림은 '+vb.label+' 평균의 <span class="hl">'+ratio.toFixed(1)+'배</span>예요.'
       : '요즘 흔들림은 1년 기준 <span class="hl">'+volA.toFixed(0)+'%</span>예요.');
 }
 
@@ -906,16 +916,16 @@ function renderSummary(data, fc){
   const pt=fc.pts[H-1], nm=HORIZON_NAME[H];
   const w=(Math.sqrt(pt.hi/pt.lo)-1)*100;
   const volA=volNowPct(data);
-  const base10=ST().vol10y||null;
-  const ratio=base10 ? volA/base10 : null;
+  const vb=volBaseOf(), ratio=vb ? volA/vb.pct : null;
   const word = ratio==null ? ''
     : ratio<0.8 ? '평소보다 잔잔해요'
     : ratio<1.2 ? '평소만큼 흔들려요'
     : ratio<1.6 ? '평소보다 많이 흔들려요'
     : '평소보다 아주 많이 흔들려요';
   // 등급에 따라 색을 바꾸지 않는다. 흔들림은 좋고 나쁨이 아니라 크고 작음이다.
+  // 이력이 짧아 기준이 없으면 배수 대신 절대값을 보여준다 — 없는 "평소"를 지어내지 않는다.
   document.getElementById('volN').textContent =
-    ratio==null ? volA.toFixed(0)+'%' : '평소의 '+ratio.toFixed(1)+'배';
+    ratio==null ? volA.toFixed(0)+'%' : vb.label+' 평균의 '+ratio.toFixed(1)+'배';
 
   // 통로 오해가 실제로 생기는 자리는 여기다 — 차트의 색칠된 띠가 "이 안에 머문다"로 읽힌다.
   // 그래서 바로잡는 문장도 여기에 둔다(첫 화면 요약이 아니라).
@@ -932,8 +942,9 @@ function renderSummary(data, fc){
   document.getElementById('bandNote').innerHTML =
     '<b>10번 중 8번</b>은 이 안이에요. 지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도예요.';
   document.getElementById('summaryTxt').innerHTML = ratio!=null
-    ? '요즘 '+SYM.name+'는 <b>'+word+'</b>.<br>1년 기준 '+volA.toFixed(0)+'%인데 지난 10년 평균은 '+base10+'%였어요.'
-    : '';
+    ? '요즘 '+SYM.name+'는 <b>'+word+'</b>.<br>1년 기준 '+volA.toFixed(0)+'%인데 '+vb.label+' 평균은 '+vb.pct+'%였어요.'
+    : '요즘 흔들림은 1년 기준 <b>'+volA.toFixed(0)+'%</b>예요.<br>'
+      +'<span class="muted">이 종목은 이력이 짧아 “평소”와 견줄 기준이 아직 없어요.</span>';
 
   // 예상 범위를 막대로 — 숫자만으로는 폭이 얼마나 넓은지 감이 안 온다.
   // 지금 가격의 위치는 로그 기준으로 잡는다(범위가 위아래 대칭인 것도 로그 기준이다).
@@ -968,11 +979,11 @@ function renderProb(fc){
 
   const p20dn=touchProb(fc.vol,20,-10)*100, p20up=touchProb(fc.vol,20,10)*100;
   const annual=fc.vol*Math.sqrt(252)*100;
-  const v10=ST().vol10y;
-  const lvl = v10 ? (annual>v10*1.5?'꽤 심한 편이에요':annual<v10*0.7?'평소보다 잔잔해요':'평소와 비슷해요') : '';
+  const vbp=volBaseOf();
+  const lvl = vbp ? (annual>vbp.pct*1.5?'꽤 심한 편이에요':annual<vbp.pct*0.7?'평소보다 잔잔해요':'평소와 비슷해요') : '';
   document.getElementById('probNote').innerHTML =
     '요즘 '+SYM.name+'는 <b>1년 기준 '+annual.toFixed(0)+'%</b>만큼 흔들리고 있어요. '
-    +(v10?'이 종목의 지난 10년 평균이 '+v10+'%니까 지금은 '+lvl+'.':'')+'<br>'
+    +(vbp?'이 종목의 '+vbp.label+' 평균이 '+vbp.pct+'%니까 지금은 '+lvl+'.':'')+'<br>'
     +'이대로라면 <b>한 달 안에 '+fmt(fc.base*0.9)+'원까지 내려갈 가능성이 '+p20dn.toFixed(0)+'%</b>, '
     +'<b>'+fmt(fc.base*1.1)+'원까지 올라갈 가능성이 '+p20up.toFixed(0)+'%</b>예요.<br>'
     +'이 숫자는 <b>흔들리는 정도만 보고</b> 계산해요. 오를지 내릴지는 넣지 않았어요. '
@@ -1535,7 +1546,7 @@ async function showSymbol(code){
   document.getElementById('disclaimer').innerHTML =
     '⚠️ 이 화면은 참고용으로 자동 만들어진 자료예요. <b>투자를 권하거나 상담해 드리는 것이 아니에요.</b> '
     +'갑작스러운 뉴스나 정책 변화는 계산에 들어가 있지 않아요. '
-    +(ST().vol10y ? SYM.name+'는 지난 10년 평균 변동성이 '+ST().vol10y+'%로 큰 편이에요. ' : '')
+    +((v=>v?SYM.name+'는 '+v.label+' 평균 변동성이 '+v.pct+'%로 큰 편이에요. ':'')(volBaseOf()))
     +'투자 결정과 그 결과는 본인에게 달려 있어요.';
 }
 

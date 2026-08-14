@@ -9,10 +9,15 @@
 ### 여러 종목 구조 (2026-08-13~)
 
 - `data/symbols.json` — 종목 목록 + **종목별 검증 상수**(`stats`). 앱과 스크립트 모두 이 파일을 읽는다.
-  - **`stats`는 그 종목 10년 데이터로 직접 계산한 값이다. 다른 종목 값을 복사하면 화면에 거짓이 뜬다.**
+  - **`stats`는 그 종목 데이터로 직접 계산한 값이다. 다른 종목 값을 복사하면 화면에 거짓이 뜬다.**
     (예: 신고가 부근 효과는 삼성 41.7% vs 17.3%로 크지만, 하이닉스는 40.2% vs 35.5%로 사실상 없다.
-     시장 동조도 삼성 84% / 하이닉스 69%, 10년 변동성 34% / 46%로 다르다.)
-  - 종목을 추가하면 `scratchpad/symbol_stats.js` 같은 스크립트로 **반드시 다시 계산**할 것.
+     시장 동조도 삼성 83% / 하이닉스 69%, 10년 변동성 34% / 46%로 다르다.)
+  - 종목을 추가하면 `node scripts/research/symbol_stats.js` 로 **반드시 다시 계산**할 것.
+  - **항목마다 필요한 최소 이력이 다르다** ([ADR 008](docs/adr/008-minimum-history.md)) —
+    등록 자체가 3년 이상, `volBase`·`market`·`earnings`는 5년, `regime`은 10년.
+    모자라면 그 항목을 **넣지 않는다**(앱이 줄을 감추고, `preflight`가 넣으면 막는다).
+  - `stats.histYears`(실제 이력)와 `stats.volBase = {pct, years}`를 함께 적는다.
+    화면이 "10년 평균" / "지난 3년 평균"을 구분해 말하기 위한 값이다.
 - 종목별 데이터는 `data/<종목코드>/{prices,predictions,report,flow,market}.json`.
 - 화면 전환: 상단 버튼 또는 `?code=000660`. 마지막 선택은 localStorage에 남는다.
 - localStorage 키는 `ssn<코드>_predictions_v1` — 005930은 기존 키와 같아 예전 기록이 이어진다.
@@ -62,6 +67,7 @@ report.json과 predictions.json도 같은 방식으로 로드하며, 실패하�
 | [005](docs/adr/005-vercel-hosting.md) | Vercel + stock.bigwave.im 호스팅 |
 | [006](docs/adr/006-reject-ma-distance.md) | 평균가 이격을 범위 계산에 넣지 않음 |
 | [007](docs/adr/007-remove-mood-badge.md) | "지금 분위기" 배지 제거 |
+| [008](docs/adr/008-minimum-history.md) | 종목 등록 최소 이력 3년, 이력별 표시 범위 |
 
 **모델·화면 구성을 바꾸자는 논의가 나오면 먼저 해당 ADR의 "되돌리려면"을 읽을 것.**
 거기에 뒤집기 위해 무엇을 측정해야 하는지가 적혀 있다. 새 결정을 내리면 ADR을 추가한다

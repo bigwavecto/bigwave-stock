@@ -100,20 +100,39 @@ function analyse(key, label) {
     },
     market: { bigDays: big, withMarketPct: big ? +(withMkt / big * 100).toFixed(0) : null, soloPct: big ? +(solo / big * 100).toFixed(0) : null },
     earnings: { ratio: +(mean(inW) / mean(out)).toFixed(2) },
-    vol10y: +(stdev(rets) * Math.sqrt(252) * 100).toFixed(0),
-    growth10y: +(S[N - 1] / S[0]).toFixed(1)
+    histYears: +(N / 250).toFixed(1),
+    volBase: { pct: +(stdev(rets) * Math.sqrt(252) * 100).toFixed(0), years: +(N / 250).toFixed(1) },
+    growth: { x: +(S[N - 1] / S[0]).toFixed(1), years: +(N / 250).toFixed(1) }
   };
+
+  /* 이력이 모자란 항목은 아예 빼서 돌려준다 — docs/adr/008.
+     짧은 창으로 구한 값을 넣으면 화면이 조용히 거짓말을 한다.
+     특히 시장 동조는 창 길이에 따라 문구가 정반대로 뒤집힌다(하이닉스 1년 87% vs 10년 70%). */
+  const y = out2.histYears;
+  const MIN = { volBase: 4.5, market: 4.5, earnings: 4.5, regime: 9.5 };
+  const dropped = [];
+  for (const [k, need] of Object.entries(MIN)) {
+    if (y < need) { delete out2[k]; dropped.push(k + '(' + need + '년 필요)'); }
+  }
+  if (y < 2.5) out2.__tooShort = true;   // 등록 자체가 불가
+  out2.__dropped = dropped;
   return out2;
 }
 
 const res = { '005930': analyse('samsung', '삼성전자'), '000660': analyse('hynix', 'SK하이닉스') };
 fs.writeFileSync(D + '/symbol_stats.json', JSON.stringify(res, null, 2));
 for (const [code, r] of Object.entries(res)) {
-  console.log('\n■ ' + r.label + ' (' + code + ')  ' + r.from + ' ~ ' + r.to + '  ' + r.days + '일');
+  console.log('\n■ ' + r.label + ' (' + code + ')  ' + r.from + ' ~ ' + r.to + '  ' + r.days + '일 ≈ ' + r.histYears + '년');
+  if (r.__tooShort) { console.log('  ⛔ 이력이 3년 미만입니다. 등록할 수 없습니다 (docs/adr/008).'); continue; }
   console.log('  보정 배수 ' + r.z1 + ' → 적중률 1주 ' + r.cov.w1 + '% / 2주 ' + r.cov.w2 + '% / 1개월 ' + r.cov.m1 + '%');
-  console.log('  신고가 부근(n=' + r.regime.nearN + '): +10% ' + r.regime.nearUp + '% / -10% ' + r.regime.nearDn + '%');
-  console.log('  그 외    (n=' + r.regime.farN + '): +10% ' + r.regime.farUp + '% / -10% ' + r.regime.farDn + '%');
-  console.log('  시기별 신고가: ' + r.regime.byPeriod.map(p => p.p + ' +' + p.up + '/-' + p.dn).join('  '));
-  console.log('  +5% 상승일 ' + r.market.bigDays + '건 중 코스피 동반 ' + r.market.withMarketPct + '%, 단독 ' + r.market.soloPct + '%');
-  console.log('  실적주간 변동 ' + r.earnings.ratio + '배 | 10년 변동성 ' + r.vol10y + '% | 10년 ' + r.growth10y + '배');
+  if (r.regime) {
+    console.log('  신고가 부근(n=' + r.regime.nearN + '): +10% ' + r.regime.nearUp + '% / -10% ' + r.regime.nearDn + '%');
+    console.log('  그 외    (n=' + r.regime.farN + '): +10% ' + r.regime.farUp + '% / -10% ' + r.regime.farDn + '%');
+    console.log('  시기별 신고가: ' + r.regime.byPeriod.map(p => p.p + ' +' + p.up + '/-' + p.dn).join('  '));
+  }
+  if (r.market) console.log('  +5% 상승일 ' + r.market.bigDays + '건 중 코스피 동반 ' + r.market.withMarketPct + '%, 단독 ' + r.market.soloPct + '%');
+  console.log('  ' + (r.earnings ? '실적주간 변동 ' + r.earnings.ratio + '배 | ' : '')
+    + (r.volBase ? '변동성 ' + r.volBase.pct + '% (' + r.volBase.years + '년 기준) | ' : '')
+    + (r.growth ? r.growth.years + '년 ' + r.growth.x + '배' : ''));
+  if (r.__dropped.length) console.log('  ⚠️ 이력이 짧아 뺀 항목: ' + r.__dropped.join(', ') + ' — 앱이 해당 줄을 감춥니다 (docs/adr/008)');
 }

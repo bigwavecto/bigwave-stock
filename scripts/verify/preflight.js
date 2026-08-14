@@ -42,6 +42,29 @@ function walkJson(dir, out = []) {
   return out;
 }
 
+/* 이력이 짧은 종목에 긴 이력이 필요한 상수가 들어 있으면 막는다 (docs/adr/008).
+   항목마다 필요한 최소 이력이 다르고, 모자란 값을 넣으면 화면이 조용히 거짓말을 한다.
+   특히 시장 동조는 창 길이에 따라 문구가 정반대로 뒤집힌다(하이닉스 1년 87% vs 10년 70%). */
+// 문턱은 "반올림해서 그 해에 닿는가" 기준이다. 9.8년치를 10년이라 부르는 것은
+// 이 앱이 이미 쓰는 관행이고(방법론 카드의 "10년치 2,385번"), 0.2년 차이로
+// 카드를 감추는 것이 오히려 정확도에 도움이 되지 않는다.
+const HIST_MIN = { volBase: 4.5, market: 4.5, earnings: 4.5, regime: 9.5 };
+
+function checkHistory(s) {
+  const st = s.stats, y = st.histYears;
+  const who = `symbols.json: ${s.code}(${s.name})`;
+  if (y == null) { errors.push(`${who} 에 stats.histYears 가 없습니다. 몇 년치로 계산한 값인지 밝혀야 합니다 (docs/adr/008).`); return; }
+  if (y < 2.5) { errors.push(`${who} 의 이력이 ${y}년입니다. 등록 최소 이력은 3년입니다 (docs/adr/008).`); return; }
+  for (const [k, need] of Object.entries(HIST_MIN)) {
+    if (st[k] != null && y < need) {
+      errors.push(`${who} 는 이력이 ${y}년인데 stats.${k} 가 들어 있습니다. 이 항목은 ${need}년 이상이 필요합니다 (docs/adr/008). 빼면 앱이 해당 줄을 감춥니다.`);
+    }
+  }
+  if (st.volBase && st.volBase.years != null && st.volBase.years > y) {
+    errors.push(`${who} 의 volBase.years(${st.volBase.years})가 실제 이력(${y}년)보다 깁니다.`);
+  }
+}
+
 function checkJson() {
   const files = walkJson(path.join(REPO, 'data'));
   let ok = 0;
@@ -60,6 +83,7 @@ function checkJson() {
         const miss = ['code', 'name', 'yahoo', 'stats'].filter(k => !s[k]);
         if (miss.length) errors.push(`symbols.json: ${s.code || '(코드없음)'} 에 ${miss.join(', ')} 가 없습니다.`);
         else if (!s.stats.z1) errors.push(`symbols.json: ${s.code} 에 stats.z1 이 없습니다. 그 종목 데이터로 직접 계산해 넣어야 합니다 (scripts/research/symbol_stats.js).`);
+        else checkHistory(s);
       }
     } catch (e) { /* 위에서 이미 잡힘 */ }
   }
