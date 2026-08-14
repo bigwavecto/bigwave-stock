@@ -1430,16 +1430,11 @@ function buildChart(range){
     // 예상 중심선은 가늘게 점선으로 — 굵으면 "이 가격이 된다"는 단정처럼 보인다
     { label:HORIZON_NAME[H]+' 예상 범위 (80%)', data:fLine, borderColor:'#0f9d6e', borderDash:[3,4], borderWidth:1.4, pointRadius:0, pointHitRadius:6, tension:0, fill:false },
   ];
-  // 이전 방식으로 기록된 과거 예측선만 오버레이 (현재 방식은 방향을 예측하지 않아 표시할 선이 없다)
-  const past=Object.keys(STORE).sort().filter(b=>b<lastDate && (STORE[b].m||1)<2).slice(-5);
-  past.forEach((b,i)=>{
-    const arr=mk();
-    const baseIdx=idx[b];
-    if(baseIdx!=null) arr[baseIdx]=STORE[b].base;
-    let anyVisible=false;
-    STORE[b].pts.forEach(p=>{ if(idx[p.d]!=null){ arr[idx[p.d]]=p.v; anyVisible=true; } });
-    if(anyVisible) datasets.push({ label:b+' 예측(이전 방식)', data:arr, borderColor:'rgba(224,123,26,'+(0.55+0.09*i)+')', borderDash:[3,4], borderWidth:1.8, pointRadius:2.5, pointBackgroundColor:'#e07b1a', tension:.25, fill:false });
-  });
+  /* 예전에는 "이전 방식"(m=1)으로 기록된 과거 예측선을 차트에 겹쳐 그렸다. 2026-08-14에 뺐다.
+     그 방식은 이 앱이 검증 끝에 폐기한 계산법이다(docs/adr/001). 폐기한 모델이 그린 선을
+     차트에 남겨 두면, 화면에서 가장 눈에 띄는 자리에 앱이 안 믿는 예측이 계속 떠 있게 된다.
+     기록 자체는 지우지 않는다 — predictions.json 과 성적표의 "예전 방식" 행은 그대로 둔다.
+     무엇을 해봤고 왜 버렸는지는 남겨야 하지만, 그걸 예측선처럼 보여줄 이유는 없다. */
 
   // 확대 창이 같은 설정을 다시 쓸 수 있도록 함수로 돌려준다 (콜백이 있어 JSON 복제는 불가)
   const cfg = maxTicks => ({
