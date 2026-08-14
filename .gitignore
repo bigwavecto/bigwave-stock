@@ -2,6 +2,7 @@
 .claude/*
 !.claude/settings.json
 !.claude/skills/
+!.claude/agents/
 # settings.local.json 은 실제 이메일이 든 권한 규칙이라 계속 로컬로 둔다.
 # 공유해도 되는 훅·권한은 .claude/settings.json 에 넣는다 (둘 다 읽힌다).
 
