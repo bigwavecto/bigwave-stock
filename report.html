@@ -172,6 +172,13 @@
   .band-label{flex-basis:100%;font-size:.95rem;font-weight:800}
   .band-note{flex-basis:100%;font-size:.83rem;color:var(--sub);margin-top:-4px}
   .band-note b{color:var(--txt)}
+  /* 퍼센트는 안 와닿는다. 같은 값을 금액으로 한 번 더 말해 준다. */
+  .band-money{flex-basis:100%;font-size:.86rem;font-weight:700;color:var(--txt);
+    background:rgba(37,99,235,.07);border-radius:9px;padding:8px 11px;margin-top:-2px}
+  .band-money .amt{color:var(--accent)}
+  /* 차트 아래 — 밴드가 "보통 이만큼"으로 오해되는 것을 숫자로 바로잡는다 */
+  .chart-note{font-size:.82rem;color:var(--sub);line-height:1.65;margin-top:8px}
+  .chart-note b{color:var(--txt)}
   .vol-row{flex-basis:100%;display:flex;align-items:center;gap:14px}
   .band{flex-basis:100%;display:flex;align-items:center;gap:10px;font-size:.78rem;
     font-weight:700;color:var(--sub);font-variant-numeric:tabular-nums}
@@ -357,6 +364,7 @@
     <p class="band-label" id="bandLabel">-</p>
     <div class="band" id="bandBar" aria-hidden="true"></div>
     <p class="band-note" id="bandNote">데이터를 보는 중이에요…</p>
+    <p class="band-money" id="bandMoney"></p>
 
     <div class="vol-row">
       <div class="vol-circle" id="volCircle"><span class="n" id="volN">-</span><span class="t">지금 흔들림</span></div>
@@ -394,6 +402,7 @@
     </div>
     <div id="chartBox" role="button" tabindex="0" aria-label="차트 크게 보기"><canvas id="mainChart"></canvas></div>
     <p class="zoom-hint">차트를 누르면 크게 볼 수 있어요 🔍</p>
+    <p class="chart-note" id="chartNote"></p>
   </div>
 
   <div class="card">
@@ -813,8 +822,29 @@ function renderStats(data, live, src){
   const badge=document.getElementById('liveBadge');
   badge.textContent = live?'최신 · '+src:'저장된 데이터 · '+src;
   badge.className='badge '+(live?'live':'cache');
-  document.getElementById('asofLine').textContent=last.d+' 장 마감 가격 기준이에요 · 지금 보고 계신 시각 '+new Date().toLocaleString('ko-KR');
+  // 한 줄로 유지한다 — 첫 화면에서 두 줄을 쓸 만한 정보가 아니다.
+  // "지금 보고 계신 시각"은 캐시에 갇혔는지 확인하는 용도라 툴팁으로 옮겼다.
+  const al=document.getElementById('asofLine');
+  al.textContent=last.d+' 장 마감 가격 기준이에요';
+  al.title='이 화면을 그린 시각: '+new Date().toLocaleString('ko-KR');
 }
+
+/* 지난 1년 동안 h거래일 사이 실제로 얼마나 움직였나 — 중앙값(절반은 이보다 작았다).
+   밴드는 "나쁘면 여기까지"인데 화면에서는 "보통 이만큼"으로 읽힌다.
+   삼성 1주 기준 실제 중앙값은 ±5.9%인데 밴드는 ±21%다. 3배 넘게 차이 난다.
+   과거 사실이므로 예측이 아니고, 앱이 이미 가진 시세만으로 계산된다. */
+function typicalMovePct(data, h){
+  const a=[];
+  for(let i=h;i<data.length;i++) a.push(Math.abs(Math.log(data[i].c/data[i-h].c)));
+  if(a.length<20) return null;
+  a.sort((x,y)=>x-y);
+  return (Math.exp(a[Math.floor(a.length/2)])-1)*100;
+}
+
+/* 퍼센트를 금액으로 — 검증된 값의 단위 변환일 뿐이라 새로 검증할 것이 없다.
+   "±21%"보다 "1,000만원이 826만~1,210만원"이 열 배 잘 읽힌다. */
+const MONEY_BASE = 10000000;                                   // 1,000만원
+const manwon = v => Math.round(v/10000).toLocaleString('ko-KR')+'만원';
 
 /* "평소" 기준값 — 그 종목의 흔들림 기준과 **그 기준이 몇 년치인지**를 함께 돌려준다.
    3년치 종목을 "평소"라고 부르면 거짓말이 된다(3년 창은 10년 기준보다 1.4배 높게 나온다).
@@ -975,10 +1005,33 @@ function renderSummary(data, fc){
   document.getElementById('bandLabel').textContent = nm+' 뒤 그날 종가는 이 범위일 가능성이 높아요';
   document.getElementById('bandNote').innerHTML =
     '<b>10번 중 8번</b>은 이 안이에요. 지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도예요.';
+
+  // 같은 값을 금액으로 한 번 더 — 퍼센트만으로는 크기가 안 와닿는다
+  document.getElementById('bandMoney').innerHTML =
+    '<b>1,000만원</b>어치라면 → <span class="amt">'
+    +manwon(MONEY_BASE*pt.lo/fc.base)+' ~ '+manwon(MONEY_BASE*pt.hi/fc.base)+'</span>';
   document.getElementById('summaryTxt').innerHTML = ratio!=null
     ? '요즘 '+SYM.name+'는 <b>'+word+'</b>.<br>1년 기준 '+volA.toFixed(0)+'%인데 '+vb.label+' 평균은 '+vb.pct+'%였어요.'
     : '요즘 흔들림은 1년 기준 <b>'+volA.toFixed(0)+'%</b>예요.<br>'
       +'<span class="muted">이 종목은 이력이 짧아 “평소”와 견줄 기준이 아직 없어요.</span>';
+
+  /* 밴드가 "보통 이만큼 움직인다"로 읽히는 것을 숫자로 바로잡는다.
+     밴드는 80% 구간의 **가장자리**이고, 실제 보통 움직임은 그보다 훨씬 작다.
+     그리고 ADR 004는 "±50%가 넘으면 사실상 아무 말도 안 하는 것"이라고 판정했다.
+     기간이 아니라 폭이 문제라면, 폭이 그 선을 넘었을 때도 같은 말을 해야 앞뒤가 맞는다. */
+  const cn=document.getElementById('chartNote');
+  if(cn){
+    const typ=typicalMovePct(data, H);
+    cn.innerHTML =
+      (typ!=null
+        ? '지난 1년 동안 '+nm+' 사이에 실제로 움직인 폭은 <b>보통 ±'+typ.toFixed(1)+'%</b>였어요. '
+          +'위 범위(±'+w.toFixed(0)+'%)는 “보통 이만큼”이 아니라 <b>“나쁘면 여기까지”</b>예요.'
+        : '')
+      +(w>50
+        ? '<br>지금은 범위가 ±'+w.toFixed(0)+'%까지 벌어져 있어요. '
+          +'<b>이 정도로 넓으면 “지금은 알기 어렵다”는 뜻</b>이에요.'
+        : '');
+  }
 
   // 예상 범위를 막대로 — 숫자만으로는 폭이 얼마나 넓은지 감이 안 온다.
   // 지금 가격의 위치는 로그 기준으로 잡는다(범위가 위아래 대칭인 것도 로그 기준이다).
