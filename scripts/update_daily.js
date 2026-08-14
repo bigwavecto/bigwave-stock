@@ -211,16 +211,36 @@ async function updateSymbol(sym){
     fs.writeFileSync(path.join(dir,'market.json'), JSON.stringify({ updated: lastDate, peerName: sym.peer.name, ...mk }, null, 0));
     console.log('  시장 동조', Object.entries(mk).map(([k,v])=>k+' '+v.corr60).join(', '));
   }catch(e){ console.log('  시장 동조 실패(무시):', e.message); }
+
+  // 랜딩·종목 시트가 전 종목 시세를 한 번에 읽도록 요약값을 돌려준다.
+  // 종목별 prices.json을 다 받으면 종목이 늘어날수록 랜딩이 느려진다.
+  const prev = rows.length > 1 ? rows[rows.length-2].c : rows[rows.length-1].c;
+  const last = rows[rows.length-1].c;
+  return { code: sym.code, name: sym.name, c: last, chg: +((last/prev - 1) * 100).toFixed(2) };
 }
 
 (async ()=>{
   const cfg = JSON.parse(fs.readFileSync(path.join(DATA_DIR,'symbols.json'),'utf8'));
   let ok = 0;
+  const summary = [];
   for(const sym of cfg.symbols){
     console.log('\n▶', sym.name, '(' + sym.code + ')');
-    try{ await updateSymbol(sym); ok++; }
+    try{
+      const s = await updateSymbol(sym);
+      ok++;
+      if(s) summary.push(s);
+    }
     catch(e){ console.error('  ✗ 실패:', e.message); }
   }
   console.log('\n완료:', ok, '/', cfg.symbols.length, '종목');
   if(ok === 0) throw new Error('모든 종목 갱신 실패');
+
+  // 요약 파일 — 실패해도 전체를 중단시키지 않는다 (수급·시장지표와 같은 원칙).
+  // 이 파일이 없으면 랜딩은 종목 이름만 보여주고 계속 동작한다.
+  try{
+    const first = JSON.parse(fs.readFileSync(path.join(DATA_DIR, summary[0].code, 'prices.json'),'utf8'));
+    fs.writeFileSync(path.join(DATA_DIR,'summary.json'),
+      JSON.stringify({ updated: first.updated, rows: summary }, null, 0));
+    console.log('요약 저장:', summary.length, '종목');
+  }catch(e){ console.log('요약 저장 실패(무시):', e.message); }
 })().catch(e=>{ console.error('실패:', e.message); process.exit(1); });
