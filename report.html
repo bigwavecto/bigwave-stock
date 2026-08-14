@@ -46,6 +46,19 @@
   .stat .v small{font-size:.8rem;font-weight:600}
   .up{color:var(--up)} .down{color:var(--down)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(28,35,51,.06)}
+  /* 접기는 <details> 표준 요소를 쓴다. 직접 만든 토글과 달리 스크린리더·키보드·인쇄가
+     공짜로 따라온다. 기본 삼각형은 카드 제목과 어울리지 않아 감추고 오른쪽에 글자를 둔다. */
+  details.card > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px}
+  details.card > summary::-webkit-details-marker{display:none}
+  details.card > summary::after{content:'펼치기 ▾';margin-left:auto;font-size:.78rem;font-weight:700;color:var(--sub);white-space:nowrap}
+  details.card[open] > summary::after{content:'접기 ▴'}
+  details.card > summary h2{margin-bottom:0}
+  details.card > summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+  #histDetails > summary{cursor:pointer;font-size:.85rem;font-weight:700;color:var(--sub);
+    padding:10px 0;min-height:44px;display:flex;align-items:center;gap:6px;list-style:none}
+  #histDetails > summary::-webkit-details-marker{display:none}
+  #histDetails > summary::before{content:'▾';font-size:.8rem}
+  #histDetails[open] > summary::before{content:'▴'}
   .card h2{font-size:1.05rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .card h2 .muted{flex-basis:100%;margin-left:12px}
   .card h2::before{content:'';width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block}
@@ -351,13 +364,16 @@
       </table>
     </div>
 
-    <p class="scroll-hint no-hint-mobile">표를 옆으로 밀면 결과와 오차가 보여요 →</p>
-    <div class="tscroll">
-      <table id="histTable" class="vtable">
+    <details id="histDetails">
+      <summary>예상 하나하나를 날짜별로 보기</summary>
+      <p class="scroll-hint no-hint-mobile">표를 옆으로 밀면 결과와 오차가 보여요 →</p>
+      <div class="tscroll">
+        <table id="histTable" class="vtable">
         <thead><tr><th>예상한 날</th><th>맞혀야 할 날</th><th class="num">며칠 뒤</th><th class="num">예상 범위</th><th class="num">넓이</th><th class="num">실제 주가</th><th>결과</th><th class="num">가운데값 오차</th></tr></thead>
         <tbody id="histBody"><tr><td colspan="8" class="muted">아직 비교할 기록이 없어요. 날짜가 지나면 예상과 실제를 나란히 보여드려요.</td></tr></tbody>
-      </table>
-    </div>
+        </table>
+      </div>
+    </details>
   </div>
 
   <div class="group-h fact"><span class="dot"></span>지금 벌어지고 있는 일 <span class="gn">— 앞날을 맞히는 데는 쓰지 않는, 이미 일어난 사실이에요</span></div>
@@ -431,8 +447,8 @@
 
   <div class="group-h"><span class="dot"></span>이 앱은 어떻게 계산하나요 <span class="gn">— 무엇을 해봤고 무엇이 안 됐는지</span></div>
 
-  <div class="card" id="methodCard">
-    <h2>왜 “얼마가 된다”고 말하지 않나요?</h2>
+  <details class="card" id="methodCard">
+    <summary><h2>왜 “얼마가 된다”고 말하지 않나요?</h2></summary>
     <p class="lead">맞히려고 해봤는데 <span class="hl">안 맞았거든요.</span> 10년치로 2,385번 시험해 본 이야기예요.</p>
     <p class="method">
       이 앱은 <b>“일주일 뒤 30만원”</b> 같은 말을 하지 않아요. 대신 <b>얼마나 흔들릴지</b>만 알려드려요.
@@ -468,8 +484,9 @@
       1개월까지만 알려드리는 이유는, 3개월이 넘으면 범위가 ±90%까지 벌어져서
       사실상 아무 말도 안 하는 것과 같아지기 때문이에요.
     </p>
-    <div class="disclaimer" id="disclaimer"></div>
-  </div>
+  </details>
+
+  <div class="disclaimer" id="disclaimer"></div>
 
 </div>
 
@@ -1371,6 +1388,27 @@ function renderAll(){
   document.getElementById('modalClose').addEventListener('click', closeChartModal);
   document.getElementById('chartModal').addEventListener('click', e=>{ if(e.target.id==='chartModal') closeChartModal(); });
   addEventListener('keydown', e=>{ if(e.key==='Escape') closeChartModal(); });
+
+  /* 첫 화면 링크로 접힌 섹션에 들어가면 자동으로 펼친다.
+     펼치지 않으면 "눌렀는데 아무것도 안 보인다"가 된다.
+     주소에 #methodCard 를 직접 넣고 들어오는 경우도 같이 처리한다. */
+  function openTarget(hash){
+    const el = hash && document.querySelector(hash);
+    if(!el) return;
+    if(el.tagName === 'DETAILS') el.open = true;
+    const d = el.closest('details');
+    if(d) d.open = true;
+    el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  document.querySelectorAll('.trust a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      const h = a.getAttribute('href');
+      openTarget(h);
+      history.replaceState(null, '', location.pathname + location.search + h);
+    });
+  });
+  if(location.hash) setTimeout(()=>openTarget(location.hash), 300);
 
   setupInstall();
 
