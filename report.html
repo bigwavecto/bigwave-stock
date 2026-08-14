@@ -101,11 +101,35 @@
      검증된 정보인 "지금 얼마나 흔들리는지"로 바꿨다 — docs/adr/007.
      등급에 따라 테두리 색을 바꾸지 않는 것도 의도다. 흔들림은 좋고 나쁨이 아니라
      크고 작음이다. 색으로 신호를 주면 없앤 배지가 그대로 돌아온다. */
-  .vol-circle{width:108px;height:108px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 7px;text-align:center;line-height:1.2;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
-  .vol-circle .n{font-size:1.02rem;word-break:keep-all}
+  .vol-circle{width:92px;height:92px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 6px;text-align:center;line-height:1.2;font-weight:800;border:3px solid var(--accent);flex-shrink:0}
+  .vol-circle .n{font-size:.94rem;word-break:keep-all}
   .vol-circle .t{font-size:.62rem;font-weight:600;color:var(--sub);white-space:nowrap}
-  .summary-txt{flex:1;min-width:260px;font-size:.92rem}
+  .summary-txt{flex:1;min-width:0;font-size:.88rem;color:var(--sub)}
   .summary-txt b{color:var(--gold)}
+  /* 가격 머리 — 첫 화면 맨 위. 표 칸 5개였던 것을 두 줄로 줄였다.
+     1년 최고·최저·수익률은 "지금 상황" 카드로 옮겼다(뺀 것이 아니라 옮긴 것이다). */
+  .price-head{margin:10px 2px 16px}
+  .price-head .now{font-size:2rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  .price-head .chg-line{font-size:.95rem;font-weight:700;margin-top:2px}
+  .price-head .chg-line .k{color:var(--sub);font-weight:600;font-size:.85rem}
+  .price-head .chg-line small{font-size:.85rem}
+  /* 예상 범위 막대 — 숫자만으로는 폭이 얼마나 넓은지 감이 안 온다 */
+  .band-label{flex-basis:100%;font-size:.95rem;font-weight:800}
+  .band-note{flex-basis:100%;font-size:.83rem;color:var(--sub);margin-top:-4px}
+  .band-note b{color:var(--txt)}
+  .vol-row{flex-basis:100%;display:flex;align-items:center;gap:14px}
+  .band{flex-basis:100%;display:flex;align-items:center;gap:10px;font-size:.78rem;
+    font-weight:700;color:var(--sub);font-variant-numeric:tabular-nums}
+  .band .track{flex:1;position:relative;height:10px;border-radius:5px;
+    background:linear-gradient(90deg,rgba(37,99,235,.18),rgba(15,157,110,.18))}
+  .band .now{position:absolute;top:-3px;width:3px;height:16px;border-radius:2px;
+    background:var(--txt);transform:translateX(-1.5px)}
+  /* 선언과 근거를 나란히 — 하나만 있으면 이상해 보이고, 둘이 붙어야 설득이 된다 */
+  .trust{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:2px}
+  .trust a{color:var(--accent);font-size:.86rem;font-weight:700;text-decoration:none;
+    min-height:32px;display:inline-flex;align-items:center;word-break:keep-all}
+  .trust a:hover,.trust a:focus-visible{text-decoration:underline}
+  .mini-disc{flex-basis:100%;color:var(--sub);font-size:.76rem;margin-top:-2px}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
   th{color:var(--sub);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
   td{padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -207,10 +231,10 @@
     #chartBox{height:320px}
     .card{padding:18px 14px}
     .summary-banner{padding:16px 14px}
-    /* 모바일에서는 원형 표시 아래로 내려 한 줄을 다 쓰게 한다.
-       min-width:260px로 두면 320px에서 배너 안쪽이 3px 밀리고, 그냥 0으로 풀면
-       원 옆에 119px로 끼어들어 글자가 넘친다. 둘 다 겪었다. */
-    .summary-txt{flex-basis:100%;min-width:0}
+    /* 좁은 화면에서는 원 옆 글자가 너무 눌린다. 원을 조금 더 줄여 균형을 맞춘다 */
+    .vol-circle{width:84px;height:84px}
+    .vol-circle .n{font-size:.88rem}
+    .price-head .now{font-size:1.85rem}
     /* 기간 버튼: 손가락 터치 최소 크기 44px 확보 */
     .rbtn,.hbtn{min-height:44px;padding:0 16px;display:inline-flex;align-items:center;font-size:.85rem}
     .tools-label{width:100%;margin-bottom:-4px}
@@ -235,21 +259,33 @@
   </header>
   <div class="symbar" id="symBar"></div>
   <div class="asof" id="asofLine">-</div>
-  <div class="stale-warn" id="staleWarn"></div>
-  <div class="install-tip" id="installTip"></div>
 
-  <div class="price-row">
-    <div class="stat"><div class="k">지금 가격</div><div class="v" id="curPrice">-</div></div>
-    <div class="stat"><div class="k">어제보다</div><div class="v" id="chg">-</div></div>
-    <div class="stat"><div class="k">1년 중 가장 비쌌을 때</div><div class="v" id="hi52">-</div></div>
-    <div class="stat"><div class="k">1년 중 가장 쌌을 때</div><div class="v" id="lo52">-</div></div>
-    <div class="stat"><div class="k">1년 전보다</div><div class="v" id="yret">-</div></div>
+  <!-- 첫 화면(스크롤 전)은 여기까지다. 오늘 필요한 것만 남긴다 —
+       가격 / 예상 범위 / 지금 흔들림 / 무엇을 맞히고 무엇을 안 맞히는지. -->
+  <div class="price-head">
+    <div class="now" id="curPrice">-</div>
+    <div class="chg-line"><span class="k">어제보다</span> <span class="v" id="chg">-</span></div>
   </div>
 
   <div class="summary-banner">
-    <div class="vol-circle" id="volCircle"><span class="n" id="volN">-</span><span class="t">지금 흔들림</span></div>
-    <div class="summary-txt" id="summaryTxt">데이터를 보는 중이에요…</div>
+    <p class="band-label" id="bandLabel">-</p>
+    <div class="band" id="bandBar" aria-hidden="true"></div>
+    <p class="band-note" id="bandNote">데이터를 보는 중이에요…</p>
+
+    <div class="vol-row">
+      <div class="vol-circle" id="volCircle"><span class="n" id="volN">-</span><span class="t">지금 흔들림</span></div>
+      <div class="summary-txt" id="summaryTxt"></div>
+    </div>
+
+    <p class="trust">
+      <a href="#methodCard" id="whyLink">오를지 내릴지는 맞히지 않아요. 왜요? ›</a>
+      <a href="#scoreCard" id="scoreLink">지금까지 성적 보기 ›</a>
+    </p>
+    <p class="mini-disc">참고용이에요. 투자 권유가 아니에요.</p>
   </div>
+
+  <!-- 첫 방문자에게 설치 권유가 먼저 오면 안 된다. 첫 화면 아래로 내렸다. -->
+  <div class="install-tip" id="installTip"></div>
 
   <div class="group-h"><span class="dot"></span>이 앱이 실제로 확인한 것 <span class="gn">— 10년치로 시험해 맞는다고 확인한 내용이에요</span></div>
 
@@ -286,7 +322,7 @@
     <div class="verdict"><div class="vt">🧭 이렇게 보세요</div><div id="probNote">-</div></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="scoreCard">
     <h2>성적표 <span class="muted" style="font-weight:400">이 앱이 실제로 얼마나 맞혔을까요</span></h2>
     <p class="lead" id="scoreLead">-</p>
     <p class="muted" style="margin-bottom:12px">매일 그날의 예상을 저장해 두고, 날짜가 지나면 실제 주가와 비교해요. 한 번 저장한 예상은 나중에 고치지 않아요. 위에서 고른 <b>기간 안에 들어가는 예상</b>이 모두 집계돼요.</p>
@@ -350,6 +386,8 @@
         <div id="marketBox" class="muted">불러오는 중…</div>
       </div>
     </div>
+    <div class="sub-h" style="margin-top:20px">1년 동안 어디까지 갔었나요</div>
+    <div id="yearBox" class="muted">-</div>
     <div class="sub-h" style="margin-top:20px">1년 최고가와 비교하면</div>
     <div id="regimeBox" class="muted">-</div>
     <div class="sub-h" style="margin-top:20px">다음 실적 발표는 언제인가요</div>
@@ -360,6 +398,9 @@
 
   <div class="card">
     <h2>증권사는 어떻게 보나요 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
+    <!-- 조사 자료가 오래됐다는 경고는 해당 카드 안에 둔다. 맨 위에 두면 첫인상을 해치고,
+         정작 그 경고가 가리키는 내용에서는 멀어진다. -->
+    <div class="stale-warn" id="staleWarn"></div>
     <p class="lead" id="expertLead">-</p>
     <table>
       <tbody id="expertBody"></tbody>
@@ -390,7 +431,7 @@
 
   <div class="group-h"><span class="dot"></span>이 앱은 어떻게 계산하나요 <span class="gn">— 무엇을 해봤고 무엇이 안 됐는지</span></div>
 
-  <div class="card">
+  <div class="card" id="methodCard">
     <h2>왜 “얼마가 된다”고 말하지 않나요?</h2>
     <p class="lead">맞히려고 해봤는데 <span class="hl">안 맞았거든요.</span> 10년치로 2,385번 시험해 본 이야기예요.</p>
     <p class="method">
@@ -666,12 +707,15 @@ function renderStats(data, live, src){
   const el=document.getElementById('chg');
   el.innerHTML = (chg>=0?'▲ ':'▼ ')+fmt(Math.abs(chg))+' <small>('+(chg>=0?'+':'')+pct.toFixed(2)+'%)</small>';
   el.className='v '+(chg>=0?'up':'down');
-  document.getElementById('hi52').textContent=fmt(hi)+'원';
-  document.getElementById('lo52').textContent=fmt(lo)+'원';
+  // 1년 최고·최저·수익률은 첫 화면에서 "지금 상황" 카드로 옮겼다.
+  // 값을 뺀 것이 아니라 자리를 옮긴 것이다 — 첫 화면은 오늘 필요한 것만 남긴다.
   const yr=(last.c/first.c-1)*100;
-  const ye=document.getElementById('yret');
-  ye.innerHTML=(yr>=0?UPI:DNI)+' '+(yr>=0?'+':'')+yr.toFixed(1)+'%';
-  ye.className='v '+(yr>=0?'up':'down');
+  document.getElementById('yearBox').className='';
+  document.getElementById('yearBox').innerHTML=
+    '<div class="kv"><span class="k">1년 중 가장 비쌌을 때</span><span class="v">'+fmt(hi)+'원</span></div>'+
+    '<div class="kv"><span class="k">1년 중 가장 쌌을 때</span><span class="v">'+fmt(lo)+'원</span></div>'+
+    '<div class="kv"><span class="k">1년 전보다</span><span class="v '+(yr>=0?'up':'down')+'">'
+      +(yr>=0?UPI:DNI)+' '+(yr>=0?'+':'')+yr.toFixed(1)+'%</span></div>';
   const badge=document.getElementById('liveBadge');
   badge.textContent = live?'최신 · '+src:'저장된 데이터 · '+src;
   badge.className='badge '+(live?'live':'cache');
@@ -764,7 +808,7 @@ function renderReport(data){
   const w=document.getElementById('staleWarn');
   if(days>=4){
     w.style.display='block';
-    w.textContent='⚠️ 증권사 의견과 뉴스 정리가 '+days+'일 전 것이에요. Claude에게 "보고서 갱신"이라고 하면 새로 조사해 드려요. (주가·차트·지표·예상 범위는 지금도 최신이에요)';
+    w.textContent='⚠️ 아래 증권사 의견과 뉴스 정리는 '+days+'일 전 것이에요. 주가·차트·지표·예상 범위는 지금도 최신이에요.';
   } else { w.style.display='none'; }
 }
 
@@ -793,15 +837,23 @@ function renderSummary(data, fc){
   document.getElementById('chartLead').innerHTML =
     '<span class="down">'+DNI+' '+fmt(pt.lo)+'원</span> ~ <span class="up">'+UPI+' '+fmt(pt.hi)+'원</span>. '
     +nm+' 뒤 가격은 <span class="hl">10번 중 8번</span> 이 안에 있어요.';
-  document.getElementById('summaryTxt').innerHTML =
-    '<b>'+nm+' 뒤 가격은 '+fmt(pt.lo)+'~'+fmt(pt.hi)+'원</b> 사이일 가능성이 높아요. '
-    +'지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도고, <b>10번 중 8번</b>은 이 안에 들어와요.<br>'
-    +(ratio!=null
-      ? '요즘 '+SYM.name+'는 <b>'+word+'</b>. 1년 기준으로 '+volA.toFixed(0)+'%인데 지난 10년 평균은 '+base10+'%였어요. '
-        +'흔들림이 커지면 예상 범위도 그만큼 넓어져요.<br>'
-      : '')
-    +'이 앱은 <b>오를지 내릴지는 맞히지 않아요.</b> 지난 10년으로 확인해 보니 그런 예측이 '
-    +'“오늘 가격 그대로”라고 말하는 것보다도 안 맞았거든요. 대신 얼마나 흔들릴지만 알려드려요.';
+
+  // 첫 화면은 오늘 필요한 것만 남긴다. 방법론 설명은 아래 "왜요? ›" 링크가 대신한다.
+  document.getElementById('bandLabel').textContent = nm+' 뒤 이 범위일 가능성이 높아요';
+  document.getElementById('bandNote').innerHTML =
+    '<b>10번 중 8번</b>은 이 안이에요. 지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도예요.';
+  document.getElementById('summaryTxt').innerHTML = ratio!=null
+    ? '요즘 '+SYM.name+'는 <b>'+word+'</b>.<br>1년 기준 '+volA.toFixed(0)+'%인데 지난 10년 평균은 '+base10+'%였어요.'
+    : '';
+
+  // 예상 범위를 막대로 — 숫자만으로는 폭이 얼마나 넓은지 감이 안 온다.
+  // 지금 가격의 위치는 로그 기준으로 잡는다(범위가 위아래 대칭인 것도 로그 기준이다).
+  const bb = document.getElementById('bandBar');
+  if(bb) bb.innerHTML =
+    '<span class="lo">'+fmt(pt.lo)+'</span>'
+    +'<span class="track"><span class="now" style="left:'
+    +(Math.log(fc.base/pt.lo)/Math.log(pt.hi/pt.lo)*100).toFixed(1)+'%"></span></span>'
+    +'<span class="hi">'+fmt(pt.hi)+'</span>';
 }
 
 /* 임계값 확률 표. 기간·임계값은 고정 — 검증한 조합만 보여준다. */
@@ -933,6 +985,20 @@ function renderScoreCard(agg){
     lead.innerHTML='지금까지 <span class="hl">'+all.length+'번</span> 채점했고, 실제 주가가 예상 범위 안에 들어온 게 '
       +'<span class="hl">'+hitAll.toFixed(0)+'%</span>예요. '
       +(all.length<20?'아직 횟수가 적어서 운의 영향이 커요.':'목표는 80%인데 '+(Math.abs(hitAll-80)<=12?'잘 맞고 있어요.':'조금 벗어나 있어요.'));
+  }
+
+  /* 첫 화면의 성적 링크 문구.
+     주의: 화면에 "지금까지 성적 80%"라고 쓰려면 그게 **실제 채점 결과**여야 한다.
+     10년 백테스트 값(symbols.json의 stats.cov)을 "지금까지 성적"이라고 쓰면 거짓말이 된다.
+     실제 v2 기록은 2026-08-14부터 쌓이기 시작해 아직 적다. 20건 미만이면 숫자를 쓰지 않는다 —
+     표본이 적을 때 숫자를 보여주는 것은 운을 성적으로 파는 셈이다.
+     (20이라는 기준은 위 적중률 색칠 기준과 같다) */
+  const sl=document.getElementById('scoreLink');
+  if(sl){
+    const n2=a2.length;
+    sl.textContent = n2>=20
+      ? '지금까지 성적: 범위 적중 '+(a2.filter(x=>x.hit).length/n2*100).toFixed(0)+'% ›'
+      : '10년치로 시험한 성적 보기 ›';
   }
 }
 
