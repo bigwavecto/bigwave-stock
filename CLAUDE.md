@@ -109,6 +109,37 @@ index.html에 내장된 REPORT_DATA는 오프라인 폴백용이므로 가끔(�
 
 `.claude/WORKLOG.md`에 날짜순으로 누적한다(로컬 전용, gitignore됨). **작업을 마치면 반드시 항목을 추가한다.** 다음 세션이 경위를 파악하는 1차 자료이며, 세션 시작 시 자동으로 읽힌다.
 
+## 스크립트 구성
+
+| 경로 | 용도 |
+|---|---|
+| `scripts/update_daily.js` | Actions가 매일 실행 (시세·예측·수급·시장지표) |
+| `scripts/verify/preflight.js` | **커밋 전 자동 검사.** 모델 일치·JSON·캐시 버전 |
+| `scripts/verify/parity.js` | 모델 이중 구현 일치 검사 (등록된 모든 종목) |
+| `scripts/verify/serve.js` | 로컬 정적 서버 (포트 8731) |
+| `scripts/verify/deploy-wait.js` | 배포 완료 대기 + 라이브 헤더 확인 |
+| `scripts/research/` | 백테스트·검증 스크립트. **종목 추가 시 필수** |
+| `scripts/research/fetch/` | 원자료 수집 → `scripts/research/.cache/` (gitignore) |
+| `scripts/tools/make_icons.js` | 앱 아이콘 생성 (외부 도구 없이 PNG 직접 인코딩) |
+
+**조사용 원자료는 저장소에 넣지 않는다.** `.cache/`에 두고 `fetch/`로 다시 받는다.
+
+## 스킬
+
+- `verify-app` — 브라우저 검증 루틴 전체. **화면을 고쳤으면 이걸 쓴다.**
+  창 리사이즈가 안 먹는 문제, 오프라인 검증 순서 같은 함정이 본문에 적혀 있다.
+- `add-symbol` — 종목 추가 5단계. **1단계(그 종목으로 상수 재계산)를 건너뛰면 화면이 거짓말을 한다.**
+
+## 커밋 전 자동 검사 (훅)
+
+`.claude/settings.json`의 `PreToolUse` 훅이 `git commit`을 가로채 `preflight.js`를 돌린다.
+
+- **차단**: 모델 이중 구현 불일치, `data/**.json` 깨짐
+- **경고**: `index.html`만 바뀌고 `sw.js` CACHE 그대로
+
+정말 그냥 커밋해야 하면 명령 앞에 `SKIP_PREFLIGHT=1`을 붙인다. 훅이 방해되면
+`.claude/settings.json`의 `hooks` 항목을 지우면 된다.
+
 ## 검증 방법
 
 - 스크립트: `node scripts/update_daily.js` 실행 후 data/*.json 확인
