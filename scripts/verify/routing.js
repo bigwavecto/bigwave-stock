@@ -31,6 +31,12 @@ function get(p) {
   check('/ 가 ssn_last_symbol 을 읽어야 한다', root.body.includes('ssn_last_symbol'));
   check('/ 가 ?home=1 을 처리해야 한다', root.body.includes("'home'") || root.body.includes('"home"'));
 
+  check('랜딩에 서비스 이름이 있어야 한다', root.body.includes('주가 리포트'));
+  check('랜딩이 종목 목록을 자동으로 그려야 한다', root.body.includes('symbols.json'));
+  check('랜딩이 요약 시세를 읽어야 한다', root.body.includes('summary.json'));
+  check('랜딩에 면책 문구가 있어야 한다', root.body.includes('투자 권유가 아니'));
+  check('랜딩이 Chart.js를 부르지 않아야 한다', !root.body.includes('chart.umd.min.js'));
+
   const rep = await get('/report.html');
   check('/report.html 이 200이어야 한다', rep.status === 200, 'status=' + rep.status);
   check('report.html 에 모델이 있어야 한다', rep.body.includes('function makeForecast'));
