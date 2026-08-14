@@ -66,17 +66,37 @@
   .rbtn,.hbtn{background:var(--card2);border:1px solid var(--line);color:var(--sub);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700}
   .rbtn.on,.hbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
   .tools-label{font-size:.75rem;color:var(--sub);font-weight:700;margin-right:2px}
-  /* 종목 전환 */
-  .symbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-  .sbtn{background:var(--card);border:1px solid var(--line);color:var(--sub);border-radius:999px;
-    padding:8px 16px;cursor:pointer;font-size:.88rem;font-weight:700;min-height:40px;
-    display:inline-flex;align-items:center;gap:7px}
-  .sbtn:hover{border-color:var(--rule-strong,#c3cbd8)}
-  .sbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .sbtn .code{font-size:.72rem;font-weight:600;opacity:.7;font-variant-numeric:tabular-nums}
-  .sbtn.on .code{opacity:.85}
-  .sbtn .px{font-size:.78rem;font-weight:700;font-variant-numeric:tabular-nums}
-  .sbtn.soon{cursor:default;opacity:.6;font-weight:600}
+  /* 종목 전환 — 버튼 나열은 종목이 늘어나면 깨진다. 이름 탭 하나 + 시트로 바꿨다. */
+  .symbar{display:flex;align-items:center;margin-bottom:14px}
+  .sym-tab{display:inline-flex;align-items:center;gap:8px;background:var(--card);
+    border:1px solid var(--line);border-radius:999px;padding:9px 16px;min-height:44px;
+    font-size:.95rem;font-weight:800;cursor:pointer;color:var(--txt)}
+  .sym-tab:hover,.sym-tab:focus-visible{border-color:var(--accent);outline:none}
+  .sym-tab .code{font-size:.72rem;font-weight:600;color:var(--sub);font-variant-numeric:tabular-nums}
+  .sym-tab .caret{color:var(--sub)}
+  .sheet-back{position:fixed;inset:0;background:rgba(28,35,51,.4);z-index:60}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--card);
+    border-radius:18px 18px 0 0;padding:16px;max-height:80vh;overflow-y:auto;
+    box-shadow:0 -6px 24px rgba(28,35,51,.18)}
+  .sheet[hidden],.sheet-back[hidden]{display:none}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .sheet-close{background:none;border:0;font-size:1rem;cursor:pointer;color:var(--sub);
+    min-width:44px;min-height:44px}
+  #symSearch{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;
+    font-size:.95rem;margin-bottom:12px;font-family:inherit}
+  .sheet-gh{font-size:.78rem;font-weight:800;color:var(--sub);margin:10px 2px 6px}
+  .sheet-item{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+    background:none;border:0;border-bottom:1px solid var(--line);padding:14px 4px;min-height:56px;
+    cursor:pointer;font-size:.95rem;color:var(--txt);text-align:left;font-family:inherit}
+  .sheet-item:hover,.sheet-item:focus-visible{background:var(--card2);outline:none}
+  .sheet-item.on{font-weight:800}
+  .sheet-item .cd{font-size:.72rem;color:var(--sub);margin-left:7px;font-variant-numeric:tabular-nums}
+  .sheet-item .val{display:flex;flex-direction:column;align-items:flex-end;font-size:.85rem;
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  @media (min-width:700px){
+    .sheet{left:50%;right:auto;transform:translateX(-50%);max-width:460px;
+      border-radius:18px;bottom:auto;top:14vh}
+  }
   .scorecard{margin-bottom:14px}
   .scorecard table{font-size:.82rem}
   .scorecard th{padding:6px 10px}
@@ -270,7 +290,21 @@
     <span class="ticker" id="tickerLine"></span>
     <span id="liveBadge" class="badge cache">데이터 불러오는 중…</span>
   </header>
-  <div class="symbar" id="symBar"></div>
+  <nav class="symbar" aria-label="종목 선택">
+    <button class="sym-tab" id="symTab" aria-haspopup="dialog" aria-expanded="false">
+      <span id="symTabName">-</span><span class="code" id="symTabCode"></span><span class="caret" aria-hidden="true">▾</span>
+    </button>
+  </nav>
+
+  <div class="sheet-back" id="symSheetBack" hidden></div>
+  <div class="sheet" id="symSheet" role="dialog" aria-modal="true" aria-label="종목 고르기" hidden>
+    <div class="sheet-head">
+      <strong>종목 고르기</strong>
+      <button class="sheet-close" id="symSheetClose" aria-label="닫기">✕</button>
+    </div>
+    <input type="search" id="symSearch" placeholder="종목 이름이나 코드로 찾기" aria-label="종목 검색">
+    <div id="symSheetList"></div>
+  </div>
   <div class="asof" id="asofLine">-</div>
 
   <!-- 첫 화면(스크롤 전)은 여기까지다. 오늘 필요한 것만 남긴다 —
@@ -1273,16 +1307,79 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 /* ============ 7. 종목 전환 ============ */
 const SYM_KEY='ssn_last_symbol';
 
+/* 종목 시트. 상단 버튼 나열은 종목이 늘어나면 깨지므로, 이름 탭 하나만 두고
+   목록은 시트 안으로 옮겼다. 종목이 30개가 돼도 첫 화면은 그대로다.
+   차트 확대 모달과 같은 규칙을 쓴다 — ESC·배경 클릭·닫기 버튼으로 닫히고,
+   닫으면 초점이 원래 버튼으로 돌아온다. */
+let SUMMARY = null;
+
+async function loadSummary(){
+  if(SUMMARY) return SUMMARY;
+  SUMMARY = {};
+  try{
+    const r = await fetchWithTimeout('./data/summary.json?t='+Date.now(), 6000);
+    if(r.ok){ const j = await r.json(); (j.rows||[]).forEach(x=>{ SUMMARY[x.code]=x; }); }
+  }catch(e){ /* 시세 없이 이름만 보여준다 */ }
+  return SUMMARY;
+}
+
 function renderSymBar(){
-  const bar=document.getElementById('symBar');
-  bar.innerHTML = SYMBOLS.map(s=>
-    '<button class="sbtn'+(s.code===SYM.code?' on':'')+'" data-code="'+s.code+'">'
-    +s.name+'<span class="code">'+s.code+'</span></button>').join('')
-    + '<span class="sbtn soon" title="준비 중">종목 추가 예정</span>';
-  bar.querySelectorAll('.sbtn[data-code]').forEach(b=>b.addEventListener('click',()=>{
-    if(b.dataset.code===SYM.code) return;
-    showSymbol(b.dataset.code);
+  document.getElementById('symTabName').textContent = SYM.name;
+  document.getElementById('symTabCode').textContent = SYM.code;
+}
+
+async function renderSheetList(q){
+  const px = await loadSummary();
+  const box = document.getElementById('symSheetList');
+  const kw = (q||'').trim().toLowerCase();
+  const hit = SYMBOLS.filter(s => !kw || s.name.toLowerCase().includes(kw) || s.code.includes(kw));
+  if(!hit.length){ box.innerHTML='<p class="muted" style="padding:14px 4px">찾는 종목이 없어요.</p>'; return; }
+  // 카테고리가 없으면 한 묶음으로 나온다 (종목이 늘어나면 symbols.json에 category를 넣는다)
+  const groups = {};
+  hit.forEach(s=>{ const g=s.category||'전체'; (groups[g]=groups[g]||[]).push(s); });
+  const multi = Object.keys(groups).length>1;
+  box.innerHTML = Object.entries(groups).map(([g,list])=>
+    '<div class="sheet-group">'+(multi?'<div class="sheet-gh">'+g+'</div>':'')
+    + list.map(s=>{
+        const p=px[s.code];
+        const val = p
+          ? '<span class="px">'+p.c.toLocaleString('ko-KR')+'원</span>'
+            +'<span class="'+(p.chg>=0?'up':'down')+'">'+(p.chg>=0?UPI:DNI)+' '+(p.chg>=0?'+':'')+p.chg.toFixed(1)+'%</span>'
+          : '';
+        return '<button class="sheet-item'+(s.code===SYM.code?' on':'')+'" data-code="'+s.code+'"'
+          +(s.code===SYM.code?' aria-current="true"':'')+'>'
+          +'<span class="nm">'+s.name+'<span class="cd">'+s.code+'</span></span>'
+          +'<span class="val">'+val+'</span></button>';
+      }).join('')
+    +'</div>').join('');
+  box.querySelectorAll('.sheet-item').forEach(b=>b.addEventListener('click',()=>{
+    const c=b.dataset.code;
+    closeSheet();
+    if(c!==SYM.code) showSymbol(c);
   }));
+}
+
+function openSheet(){
+  document.getElementById('symSheet').hidden = false;
+  document.getElementById('symSheetBack').hidden = false;
+  document.getElementById('symTab').setAttribute('aria-expanded','true');
+  const s = document.getElementById('symSearch');
+  // 종목이 적으면 검색창이 오히려 방해가 된다
+  const many = SYMBOLS.length > 5;
+  s.style.display = many ? '' : 'none';
+  s.value = '';
+  renderSheetList('');
+  (many ? s : document.getElementById('symSheetClose')).focus();
+}
+
+function closeSheet(){
+  document.getElementById('symSheet').hidden = true;
+  document.getElementById('symSheetBack').hidden = true;
+  const tab = document.getElementById('symTab');
+  tab.setAttribute('aria-expanded','false');
+  // 시트는 항상 이름 탭에서 열리므로 초점도 거기로 되돌린다.
+  // 안 되돌리면 키보드 사용자가 문서 맨 처음으로 튕겨 나간다.
+  tab.focus();
 }
 
 async function showSymbol(code){
@@ -1387,7 +1484,19 @@ function renderAll(){
   box.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openChartModal(); } });
   document.getElementById('modalClose').addEventListener('click', closeChartModal);
   document.getElementById('chartModal').addEventListener('click', e=>{ if(e.target.id==='chartModal') closeChartModal(); });
-  addEventListener('keydown', e=>{ if(e.key==='Escape') closeChartModal(); });
+
+  // 종목 시트
+  document.getElementById('symTab').addEventListener('click', openSheet);
+  document.getElementById('symSheetClose').addEventListener('click', closeSheet);
+  document.getElementById('symSheetBack').addEventListener('click', closeSheet);
+  document.getElementById('symSearch').addEventListener('input', e=>renderSheetList(e.target.value));
+
+  // ESC — 위에 떠 있는 것부터 닫는다(차트 확대가 시트보다 위에 있다)
+  addEventListener('keydown', e=>{
+    if(e.key!=='Escape') return;
+    if(document.getElementById('chartModal').classList.contains('on')){ closeChartModal(); return; }
+    if(!document.getElementById('symSheet').hidden){ closeSheet(); return; }
+  });
 
   /* 첫 화면 링크로 접힌 섹션에 들어가면 자동으로 펼친다.
      펼치지 않으면 "눌렀는데 아무것도 안 보인다"가 된다.
