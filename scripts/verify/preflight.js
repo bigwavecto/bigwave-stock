@@ -5,7 +5,7 @@
  *
  *  [차단]  모델 이중 구현 불일치  — 화면과 기록이 달라지는데 티가 안 난다
  *  [차단]  data/**.json 깨짐      — 앱 전체가 안 뜬다
- *  [경고]  index.html 만 바뀌고 sw.js CACHE 그대로 — 사용자가 옛 화면에 갇힌다
+ *  [경고]  화면 파일만 바뀌고 sw.js CACHE 그대로 — 사용자가 옛 화면에 갇힌다
  *
  * 종료코드 0 = 통과(경고 포함), 1 = 차단.
  */
@@ -26,7 +26,7 @@ function checkParity() {
     // parity.js 는 성공 줄을 stdout, 실패 줄을 stderr 에 쓴다. 둘을 합쳐 한 번만 보여준다.
     const detail = [String(e.stdout || '').trim(), String(e.stderr || '').trim()]
       .filter(Boolean).join('\n').split('\n').map(l => '    ' + l).join('\n');
-    errors.push('모델 이중 구현이 어긋났습니다 (index.html ↔ scripts/update_daily.js)\n' + detail);
+    errors.push('모델 이중 구현이 어긋났습니다 (report.html ↔ scripts/update_daily.js)\n' + detail);
     return null;
   }
 }
@@ -71,9 +71,10 @@ function checkCacheBump() {
   let staged = '';
   try { staged = execSync('git diff --cached --name-only', { cwd: REPO, encoding: 'utf8' }); } catch (e) { return null; }
   const files = staged.split('\n').map(s => s.trim()).filter(Boolean);
-  if (!files.includes('index.html')) return null;
+  // 화면 파일이 둘(랜딩·리포트)이므로 어느 쪽을 고쳐도 캐시 버전을 봐야 한다
+  if (!files.some(f => f === 'index.html' || f === 'report.html')) return null;
   if (files.includes('sw.js')) return 'ok';
-  warnings.push('index.html 을 고쳤는데 sw.js 가 그대로입니다.\n'
+  warnings.push('화면 파일(index.html / report.html)을 고쳤는데 sw.js 가 그대로입니다.\n'
     + '    sw.js 의 CACHE 버전을 올리지 않으면 이미 방문한 사용자가 옛 화면에 갇힐 수 있습니다.\n'
     + '    (정적 파일만 해당. HTML·데이터는 네트워크 우선이라 대개 괜찮습니다)');
   return 'warn';

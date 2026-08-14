@@ -9,11 +9,12 @@
  *
  * index.html을 고치면 CACHE 버전을 반드시 올릴 것. 안 올리면 사용자가 옛 화면을 계속 본다.
  */
-const CACHE = 'ssn-multi-v4';
+const CACHE = 'ssn-multi-v5';
 
 const SHELL = [
   './',
   './index.html',
+  './report.html',
   './manifest.webmanifest',
   './data/symbols.json',
   './vendor/chart.umd.min.js',

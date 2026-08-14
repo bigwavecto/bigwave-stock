@@ -1,7 +1,7 @@
 /**
  * 모델 이중 구현 일치 검사 — CLAUDE.md "핵심 규칙 1"의 자동 감시자.
  *
- * 예측 모델은 index.html(화면용)과 scripts/update_daily.js(Actions용) 두 곳에 있다.
+ * 예측 모델은 report.html(화면용)과 scripts/update_daily.js(Actions용) 두 곳에 있다.
  * 둘이 어긋나면 **화면에 보이는 범위와 저장되는 기록이 달라진다.** 그런데 눈으로는
  * 티가 안 나기 때문에 조용히 깨진다. 그래서 커밋 전에 기계가 확인한다.
  *
@@ -31,14 +31,14 @@ function loadScriptModel() {
   return new Function(src + '\nreturn { makeForecast, blendedVol, zOf, Z80 };')();
 }
 
-/* index.html: 모델 구간(3장)만 잘라낸다. SYM/ST는 검사용으로 주입한다. */
+/* report.html: 모델 구간(3장)만 잘라낸다. SYM/ST는 검사용으로 주입한다. */
 function loadHtmlModel() {
-  const html = fs.readFileSync(path.join(REPO, 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(REPO, 'report.html'), 'utf8');
   const pick = (start, end) => {
     const a = html.indexOf(start);
-    if (a < 0) throw new Error(`index.html에서 "${start}" 를 찾지 못했습니다.`);
+    if (a < 0) throw new Error(`report.html에서 "${start}" 를 찾지 못했습니다.`);
     const b = html.indexOf(end, a);
-    if (b < 0) throw new Error(`index.html에서 "${start}" 뒤의 "${end}" 를 찾지 못했습니다.`);
+    if (b < 0) throw new Error(`report.html에서 "${start}" 뒤의 "${end}" 를 찾지 못했습니다.`);
     return html.slice(a, b);
   };
   const src =
@@ -104,7 +104,7 @@ function run() {
   if (!checked) { console.error('✗ 검사한 종목이 없습니다. data/<코드>/prices.json 을 확인하세요.'); return 1; }
   if (bad) {
     console.error(`\n✗ ${bad}개 종목에서 모델이 어긋났습니다.`);
-    console.error('  index.html의 makeForecast와 scripts/update_daily.js의 makeForecast를 같게 맞추세요.');
+    console.error('  report.html의 makeForecast와 scripts/update_daily.js의 makeForecast를 같게 맞추세요.');
     return 1;
   }
   console.log(`\n✅ 두 구현이 완전히 동일합니다 (${checked}개 종목).`);
