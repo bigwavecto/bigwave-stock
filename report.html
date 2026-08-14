@@ -15,12 +15,14 @@
 <meta name="apple-mobile-web-app-title" content="삼성 주가">
 <meta name="mobile-web-app-capable" content="yes">
 <!-- Chart.js는 저장소에 두고 쓴다. 외부 CDN이면 오프라인에서 차트가 안 그려진다 -->
-<script src="./vendor/chart.umd.min.js"></script>
+<!-- defer: 문서 파싱을 막지 않는다. 첫 화면에 차트가 없으므로 그만큼 첫 표시가 빨라진다.
+     대신 앱 코드가 Chart를 바로 쓰면 안 된다 — buildChartLazy/flushChart가 준비될 때까지 미룬다. -->
+<script defer src="./vendor/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#f4f6fb; --card:#ffffff; --card2:#f0f3fa; --line:#e2e7f2;
-    --txt:#1c2333; --sub:#5b6785; --accent:#2563eb; --up:#e5484d; --down:#2563eb;
-    --gold:#b07d10; --green:#0f9d6e; --orange:#e07b1a;
+    --txt:#1c2333; --sub:#5b6785; --accent:#2563eb; --up:#cf2b33; --down:#2563eb;
+    --gold:#b07d10; --green:#0b7a56; --orange:#e07b1a;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--txt);font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;line-height:1.6}
@@ -171,6 +173,13 @@
   th{color:var(--sub);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
   td{padding:8px 10px;border-bottom:1px solid var(--line)}
   .num{text-align:right;font-variant-numeric:tabular-nums}
+  /* 화면에는 안 보이지만 스크린리더는 읽는다. 표마다 무슨 표인지 알려주는 데 쓴다. */
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  /* 움직임을 줄여 달라고 설정한 사람에게는 애니메이션을 끈다 (멀미·주의력 문제) */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
   /* 짧은 숫자만 줄바꿈 금지. 전문가 표는 괄호 설명이 붙으므로 제외한다 */
   #techBody .num{white-space:nowrap}
   #histTable th,#histTable td{white-space:nowrap}   /* 이 표는 어차피 옆으로 밀린다 */
@@ -320,6 +329,7 @@
   </div>
   <div class="asof" id="asofLine">-</div>
 
+  <main>
   <!-- 첫 화면(스크롤 전)은 여기까지다. 오늘 필요한 것만 남긴다 —
        가격 / 예상 범위 / 지금 흔들림 / 무엇을 맞히고 무엇을 안 맞히는지. -->
   <div class="price-head">
@@ -389,7 +399,8 @@
 
     <div class="scorecard tscroll">
       <table class="vtable">
-        <thead><tr><th>방식</th><th class="num">채점 횟수</th><th class="num">범위 안에 들어온 비율</th><th class="num">평균 범위</th><th class="num">가운데값 오차</th><th class="num">비교 기준 오차</th><th class="num">누가 더 정확?</th></tr></thead>
+        <caption class="sr-only">예상 범위 성적표 — 방식별 채점 결과</caption>
+        <thead><tr><th scope="col">방식</th><th scope="col" class="num">채점 횟수</th><th scope="col" class="num">범위 안에 들어온 비율</th><th scope="col" class="num">평균 범위</th><th scope="col" class="num">가운데값 오차</th><th scope="col" class="num">비교 기준 오차</th><th scope="col" class="num">누가 더 정확?</th></tr></thead>
         <tbody id="scoreBody"><tr><td colspan="7" class="muted">기록이 쌓이면 성적이 나와요.</td></tr></tbody>
       </table>
     </div>
@@ -408,7 +419,8 @@
     </p>
     <div class="tscroll">
       <table class="vtable">
-        <thead><tr><th>예상</th><th class="num">채점 횟수</th><th class="num">말한 가능성</th><th class="num">실제로 일어난 비율</th><th class="num">차이</th></tr></thead>
+        <caption class="sr-only">닿을 가능성 예보 채점표</caption>
+        <thead><tr><th scope="col">예상</th><th scope="col" class="num">채점 횟수</th><th scope="col" class="num">말한 가능성</th><th scope="col" class="num">실제로 일어난 비율</th><th scope="col" class="num">차이</th></tr></thead>
         <tbody id="probScoreBody"><tr><td colspan="5" class="muted">결과가 나온 예상이 쌓이면 보여드려요.</td></tr></tbody>
       </table>
     </div>
@@ -418,7 +430,8 @@
       <p class="scroll-hint no-hint-mobile">표를 옆으로 밀면 결과와 오차가 보여요 →</p>
       <div class="tscroll">
         <table id="histTable" class="vtable">
-        <thead><tr><th>예상한 날</th><th>맞혀야 할 날</th><th class="num">며칠 뒤</th><th class="num">예상 범위</th><th class="num">넓이</th><th class="num">실제 주가</th><th>결과</th><th class="num">가운데값 오차</th></tr></thead>
+        <caption class="sr-only">날짜별 예상과 실제 주가 비교</caption>
+        <thead><tr><th scope="col">예상한 날</th><th scope="col">맞혀야 할 날</th><th scope="col" class="num">며칠 뒤</th><th scope="col" class="num">예상 범위</th><th scope="col" class="num">넓이</th><th scope="col" class="num">실제 주가</th><th scope="col">결과</th><th scope="col" class="num">가운데값 오차</th></tr></thead>
         <tbody id="histBody"><tr><td colspan="8" class="muted">아직 비교할 기록이 없어요. 날짜가 지나면 예상과 실제를 나란히 보여드려요.</td></tr></tbody>
         </table>
       </div>
@@ -438,6 +451,7 @@
 
     <div class="sub-h">가격이 어디쯤 와 있나요</div>
     <table>
+      <caption class="sr-only">지금 가격과 평균가·최저가·최고가·흔들림 비교</caption>
       <tbody id="techBody"></tbody>
     </table>
 
@@ -468,6 +482,7 @@
     <div class="stale-warn" id="staleWarn"></div>
     <p class="lead" id="expertLead">-</p>
     <table>
+      <caption class="sr-only">증권사 목표주가와 의견</caption>
       <tbody id="expertBody"></tbody>
     </table>
     <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="expertVerdict">-</div></div>
@@ -524,8 +539,11 @@
       사실상 아무 말도 안 하는 것과 같아지기 때문이에요.
     </p>
   </details>
+  </main>
 
-  <div class="disclaimer" id="disclaimer"></div>
+  <footer>
+    <div class="disclaimer" id="disclaimer"></div>
+  </footer>
 
 </div>
 
@@ -964,13 +982,14 @@ function renderProb(fc){
   const el=document.getElementById('probTable');
   if(!fc.vol){ el.innerHTML='<tbody><tr><td class="muted">이날 기록에 필요한 값이 없어 계산하지 못했어요.</td></tr></tbody>'; return; }
   const lbl=t=>(t<0?DNI:UPI)+' '+(t>0?'+':'')+t+'% · '+fmt(fc.base*(1+t/100))+'원';
-  const head='<thead><tr><th>기간</th>'+PROB_T.map(t=>
-    '<th>'+(t<0?DNI:UPI)+' '+(t>0?'+':'')+t+'%<small>'+fmt(fc.base*(1+t/100))+'원</small></th>').join('')+'</tr></thead>';
+  const cap='<caption class="sr-only">기간별로 특정 가격에 닿을 가능성</caption>';
+  const head='<thead><tr><th scope="col">기간</th>'+PROB_T.map(t=>
+    '<th scope="col">'+(t<0?DNI:UPI)+' '+(t>0?'+':'')+t+'%<small>'+fmt(fc.base*(1+t/100))+'원</small></th>').join('')+'</tr></thead>';
   const body='<tbody>'+PROB_H.map(([nm,h])=>'<tr><td>'+nm+' 안에</td>'+PROB_T.map(t=>{
     const p=touchProb(fc.vol,h,t)*100;
     return '<td data-l="'+lbl(t)+'" class="pcell '+(t<0?'pdn':'pup')+'">'+p.toFixed(0)+'%</td>';
   }).join('')+'</tr>').join('')+'</tbody>';
-  el.innerHTML=head+body;
+  el.innerHTML=cap+head+body;
 
   const pl5dn=touchProb(fc.vol,20,-10)*100, pl5up=touchProb(fc.vol,20,10)*100;
   document.getElementById('probLead').innerHTML =
@@ -1325,6 +1344,8 @@ function buildChart(range){
     data:{ labels, datasets },
     options:{
       responsive:true, maintainAspectRatio:false,
+      // 움직임을 줄여 달라고 설정한 사람에게는 차트 애니메이션도 끈다
+      animation: matchMedia('(prefers-reduced-motion: reduce)').matches ? false : undefined,
       interaction:{ mode:'index', intersect:false },
       plugins:{
         legend:{ labels:{ color:'#5b6785', filter:i=>!i.text.includes('예상범위') } },
@@ -1341,6 +1362,26 @@ function buildChart(range){
   if(chart) chart.destroy();
   chart=new Chart(document.getElementById('mainChart'), cfg(10));
   if(modalChart) drawModalChart();          // 확대 창이 열려 있으면 같이 갱신
+}
+
+/* 차트는 화면에 들어올 때 그린다. 첫 화면에 차트가 없으므로 그만큼 첫 표시가 빨라진다.
+   Chart.js를 defer로 불러오므로 아직 준비 안 됐을 수 있어, 준비될 때까지 미룬다. */
+let chartPending=null;
+function buildChartLazy(range){
+  chartPending=range;
+  const box=document.getElementById('chartBox');
+  if(!('IntersectionObserver' in window)){ flushChart(); return; }
+  if(box.__io) return;                       // 이미 지켜보는 중
+  box.__io=new IntersectionObserver(es=>{
+    if(es.some(e=>e.isIntersecting)){ box.__io.disconnect(); box.__io=null; flushChart(); }
+  }, { rootMargin:'200px' });
+  box.__io.observe(box);
+}
+function flushChart(){
+  if(chartPending==null) return;
+  if(typeof Chart==='undefined'){ addEventListener('load', flushChart, { once:true }); return; }
+  const r=chartPending; chartPending=null;
+  buildChart(r);
 }
 
 /* ── 차트 확대 보기 ── */
@@ -1559,7 +1600,8 @@ function renderAll(){
   renderHistory(DATA);
   renderProbScore(scoreProb(DATA));
   try{ renderContext(DATA); }catch(e){ console.warn('맥락 카드 렌더 실패:', e); }
-  buildChart(RANGE);
+  // 화면에 들어올 때 그린다. 이미 보이는 상태면 IntersectionObserver가 바로 발화한다.
+  buildChartLazy(RANGE);
 }
 
 /* ============ 8. 초기화 ============ */
