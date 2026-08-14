@@ -1,18 +1,15 @@
 // 요인 분석용 다중 시계열 수집 (10년 일봉)
+// 종목 목록은 tickers.js 한 곳에 있다 — 종목을 추가할 때 여기를 고치지 않는다.
 const fs = require('fs');
 const path = require('path');
+const { SYMBOLS, MARKET } = require('./tickers');
 const CACHE = path.join(__dirname, '..', '.cache');
-require('fs').mkdirSync(CACHE, { recursive: true });
-const TICKERS = {
-  samsung: '005930.KS',   // 삼성전자
-  kospi: '%5EKS11',       // 코스피
-  hynix: '000660.KS',     // SK하이닉스 (동종업계)
-  usdkrw: 'KRW=X',        // 원/달러
-  nasdaq: '%5EIXIC',      // 나스닥
-  vix: '%5EVIX',          // 변동성지수
-  sox: '%5ESOX',          // 필라델피아 반도체지수
-  tsmc: 'TSM'             // TSMC (미국 상장)
-};
+fs.mkdirSync(CACHE, { recursive: true });
+
+const TICKERS = Object.assign(
+  Object.fromEntries(SYMBOLS.map(s => [s.key, s.yahoo])),
+  MARKET
+);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 (async () => {
@@ -33,7 +30,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
       }
       out[name] = series;
       const ks = Object.keys(series);
-      console.log('✓', name.padEnd(9), sym.padEnd(12), ks.length, '일치 |', ks[0], '~', ks[ks.length - 1]);
+      console.log('✓', name.padEnd(9), sym.padEnd(12), String(ks.length).padStart(5), '일치 |', ks[0], '~', ks[ks.length - 1]);
     } catch (e) { console.log('✗', name, e.message); }
     await sleep(400);
   }

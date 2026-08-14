@@ -119,7 +119,13 @@ function analyse(key, label) {
   return out2;
 }
 
-const res = { '005930': analyse('samsung', '삼성전자'), '000660': analyse('hynix', 'SK하이닉스') };
+// 종목 목록은 fetch/tickers.js 한 곳에 있다. 종목을 추가할 때 여기를 고치지 않는다.
+const { SYMBOLS } = require('./fetch/tickers');
+const res = {};
+for (const s of SYMBOLS) {
+  if (!F[s.key]) { console.log('✗ ' + s.name + ': factors.json 에 자료가 없습니다. fetch_factors.js 를 먼저 돌리세요.'); continue; }
+  res[s.code] = analyse(s.key, s.name);
+}
 fs.writeFileSync(D + '/symbol_stats.json', JSON.stringify(res, null, 2));
 for (const [code, r] of Object.entries(res)) {
   console.log('\n■ ' + r.label + ' (' + code + ')  ' + r.from + ' ~ ' + r.to + '  ' + r.days + '일 ≈ ' + r.histYears + '년');

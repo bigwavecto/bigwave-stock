@@ -1,21 +1,21 @@
 {
-  "updated": "2026-08-13",
-  "note": "stats는 각 종목의 데이터로 직접 검증한 값이다. 다른 종목 값을 복사해 쓰면 화면에 거짓이 표시된다. 항목마다 필요한 최소 이력이 다르다(docs/adr/008): 흔들림 기준·시장 동조·실적 배수는 5년, 국면(신고가)은 10년. 계산할 수 없으면 그 항목을 넣지 않는다 — 앱이 해당 줄을 감춘다.",
+  "updated": "2026-08-14",
+  "note": "stats는 각 종목의 데이터로 직접 검증한 값이다. 다른 종목 값을 복사해 쓰면 화면에 거짓이 표시된다. 항목마다 필요한 최소 이력이 다르다(docs/adr/008): 흔들림 기준·시장 동조·실적 배수는 5년, 국면(신고가)은 10년. 계산할 수 없으면 그 항목을 넣지 않는다 — 앱이 해당 줄을 감춘다. 이 파일은 scripts/research/build_symbols.js 가 만든다. 손으로 고치지 말 것.",
   "symbols": [
     {
       "code": "005930",
       "name": "삼성전자",
       "yahoo": "005930.KS",
+      "category": "AI 반도체·부품",
       "peer": {
         "code": "000660",
         "name": "SK하이닉스",
         "yahoo": "000660.KS"
       },
       "stats": {
-        "range": "2016-08-16~2026-08-13",
         "z1": 1.04,
         "cov": {
-          "w1": 80.2,
+          "w1": 80.3,
           "w2": 80,
           "m1": 79.7
         },
@@ -24,30 +24,33 @@
           "nearDn": 11.5,
           "nearN": 355,
           "farUp": 17.3,
-          "farDn": 11.1,
-          "farN": 1771,
+          "farDn": 11.2,
+          "farN": 1772,
           "byPeriod": [
             {
               "p": "2019~2022",
+              "n": 133,
               "up": 36.1,
               "dn": 3
             },
             {
               "p": "2022~2025",
+              "n": 103,
               "up": 3.9,
               "dn": 14.6
             },
             {
-              "p": "2025~현재",
+              "p": "2025~2027",
+              "n": 111,
               "up": 86.5,
               "dn": 12.6
             }
           ]
         },
         "market": {
-          "bigDays": 43,
-          "withMarketPct": 84,
-          "soloPct": 16
+          "bigDays": 42,
+          "withMarketPct": 83,
+          "soloPct": 17
         },
         "earnings": 1.11,
         "histYears": 9.8,
@@ -56,7 +59,7 @@
           "years": 9.8
         },
         "growth": {
-          "x": 8.6,
+          "x": 8.8,
           "years": 9.8
         }
       }
@@ -65,13 +68,13 @@
       "code": "000660",
       "name": "SK하이닉스",
       "yahoo": "000660.KS",
+      "category": "AI 반도체·부품",
       "peer": {
         "code": "005930",
         "name": "삼성전자",
         "yahoo": "005930.KS"
       },
       "stats": {
-        "range": "2016-08-16~2026-08-13",
         "z1": 1.04,
         "cov": {
           "w1": 80.5,
@@ -82,22 +85,25 @@
           "nearUp": 40.2,
           "nearDn": 20.9,
           "nearN": 363,
-          "farUp": 35.5,
-          "farDn": 23.9,
-          "farN": 1763,
+          "farUp": 35.4,
+          "farDn": 24,
+          "farN": 1764,
           "byPeriod": [
             {
               "p": "2019~2022",
+              "n": 94,
               "up": 17,
               "dn": 16
             },
             {
               "p": "2022~2025",
+              "n": 134,
               "up": 26.9,
               "dn": 11.9
             },
             {
-              "p": "2025~현재",
+              "p": "2025~2027",
+              "n": 118,
               "up": 79.7,
               "dn": 26.3
             }
@@ -115,7 +121,277 @@
           "years": 9.8
         },
         "growth": {
-          "x": 48.2,
+          "x": 48.8,
+          "years": 9.8
+        }
+      }
+    },
+    {
+      "code": "042700",
+      "name": "한미반도체",
+      "yahoo": "042700.KS",
+      "category": "AI 반도체·부품",
+      "peer": {
+        "code": "000660",
+        "name": "SK하이닉스",
+        "yahoo": "000660.KS"
+      },
+      "stats": {
+        "z1": 1.02,
+        "cov": {
+          "w1": 81,
+          "w2": 81.7,
+          "m1": 77.8
+        },
+        "regime": {
+          "nearUp": 61.3,
+          "nearDn": 38.2,
+          "nearN": 238,
+          "farUp": 43.9,
+          "farDn": 35.3,
+          "farN": 1889,
+          "byPeriod": [
+            {
+              "p": "2019~2022",
+              "n": 91,
+              "up": 62.6,
+              "dn": 35.2
+            },
+            {
+              "p": "2022~2025",
+              "n": 97,
+              "up": 67,
+              "dn": 29.9
+            },
+            {
+              "p": "2025~2027",
+              "n": 36,
+              "up": 41.7,
+              "dn": 69.4
+            }
+          ]
+        },
+        "market": {
+          "bigDays": 189,
+          "withMarketPct": 31,
+          "soloPct": 69
+        },
+        "earnings": 1.07,
+        "histYears": 9.8,
+        "volBase": {
+          "pct": 60,
+          "years": 9.8
+        },
+        "growth": {
+          "x": 77.4,
+          "years": 9.8
+        }
+      }
+    },
+    {
+      "code": "007660",
+      "name": "이수페타시스",
+      "yahoo": "007660.KS",
+      "category": "AI 반도체·부품",
+      "peer": {
+        "code": "042700",
+        "name": "한미반도체",
+        "yahoo": "042700.KS"
+      },
+      "stats": {
+        "z1": 0.97,
+        "cov": {
+          "w1": 80.3,
+          "w2": 79.5,
+          "m1": 80.2
+        },
+        "regime": {
+          "nearUp": 60.9,
+          "nearDn": 40.1,
+          "nearN": 207,
+          "farUp": 47.8,
+          "farDn": 38.3,
+          "farN": 1920,
+          "byPeriod": [
+            {
+              "p": "2019~2022",
+              "n": 52,
+              "up": 61.5,
+              "dn": 36.5
+            },
+            {
+              "p": "2022~2025",
+              "n": 81,
+              "up": 58,
+              "dn": 45.7
+            },
+            {
+              "p": "2025~2027",
+              "n": 62,
+              "up": 67.7,
+              "dn": 29
+            }
+          ]
+        },
+        "market": {
+          "bigDays": 222,
+          "withMarketPct": 28,
+          "soloPct": 72
+        },
+        "earnings": 0.97,
+        "histYears": 9.8,
+        "volBase": {
+          "pct": 64,
+          "years": 9.8
+        },
+        "growth": {
+          "x": 22.3,
+          "years": 9.8
+        }
+      }
+    },
+    {
+      "code": "267260",
+      "name": "HD현대일렉트릭",
+      "yahoo": "267260.KS",
+      "category": "AI 전력·인프라",
+      "peer": {
+        "code": "010120",
+        "name": "LS ELECTRIC",
+        "yahoo": "010120.KS"
+      },
+      "stats": {
+        "z1": 0.99,
+        "cov": {
+          "w1": 80.9,
+          "w2": 80.4,
+          "m1": 78.4
+        },
+        "market": {
+          "bigDays": 193,
+          "withMarketPct": 32,
+          "soloPct": 68
+        },
+        "earnings": 0.94,
+        "histYears": 9.1,
+        "volBase": {
+          "pct": 60,
+          "years": 9.1
+        },
+        "growth": {
+          "x": 14.3,
+          "years": 9.1
+        }
+      }
+    },
+    {
+      "code": "010120",
+      "name": "LS ELECTRIC",
+      "yahoo": "010120.KS",
+      "category": "AI 전력·인프라",
+      "peer": {
+        "code": "267260",
+        "name": "HD현대일렉트릭",
+        "yahoo": "267260.KS"
+      },
+      "stats": {
+        "z1": 1.03,
+        "cov": {
+          "w1": 83.2,
+          "w2": 79.6,
+          "m1": 78.8
+        },
+        "regime": {
+          "nearUp": 46.9,
+          "nearDn": 33.5,
+          "nearN": 239,
+          "farUp": 41.5,
+          "farDn": 26.5,
+          "farN": 1888,
+          "byPeriod": [
+            {
+              "p": "2019~2022",
+              "n": 34,
+              "up": 8.8,
+              "dn": 47.1
+            },
+            {
+              "p": "2022~2025",
+              "n": 77,
+              "up": 70.1,
+              "dn": 18.2
+            },
+            {
+              "p": "2025~2027",
+              "n": 76,
+              "up": 64.5,
+              "dn": 42.1
+            }
+          ]
+        },
+        "market": {
+          "bigDays": 138,
+          "withMarketPct": 38,
+          "soloPct": 62
+        },
+        "earnings": 1.05,
+        "histYears": 9.8,
+        "volBase": {
+          "pct": 52,
+          "years": 9.8
+        },
+        "growth": {
+          "x": 23,
+          "years": 9.8
+        }
+      }
+    },
+    {
+      "code": "035420",
+      "name": "NAVER",
+      "yahoo": "035420.KS",
+      "category": "AI 플랫폼",
+      "peer": {
+        "code": "035720",
+        "name": "카카오",
+        "yahoo": "035720.KS"
+      },
+      "stats": {
+        "z1": 0.95,
+        "cov": {
+          "w1": 80.5,
+          "w2": 81.7,
+          "m1": 78
+        },
+        "regime": {
+          "nearUp": 25.1,
+          "nearDn": 19.6,
+          "nearN": 219,
+          "farUp": 27,
+          "farDn": 18.1,
+          "farN": 1908,
+          "byPeriod": [
+            {
+              "p": "2019~2022",
+              "n": 189,
+              "up": 28,
+              "dn": 13.2
+            }
+          ]
+        },
+        "market": {
+          "bigDays": 68,
+          "withMarketPct": 35,
+          "soloPct": 65
+        },
+        "earnings": 1.04,
+        "histYears": 9.8,
+        "volBase": {
+          "pct": 37,
+          "years": 9.8
+        },
+        "growth": {
+          "x": 1.4,
           "years": 9.8
         }
       }

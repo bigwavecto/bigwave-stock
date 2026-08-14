@@ -498,9 +498,11 @@
     <div id="earnBox" class="muted">-</div>
   </div>
 
-  <div class="group-h opinion"><span class="dot"></span>사람들이 보는 것 <span class="gn">— 조사해서 옮겨 온 의견이에요. 맞는지는 확인할 수 없어요</span></div>
+  <!-- 조사 데이터(report.json)가 없는 종목에서는 이 묶음을 통째로 감춘다.
+       빈칸을 남기면 "불러오지 못했다"처럼 보이고, 없는 값을 지어내는 것보다도 나쁘다. -->
+  <div class="group-h opinion" id="opinionGroup"><span class="dot"></span>사람들이 보는 것 <span class="gn">— 조사해서 옮겨 온 의견이에요. 맞는지는 확인할 수 없어요</span></div>
 
-  <div class="card">
+  <div class="card" id="expertCard">
     <h2>증권사는 어떻게 보나요 <span class="muted" style="font-weight:400" id="expertAsOf"></span></h2>
     <!-- 조사 자료가 오래됐다는 경고는 해당 카드 안에 둔다. 맨 위에 두면 첫인상을 해치고,
          정작 그 경고가 가리키는 내용에서는 멀어진다. -->
@@ -516,7 +518,7 @@
     <p class="src" id="expertSrc"></p>
   </div>
 
-  <div class="card">
+  <div class="card" id="factorCard">
     <h2>주가를 움직이는 것들 <span class="muted" style="font-weight:400" id="factorAsOf"></span></h2>
     <p class="lead" id="factorLead">-</p>
     <div class="grid2" id="factorGrid"></div>
@@ -1076,9 +1078,16 @@ function renderProb(fc){
     +'<b>'+fmt(fc.base*1.1)+'원까지 올라갈 가능성이 '+p20up.toFixed(0)+'%</b>예요.<br>'
     +'이 숫자는 <b>흔들리는 정도만 보고</b> 계산해요. 오를지 내릴지는 넣지 않았어요. '
     +'지난 10년으로 검증했을 때 이 방식은 실제로 잘 맞았어요.<br>'
-    +'한 가지만 기억해 주세요 — <b>내려갈 가능성이 조금 높게 나오는 편</b>이에요. '
-    +'지난 10년 동안 주가가 8.5배나 올랐기 때문인데, 그렇다고 숫자를 낮춰 잡으면 '
-    +'<b>“앞으로도 계속 오를 것”이라고 미리 정해버리는 셈</b>이라 일부러 그대로 뒀어요.';
+    /* 하락 과대 예보 이야기(ADR 003)는 **크게 오른 표본**에서 나온 설명이다.
+       삼성전자 값(8.5배)을 모든 종목 화면에 쓰고 있었다 — ADR 002 위반이었다.
+       그리고 많이 오르지 않은 종목(NAVER 1.4배)에는 이 설명 자체가 성립하지 않으므로,
+       근거가 있는 종목에만 말한다. 없는 종목에는 말하지 않는 것이 정직하다. */
+    +((g => (g && g.x >= 3)
+        ? '한 가지만 기억해 주세요 — <b>내려갈 가능성이 조금 높게 나오는 편</b>이에요. '
+          + '이 종목이 지난 ' + (g.years>=9.5?'10':Math.round(g.years)) + '년 동안 ' + g.x + '배나 올라서 그래요. '
+          + '그렇다고 숫자를 낮춰 잡으면 <b>“앞으로도 계속 오를 것”이라고 미리 정해버리는 셈</b>이라 일부러 그대로 뒀어요.'
+        : '위아래 숫자가 비슷하게 나오는 건 <b>어느 쪽으로 갈지 정하지 않았기 때문</b>이에요.'
+      )(ST().growth));
 }
 
 /* 임계값 확률 예보 채점 — 기록에 남은 vol로 그날 예보를 그대로 재현해 실제와 대조 */
@@ -1688,7 +1697,13 @@ async function showSymbol(code){
 // 기간 버튼·종목 전환 후 화면 전체를 다시 그린다
 function renderAll(){
   if(!DATA) return;
-  if(REPORT_DATA) renderReport(DATA); else document.getElementById('staleWarn').style.display='none';
+  /* 조사 데이터가 없는 종목(아직 조사 안 한 종목)에서는 "사람들이 보는 것" 묶음을 통째로 감춘다.
+     빈칸을 남기면 "불러오지 못했다"처럼 보인다. 없는 것은 없다고 하는 게 이 앱의 방식이다. */
+  const hasReport = !!(REPORT_DATA && REPORT_DATA.consensus);
+  for(const id of ['opinionGroup','expertCard','factorCard']){
+    const el=document.getElementById(id); if(el) el.style.display = hasReport ? '' : 'none';
+  }
+  if(hasReport) renderReport(DATA); else document.getElementById('staleWarn').style.display='none';
   renderSummary(DATA, FC);
   renderProb(FC);
   renderHistory(DATA);

@@ -68,6 +68,9 @@
   .claim .d{color:var(--sub);font-size:.88rem;margin-top:2px;word-break:keep-all}
 
   h2{font-size:1.05rem;font-weight:800;margin:0 2px 12px}
+  /* 카테고리 묶음 제목. 이름은 설명이어야 한다 — "유망주" 같은 평가는 쓰지 않는다. */
+  .cat{font-size:.8rem;font-weight:800;color:var(--sub);margin:20px 2px 8px}
+  .cat:first-child{margin-top:0}
   .sym{display:flex;align-items:center;justify-content:space-between;gap:12px;
     background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:16px 18px;margin-bottom:10px;min-height:64px;
@@ -170,7 +173,12 @@
     if (r.ok) (await r.json()).rows.forEach(x => { px[x.code] = x; });
   } catch (e) { }
 
-  box.innerHTML = syms.map(s => {
+  // 카테고리로 묶는다. category 가 없으면 한 묶음으로 나온다 — 종목이 적을 때의 모습이다.
+  const groups = {};
+  syms.forEach(s => { const g = s.category || '전체'; (groups[g] = groups[g] || []).push(s); });
+  const multi = Object.keys(groups).length > 1;
+
+  const item = s => {
     const p = px[s.code];
     const val = p
       ? '<span class="px">' + won(p.c) + '</span>'
@@ -180,7 +188,11 @@
     return '<a class="sym" href="./report.html?code=' + s.code + '">'
       + '<span class="nm">' + s.name + '<span class="cd">' + s.code + '</span></span>'
       + '<span class="val">' + val + '</span></a>';
-  }).join('');
+  };
+
+  box.innerHTML = Object.entries(groups).map(([g, list]) =>
+    (multi ? '<div class="cat">' + g + '</div>' : '') + list.map(item).join('')
+  ).join('');
 })();
 </script>
 </body>
