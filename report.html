@@ -364,7 +364,7 @@
       <button class="hbtn on" data-h="5">1주</button>
       <button class="hbtn" data-h="10">2주</button>
       <button class="hbtn" data-h="20">1개월</button>
-      <span class="legend-note">── 실제 주가 &nbsp; ┅ 오늘 가격 &nbsp; ▨ 10번 중 8번은 이 안</span>
+      <span class="legend-note">── 실제 주가 &nbsp; ┅ 오늘 가격 &nbsp; ▨ 날짜별로 10번 중 8번 들어오는 구간</span>
     </div>
     <div id="chartBox" role="button" tabindex="0" aria-label="차트 크게 보기"><canvas id="mainChart"></canvas></div>
     <p class="zoom-hint">차트를 누르면 크게 볼 수 있어요 🔍</p>
@@ -393,11 +393,13 @@
         <tbody id="scoreBody"><tr><td colspan="7" class="muted">기록이 쌓이면 성적이 나와요.</td></tr></tbody>
       </table>
     </div>
+    <p class="sc-note" id="pathScore"></p>
     <p class="sc-note">
       <b>범위 안에 들어온 비율</b>은 80%에 가까울수록 정직한 범위예요. 너무 높으면 범위를 쓸데없이 넓게 잡은 거고, 너무 낮으면 좁게 잡은 거예요.<br>
       <b>비교 기준</b>은 아무 계산도 하지 않고 “며칠 뒤에도 오늘 가격 그대로”라고만 말하는 방식이에요. 주가 예측이 쓸모 있는지 가리는 시험대죠.
       <b>누가 더 정확?</b> 이 1.000보다 크면 그 시험대보다 부정확했다는 뜻이에요. 지금 방식은 오를지 내릴지를 맞히지 않으니 가운데값이 기준과 같아서 1.000이 나와요.<br>
-      <b>채점 횟수가 적을 때는 운의 영향이 커요.</b> 수십 번 이상 쌓인 뒤에 보세요.
+      <b>채점 횟수보다 “겹치지 않는 구간” 수를 보세요.</b> 하루치 예상이 여러 번으로 세어지기 때문에
+      채점 횟수는 금방 커져요. 서로 겹치지 않는 구간이 수십 개 쌓인 뒤라야 성적을 믿을 수 있어요.
     </p>
 
     <div class="sub-h" style="margin-top:20px">“닿을 가능성” 예상은 얼마나 맞았나요</div>
@@ -469,12 +471,9 @@
       <tbody id="expertBody"></tbody>
     </table>
     <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="expertVerdict">-</div></div>
-    <p class="src">출처:
-      <a href="https://bullstory.io/blog/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-%EC%A3%BC%EA%B0%80-%EC%A0%84%EB%A7%9D-2026-2%EB%B6%84%EA%B8%B0-%EC%98%81%EC%97%85%EC%9D%B4%EC%9D%B5-895%EC%A1%B0%EC%9B%90%EA%B3%BC-%EB%AA%A9%ED%91%9C%EC%A3%BC%EA%B0%80-493542%EC%9B%90-%EA%B7%B8-%EC%82%AC%EC%9D%B4%EC%9D%98-%EA%B0%84%EA%B7%B9" target="_blank">불스토리</a> ·
-      <a href="https://www.thecommoditiesnews.com/news/articleView.html?idxno=11596" target="_blank">CNews</a> ·
-      <a href="https://www.infostockdaily.co.kr/news/articleView.html?idxno=217228" target="_blank">인포스탁데일리</a> ·
-      <a href="https://www.investing.com/equities/samsung-electronics-co-ltd-consensus-estimates" target="_blank">Investing.com</a>
-    </p>
+    <!-- 출처는 종목마다 다르다. HTML에 박아 두면 다른 종목 화면에 남의 출처가 뜬다.
+         report.json 의 sources 에서 그려 넣고, 없으면 줄 자체를 숨긴다. -->
+    <p class="src" id="expertSrc"></p>
   </div>
 
   <div class="card">
@@ -482,14 +481,7 @@
     <p class="lead" id="factorLead">-</p>
     <div class="grid2" id="factorGrid"></div>
     <div class="verdict"><div class="vt">🧭 한 줄로 정리하면</div><div id="newsVerdict">-</div></div>
-    <p class="src">출처:
-      <a href="https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026%EB%85%84-2%EB%B6%84%EA%B8%B0-%EC%8B%A4%EC%A0%81-%EB%B0%9C%ED%91%9C" target="_blank">삼성전자 뉴스룸(2분기 실적)</a> ·
-      <a href="https://www.thelec.kr/news/articleView.html?idxno=60316" target="_blank">디일렉(컨퍼런스콜)</a> ·
-      <a href="https://namu.wiki/w/2026%EB%85%84%207%EC%9B%94%20%EA%B5%AD%EB%82%B4%EC%A6%9D%EC%8B%9C%20%EB%8C%80%ED%8F%AD%EB%9D%BD" target="_blank">7월 증시 급락 정리</a> ·
-      <a href="https://www.cnbc.com/2026/07/31/cxmts-sk-hynix-samsung-micron-memory-chip.html" target="_blank">CNBC(CXMT)</a> ·
-      <a href="https://www.shinhangroup.com/kr/archive/insight/extend/detail/32873" target="_blank">신한(메모리 사이클)</a> ·
-      <a href="https://www.newspim.com/news/view/20260720001033" target="_blank">뉴스핌(CXMT 분석)</a>
-    </p>
+    <p class="src" id="factorSrc"></p>
   </div>
 
   <div class="group-h"><span class="dot"></span>이 앱은 어떻게 계산하나요 <span class="gn">— 무엇을 해봤고 무엇이 안 됐는지</span></div>
@@ -577,7 +569,6 @@ const REPORT_FALLBACK = {
     { name: "한국투자증권", target: "650,000원" }
   ],
   rating: "매수 36 · 보유 1 · 매도 0",
-  ratingTag: "강한 매수",
   expertVerdict: "증권사 37곳 중 36곳이 '사라'고 말하고 있어요. 평균 목표가는 약 49만원으로 지금 가격의 두 배쯤이에요. 그런데 낮게 본 곳은 37만원, 높게 본 곳은 67만원이에요. 차이가 이렇게 크다는 건 전문가들도 확신이 없다는 뜻이에요. 게다가 이 목표가들 상당수는 7월 급락 전에 매겨진 값이에요. 목표가는 '며칠 안에 갈 가격'이 아니라 '1년쯤 두고 보면 이 방향'이라는 뜻으로 읽는 게 맞아요.",
   factors: [
     { cls:"pos", tag:"좋은 소식", t:"역대 최대 실적을 냈어요", d:"2026년 2분기에 매출 171.5조원, 영업이익 89.5조원을 벌었어요. 분기 기준 역대 최대예요. AI에 쓰이는 메모리가 잘 팔린 덕분이에요." },
@@ -749,8 +740,12 @@ function makeForecast(data){
 }
 
 /* ============ 4. 예측 저장/비교 ============ */
-function loadStore(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
-function saveStore(s){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){} }
+/* 주의: storeKey()는 종목마다 다른 키를 만드는 **함수**다.
+   2026-08-13 종목 추가 때 상수 STORE_KEY를 이 함수로 바꾸면서 아래 두 곳을 안 고쳐,
+   선언된 적 없는 STORE_KEY를 참조하고 있었다. try/catch에 삼켜져 조용히 실패했고
+   화면은 서버 predictions.json 덕에 멀쩡해 보였다. 이런 종류를 다시 만들지 말 것. */
+function loadStore(){ try{ return JSON.parse(localStorage.getItem(storeKey()))||{}; }catch(e){ return {}; } }
+function saveStore(s){ try{ localStorage.setItem(storeKey(), JSON.stringify(s)); }catch(e){} }
 
 /* ============ 5. 렌더링 ============ */
 let chart=null, DATA=null, FC=null, STORE=null, FLOW=null, MARKET=null;
@@ -839,17 +834,31 @@ function renderTech(data){
       : '요즘 흔들림은 1년 기준 <span class="hl">'+volA.toFixed(0)+'%</span>예요.');
 }
 
+/* 목표주가 카드.
+   이 페이지에서 방향을 말하는 유일한 요소다. 그래서 강조를 절제한다 —
+   ADR 007이 "지금 분위기" 배지를 없앤 이유가 여기에도 그대로 적용된다:
+   화면에서 가장 굵은 주장이 **검증 불가 항목**이면 안 된다(ADR 006 판정: 검증 불가).
+   ① "강한 매수" 같은 등급 라벨을 앱이 직접 붙이지 않는다(문체 규칙: 투자 권유 금지).
+   ② 목표가는 원 단위로 쓰지 않는다. 어떤 리서치도 원 단위 정밀도로 내지 않는다.
+   ③ 컨센서스 기준일이 오래되면 그 줄에서 바로 알린다. */
 function renderReport(data){
   const last=data[data.length-1].c;
   const c=REPORT_DATA.consensus;
   const up=(c.target/last-1)*100;
+  // 만원 단위로 반올림 — 493,542원 같은 정밀도는 존재하지 않는 정확성이다
+  const roundT = v => { const u = v>=1000000 ? 10000 : 1000; return fmt(Math.round(v/u)*u); };
+  const cDays = c.asOf ? Math.floor((Date.now()-new Date(c.asOf+'T00:00:00').getTime())/86400000) : null;
+  const cAge = (cDays!=null && cDays>=7) ? ' <span class="tag neu">'+cDays+'일 전 기준</span>' : '';
   // 조사에서 확인 못 한 항목은 아예 표시하지 않는다 (없는 값을 지어내지 않기 위해)
   const rows=[
-    ['증권사들이 보는 평균 목표가','<b>'+fmt(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'],
-    ...(c.rangeLo&&c.rangeHi ? [['가장 낮게~높게 본 목표가', fmt(c.rangeLo)+' ~ '+fmt(c.rangeHi)+'원']] : []),
+    ['증권사들이 보는 평균 목표가','<b>'+roundT(c.target)+'원</b> <span class="muted">('+c.asOf+' 기준)</span>'+cAge],
+    ...(c.rangeLo&&c.rangeHi ? [['가장 낮게~높게 본 목표가', roundT(c.rangeLo)+' ~ '+roundT(c.rangeHi)+'원']] : []),
     ...(REPORT_DATA.analysts||[]).map(a=>[a.name+'이 본 목표가',a.target]),
-    ...(REPORT_DATA.rating ? [['증권사 의견', REPORT_DATA.rating+(REPORT_DATA.ratingTag?' <span class="tag pos">'+REPORT_DATA.ratingTag+'</span>':'')]] : []),
-    ['지금 가격보다','<b class="'+(up>0?'err-pos':'err-neg')+'">'+(up>0?UPI:DNI)+' '+(up>0?'+':'')+up.toFixed(1)+'%</b>']
+    // 의견 분포는 사실이므로 남기되, 앱이 등급 라벨을 덧붙이지는 않는다.
+    // 매도 리포트가 거의 없는 것은 종목에 대한 정보가 아니라 업계 관행에 대한 정보다.
+    ...(REPORT_DATA.rating ? [['증권사 의견', REPORT_DATA.rating
+        +'<br><span class="muted" style="font-weight:400">매도 의견은 업계 관행상 거의 나오지 않아요</span>']] : []),
+    ['지금 가격보다', (up>0?UPI:DNI)+' '+(up>0?'+':'')+up.toFixed(1)+'%']
   ];
   document.getElementById('expertBody').innerHTML=rows.map(([k,v])=>'<tr><td>'+k+'</td><td class="num">'+v+'</td></tr>').join('');
   document.getElementById('expertAsOf').textContent='· '+REPORT_DATA.updated+' 조사';
@@ -857,9 +866,19 @@ function renderReport(data){
   document.getElementById('expertVerdict').textContent=REPORT_DATA.expertVerdict;
   document.getElementById('newsVerdict').textContent=REPORT_DATA.newsVerdict;
   document.getElementById('expertLead').innerHTML=
-    '증권사 평균 목표가는 <span class="hl">'+fmt(c.target)+'원</span>, 지금보다 '
-    +'<span class="'+(up>0?'up':'down')+'">'+(up>0?UPI:DNI)+' '+Math.abs(up).toFixed(0)+'%</span> '+(up>0?'높아요.':'낮아요.')
-    +' 다만 <b>목표가는 예측이 아니라 참고용</b>이에요.';
+    '증권사 평균 목표가는 <span class="hl">'+roundT(c.target)+'원</span>, 지금보다 '
+    +(up>0?UPI:DNI)+' '+Math.abs(up).toFixed(0)+'% '+(up>0?'높아요.':'낮아요.')
+    +' 다만 <b>목표가는 1년쯤 뒤를 보는 값이고, 이 앱이 맞는지 확인해 본 적이 없어요.</b>';
+
+  // 출처 — 종목마다 다르다. 없으면 줄 자체를 감춘다(없는 것을 지어내지 않는다).
+  const srcLine = (el, list) => {
+    const box=document.getElementById(el); if(!box) return;
+    if(!list || !list.length){ box.style.display='none'; box.innerHTML=''; return; }
+    box.style.display='';
+    box.innerHTML='출처: '+list.map(s=>'<a href="'+s.u+'" target="_blank" rel="noopener">'+s.t+'</a>').join(' · ');
+  };
+  srcLine('expertSrc', REPORT_DATA.sources && REPORT_DATA.sources.expert);
+  srcLine('factorSrc', REPORT_DATA.sources && REPORT_DATA.sources.factor);
   const nPos=REPORT_DATA.factors.filter(f=>f.cls==='pos').length;
   const nNeg=REPORT_DATA.factors.filter(f=>f.cls==='neg').length;
   document.getElementById('factorLead').innerHTML=
@@ -898,12 +917,18 @@ function renderSummary(data, fc){
   document.getElementById('volN').textContent =
     ratio==null ? volA.toFixed(0)+'%' : '평소의 '+ratio.toFixed(1)+'배';
 
+  // 통로 오해가 실제로 생기는 자리는 여기다 — 차트의 색칠된 띠가 "이 안에 머문다"로 읽힌다.
+  // 그래서 바로잡는 문장도 여기에 둔다(첫 화면 요약이 아니라).
   document.getElementById('chartLead').innerHTML =
     '<span class="down">'+DNI+' '+fmt(pt.lo)+'원</span> ~ <span class="up">'+UPI+' '+fmt(pt.hi)+'원</span>. '
-    +nm+' 뒤 가격은 <span class="hl">10번 중 8번</span> 이 안에 있어요.';
+    +nm+' 뒤 <span class="hl">그날 종가</span>는 10번 중 8번 이 안에 있어요.'
+    +'<br><span class="muted" style="font-weight:400;font-size:.86rem">'
+    +'색칠된 띠는 <b>날짜마다 따로</b> 그린 구간이에요. 기간 내내 이 띠 안에만 머무는 건 이보다 훨씬 드물어요.</span>';
 
   // 첫 화면은 오늘 필요한 것만 남긴다. 방법론 설명은 아래 "왜요? ›" 링크가 대신한다.
-  document.getElementById('bandLabel').textContent = nm+' 뒤 이 범위일 가능성이 높아요';
+  // "그날 종가"를 반드시 밝힌다. 이 말이 없으면 사람들은 "기간 내내 이 통로 안에 머문다"로
+  // 읽는데, 그건 훨씬 드문 일이다(성적표의 경로 적중 참조).
+  document.getElementById('bandLabel').textContent = nm+' 뒤 그날 종가는 이 범위일 가능성이 높아요';
   document.getElementById('bandNote').innerHTML =
     '<b>10번 중 8번</b>은 이 안이에요. 지금 '+fmt(fc.base)+'원에서 위아래로 ±'+w.toFixed(0)+'% 정도예요.';
   document.getElementById('summaryTxt').innerHTML = ratio!=null
@@ -986,10 +1011,18 @@ function scoreProb(data){
 
 function renderHistory(data){
   const actualByDate={}; data.forEach(p=>actualByDate[p.d]=p.c);
+  const idxOf={}; data.forEach((p,i)=>idxOf[p.d]=i);   // 거래일 간격 계산용
   const lastDate=data[data.length-1].d;
   const rows=[]; const agg={1:[],2:[]};
+  // 경로 적중 — "기간 내내 범위 안에 있었나". 화면의 차트는 통로처럼 그려지는데
+  // 밴드가 약속하는 것은 "그날 종가 하나"다. 둘은 다른 사건이라 따로 집계한다.
+  const pathAgg={1:[],2:[]};
+  // 채점 횟수는 하루치가 H건이라 부풀려진다. 겹치지 않는 구간이 몇 개인지 함께 센다
+  // (ADR 004가 연구에 요구한 기준을 화면에도 적용).
+  const baseDates={1:[],2:[]};
   Object.keys(STORE).sort().forEach(base=>{
     const p=STORE[base], ver=(p.m||1);
+    let scored=0, allIn=true;
     // 선택한 기간 "이내" 전체를 평가한다. 각 점은 그 자체로 하나의 80% 범위 예측이므로
     // 함께 모아도 적중률 목표(80%)는 동일하다. 기다리지 않고 바로 성적을 볼 수 있다.
     p.pts.slice(0, H).forEach((pt,j)=>{
@@ -999,6 +1032,7 @@ function renderHistory(data){
       const errRw=(p.base-act)/act*100;          // 기준선(랜덤워크) 오차
       const hit=act>=pt.lo&&act<=pt.hi;
       const width=(Math.sqrt(pt.hi/pt.lo)-1)*100;
+      scored++; if(!hit) allIn=false;
       agg[ver].push({ err:Math.abs(err), errRw:Math.abs(errRw), hit, width });
       rows.push('<tr><td>'+base+' 예상'+(ver<2?' <span class="tag neu">이전 방식</span>':'')+'</td>'
         +'<td data-l="맞혀야 할 날">'+pt.d+'</td>'
@@ -1009,46 +1043,92 @@ function renderHistory(data){
         +'<td data-l="결과">'+(hit?'<span class="tag pos">✓ 범위 안</span>':'<span class="tag neg">✕ 벗어남</span>')+'</td>'
         +'<td data-l="가운데값 오차" class="num '+(Math.abs(err)<2?'err-pos':'err-neg')+'">'+arrow(err)+(err>=0?'+':'')+err.toFixed(2)+'%</td></tr>');
     });
+    if(scored>0) baseDates[ver].push(base);
+    // 기간 전체가 채점된 예상만 경로 적중 대상이다. 중간까지만 지난 예상은 아직 알 수 없다.
+    if(scored===H) pathAgg[ver].push(allIn);
   });
   rows.reverse();
   const MAXROWS=60, shown=rows.slice(0,MAXROWS);
   if(rows.length>MAXROWS) shown.push('<tr><td colspan="8" class="muted">최근 '+MAXROWS+'건만 보여드려요 (전체 '+rows.length+'건이고, 위 성적표는 전부 반영돼 있어요)</td></tr>');
   document.getElementById('histBody').innerHTML = shown.length ? shown.join('')
     : '<tr><td colspan="8" class="muted">아직 비교할 기록이 없어요. 날짜가 지나면 예상과 실제를 나란히 보여드려요.</td></tr>';
-  renderScoreCard(agg);
+
+  // 겹치지 않는 구간 수 — 앞의 것과 H거래일 이상 떨어진 예상만 센다
+  const indep = ver => {
+    let n=0, last=-Infinity;
+    for(const d of baseDates[ver].slice().sort()){
+      const i=idxOf[d]; if(i==null) continue;
+      if(i>=last+H){ n++; last=i; }
+    }
+    return n;
+  };
+  renderScoreCard(agg, { indep, pathAgg });
 }
 
-function renderScoreCard(agg){
+/* 성적표.
+   두 가지를 반드시 지킨다.
+   ① 헤드라인은 **지금 방식(v2)만** 쓴다. 폐기한 방식의 성적을 합산하면
+      "이 앱이 얼마나 맞혔나" 자리에서 앱이 버린 모델을 자랑하게 된다.
+   ② 표본이 적으면 어떤 칸에도 색을 칠하지 않는다. 3건짜리 우연에 초록 배지가
+      붙으면 그게 화면에서 가장 강한 주장이 된다(ADR 007이 배지를 죽인 이유와 같다). */
+function renderScoreCard(agg, extra){
+  const indep = (extra && extra.indep) || (()=>null);
+  const pathAgg = (extra && extra.pathAgg) || {1:[],2:[]};
+  const MIN_N = 20;   // 이 아래로는 숫자를 강조하지 않는다
+
   const line=(ver,label)=>{
     const a=agg[ver]; if(!a.length) return '';
     const n=a.length, avg=f=>a.reduce((s,x)=>s+f(x),0)/n;
     const hit=a.filter(x=>x.hit).length/n*100;
     const mae=avg(x=>x.err), maeRw=avg(x=>x.errRw);
     const ratio=maeRw>0?mae/maeRw:1;
-    // 적중률은 80%가 목표 — 크게 벗어나면 빨강. 표본이 적을 때는 색을 칠하지 않는다.
-    const hitCls = n<20 ? '' : (Math.abs(hit-80)<=12?'err-pos':'err-neg');
+    const few = n<MIN_N;
+    const hitCls = few ? '' : (Math.abs(hit-80)<=12?'err-pos':'err-neg');
+    const ratCls = few ? '' : (ratio<=1.001?'err-pos':'err-neg');
+    const ind = indep(ver);
     return '<tr><td>'+label+'</td>'
-      +'<td data-l="채점 횟수" class="num">'+n+'번</td>'
+      +'<td data-l="채점 횟수" class="num">'+n+'번'
+        +(ind!=null?'<br><span class="muted" style="font-weight:400;font-size:.72rem">겹치지 않는 구간 '+ind+'개</span>':'')+'</td>'
       +'<td data-l="범위 안에 들어온 비율" class="num '+hitCls+'">'+hit.toFixed(0)+'%</td>'
       +'<td data-l="평균 범위" class="num">±'+avg(x=>x.width).toFixed(1)+'%</td>'
       +'<td data-l="가운데값 오차" class="num">'+mae.toFixed(2)+'%</td>'
       +'<td data-l="비교 기준 오차" class="num">'+maeRw.toFixed(2)+'%</td>'
-      +'<td data-l="누가 더 정확?" class="num '+(ratio<=1.001?'err-pos':'err-neg')+'">'+ratio.toFixed(3)+'</td></tr>';
+      +'<td data-l="누가 더 정확?" class="num '+ratCls+'">'+ratio.toFixed(3)+'</td></tr>';
   };
-  const html=line(2,'지금 방식 (범위로 알려주기)')+line(1,'예전 방식 (가격 하나 찍기)');
-  document.getElementById('scoreBody').innerHTML = html ||
+  const l2=line(2,'지금 방식 (범위로 알려주기)'), l1=line(1,'예전 방식 (가격 하나 찍기)');
+  // 지금 방식 성적이 아직 없으면 그렇다고 밝힌다. 빈칸으로 두면 옆의 예전 방식이 대표 성적처럼 보인다.
+  const none2 = l2 ? '' :
+    '<tr><td>지금 방식 (범위로 알려주기)</td><td colspan="6" class="muted">'
+    +'2026-08-14부터 기록을 쌓기 시작했어요. '+HORIZON_NAME[H]+' 뒤 결과가 나오면 여기에 채워져요.</td></tr>';
+  document.getElementById('scoreBody').innerHTML = (l2+none2+l1) ||
     '<tr><td colspan="7" class="muted">'+HORIZON_NAME[H]+' 기준으로 채점할 기록이 아직 없어요.</td></tr>';
 
-  // 성적표 한 줄 요약
-  const a2=agg[2], a1=agg[1], all=a2.concat(a1);
+  // 성적표 한 줄 요약 — 지금 방식만 센다
+  const a2=agg[2];
   const lead=document.getElementById('scoreLead');
-  if(!all.length){
-    lead.innerHTML='아직 채점할 기록이 없어요. 날짜가 지나면 여기에 <span class="hl">진짜 성적</span>이 쌓여요.';
+  if(!a2.length){
+    lead.innerHTML='<span class="hl">지금 방식</span>은 아직 채점할 기록이 없어요. '
+      +'날짜가 지나면 여기에 <span class="hl">진짜 성적</span>이 쌓여요.'
+      +(agg[1].length?' 아래 표의 “예전 방식”은 <b>이 앱이 버린 계산법</b>이라 성적으로 세지 않아요.':'');
   }else{
-    const hitAll=all.filter(x=>x.hit).length/all.length*100;
-    lead.innerHTML='지금까지 <span class="hl">'+all.length+'번</span> 채점했고, 실제 주가가 예상 범위 안에 들어온 게 '
-      +'<span class="hl">'+hitAll.toFixed(0)+'%</span>예요. '
-      +(all.length<20?'아직 횟수가 적어서 운의 영향이 커요.':'목표는 80%인데 '+(Math.abs(hitAll-80)<=12?'잘 맞고 있어요.':'조금 벗어나 있어요.'));
+    const n2=a2.length, hit2=a2.filter(x=>x.hit).length/n2*100, ind2=indep(2);
+    lead.innerHTML='지금 방식으로 <span class="hl">'+n2+'번</span> 채점했고, 실제 주가가 예상 범위 안에 들어온 게 '
+      +'<span class="hl">'+hit2.toFixed(0)+'%</span>예요. '
+      +(n2<MIN_N
+        ? '아직 횟수가 적어서 운의 영향이 커요'+(ind2!=null?' (겹치지 않는 구간은 '+ind2+'개뿐이에요)':'')+'.'
+        : '목표는 80%인데 '+(Math.abs(hit2-80)<=12?'잘 맞고 있어요.':'조금 벗어나 있어요.'));
+  }
+
+  // 경로 적중 — "그날 종가 하나"와 "기간 내내"는 다른 사건이다. 불리한 쪽도 같이 보여준다.
+  const pb=document.getElementById('pathScore');
+  if(pb){
+    const pa=pathAgg[2]||[];
+    pb.innerHTML = pa.length
+      ? '<b>기간 내내</b> 범위 안에 있었던 비율은 <b>'+(pa.filter(Boolean).length/pa.length*100).toFixed(0)+'%</b>'
+        +' ('+pa.length+'개 구간)예요. 위의 “범위 안에 들어온 비율”은 <b>'+HORIZON_NAME[H]+' 뒤 그날 하루</b>만 본 거예요. '
+        +'중간에 잠깐 벗어났다 돌아오는 일이 훨씬 잦아서 이 숫자가 더 낮아요.'
+      : '<b>기간 내내</b> 범위 안에 있었는지는 '+HORIZON_NAME[H]+'가 온전히 지난 예상이 생겨야 셀 수 있어요. '
+        +'위의 “범위 안에 들어온 비율”은 <b>'+HORIZON_NAME[H]+' 뒤 그날 하루</b>만 본 값이에요.';
   }
 
   /* 첫 화면의 성적 링크 문구.
@@ -1059,9 +1139,11 @@ function renderScoreCard(agg){
      (20이라는 기준은 위 적중률 색칠 기준과 같다) */
   const sl=document.getElementById('scoreLink');
   if(sl){
-    const n2=a2.length;
-    sl.textContent = n2>=20
-      ? '지금까지 성적: 범위 적중 '+(a2.filter(x=>x.hit).length/n2*100).toFixed(0)+'% ›'
+    // 겹치지 않는 구간 기준으로 판단한다. 채점 횟수는 하루치가 H건이라
+    // 며칠만 지나도 20을 넘어서, 표본이 없는데 성적을 자랑하게 된다.
+    const ind2=indep(2);
+    sl.textContent = (a2.length>=MIN_N && ind2!=null && ind2>=MIN_N)
+      ? '지금까지 성적: 범위 적중 '+(a2.filter(x=>x.hit).length/a2.length*100).toFixed(0)+'% ›'
       : '10년치로 시험한 성적 보기 ›';
   }
 }
@@ -1149,13 +1231,18 @@ function renderContext(data){
       // 신고가 부근이 그 외보다 확실히 상승 쪽으로 기울 때만 "기울었다"고 말한다
       const meaningful=(gapNear-gapFar)>=10;
       const flip=(rg.byPeriod||[]).filter(p=>p.up<p.dn);
+      // 경고문도 **지금 해당하는 구간** 얘기만 한다. 예전에는 최고가 근처가 아닐 때도
+      // 최고가 근처 통계를 설명해서, 지금 상황과 무관한 숫자를 읽게 만들었다.
+      const where = near ? '지금처럼 최고가 근처일 때' : '지금처럼 최고가에서 내려온 상태일 때';
       return '<div class="kv"><span class="k">예전에 이런 위치였을 때, 한 달 안에 10% 오른 적</span><span class="v up">'+UPI+' '+up+'%</span></div>'+
         '<div class="kv"><span class="k">같은 상황에서 한 달 안에 10% 내린 적</span><span class="v down">'+DNI+' '+dn+'%</span></div>'+
         '<div class="warnline"><b>이건 예측이 아니라 과거에 그랬다는 기록이에요.</b> '
+        +'지난 10년 중 '+where+'가 '+(near?rg.nearN:rg.farN)+'일 있었고, 그때 이랬어요. '
         +(meaningful
-          ? '이 종목은 지난 10년을 통틀어 보면 최고가 근처일 때 오르는 쪽으로 기울었어요'
-            +'(최고가 근처 '+rg.nearUp+'% vs 그 외 '+rg.farUp+'%). '
-          : '다만 이 종목은 최고가 근처일 때와 아닐 때가 <b>별로 다르지 않았어요</b>'
+          ? (near
+              ? '이 종목은 최고가 근처일 때가 그 외보다 오르는 쪽으로 기울었어요(그 외는 '+rg.farUp+'%였어요). '
+              : '참고로 이 종목은 최고가 <b>근처</b>일 때는 달랐어요('+rg.nearUp+'%). 지금은 그 구간이 아니에요. ')
+          : '이 종목은 최고가 근처일 때와 아닐 때가 <b>별로 다르지 않았어요</b>'
             +'(최고가 근처 '+rg.nearUp+'% vs 그 외 '+rg.farUp+'%). 위치만 보고 판단하기 어렵다는 뜻이에요. ')
         +(flip.length
           ? '<br>게다가 <b>'+flip.map(p=>p.p).join(', ')+'에는 반대였어요</b>'
@@ -1400,7 +1487,8 @@ async function showSymbol(code){
   if(found) SYM=found;
   try{ localStorage.setItem(SYM_KEY, SYM.code); }catch(e){}
   // 주소에 남겨 두면 새로고침·공유·홈 화면 아이콘에서 같은 종목으로 열린다
-  try{ history.replaceState(null,'', location.pathname+'?code='+SYM.code); }catch(e){}
+  // 기간(h)도 주소에 남긴다 — 종목을 바꿔도, 링크를 공유해도 보던 기간이 유지된다
+  try{ history.replaceState(null,'', location.pathname+'?code='+SYM.code+(H!==5?'&h='+H:'')); }catch(e){}
   document.getElementById('pageTitle').textContent = SYM.name+' 주가 리포트';
   document.getElementById('tickerLine').textContent = 'KRX '+SYM.code;
   document.title = SYM.name+' 주가 리포트';
@@ -1472,7 +1560,14 @@ function renderAll(){
   }catch(e){}
 
   // 어떤 종목을 보여줄지: 주소 → 지난번 선택 → 첫 종목
-  const q=new URLSearchParams(location.search).get('code');
+  const qs=new URLSearchParams(location.search);
+  // ?h= 로 기간을 고정할 수 있다. 공유했을 때 보던 기간이 유지된다.
+  const qh=+qs.get('h');
+  if(HORIZON_NAME[qh]){
+    H=qh;
+    document.querySelectorAll('.hbtn').forEach(b=>b.classList.toggle('on', +b.dataset.h===H));
+  }
+  const q=qs.get('code');
   let start = SYMBOLS.find(s=>s.code===q);
   if(!start){ try{ start = SYMBOLS.find(s=>s.code===localStorage.getItem(SYM_KEY)); }catch(e){} }
   SYM = start || SYMBOLS[0];
@@ -1489,6 +1584,7 @@ function renderAll(){
     document.querySelectorAll('.hbtn').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
     H=+b.dataset.h;
+    try{ history.replaceState(null,'', location.pathname+'?code='+SYM.code+(H!==5?'&h='+H:'')); }catch(e){}
     renderAll();   // 요약문·성적표·표·차트가 모두 선택 기간을 따른다
   }));
   // 차트 확대 보기
