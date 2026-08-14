@@ -24,6 +24,7 @@ CLAUDE.md는 "무엇을 지켜야 하나"(규칙), `.claude/WORKLOG.md`는 "언�
 | [006](006-reject-ma-distance.md) | 평균가 이격을 범위 계산에 넣지 않는다 | 확정·모델 변경 없음 |
 | [007](007-remove-mood-badge.md) | "지금 분위기" 배지를 화면에서 뺀다 | 확정·구현 완료 |
 | [008](008-minimum-history.md) | 종목 등록 최소 이력 3년, 이력별 표시 범위 | 확정·구현 완료 |
+| [009](009-landing-and-report-split.md) | 랜딩과 리포트를 나누고, 다시 온 사람은 자동 통과 | 확정·구현 완료 |
 
 ## 각 문서의 형식
 

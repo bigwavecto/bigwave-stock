@@ -13,7 +13,14 @@ description: Use when about to commit or deploy a change to index.html, data fil
 node scripts/verify/preflight.js
 ```
 
-모델 이중 구현 일치·JSON 유효성·캐시 버전을 본다. 여기서 막히면 아래로 넘어가지 말 것.
+모델 이중 구현 일치·JSON 유효성·종목 이력 기준·캐시 버전을 본다. 여기서 막히면 아래로 넘어가지 말 것.
+
+로컬 서버를 띄운 뒤에는 두 개를 더 돌린다.
+
+```
+node scripts/verify/routing.js    # 랜딩/리포트 라우팅, og·robots·sitemap
+node scripts/verify/summary.js    # data/summary.json 형식
+```
 
 ## 1. 로컬 서버 기동
 
@@ -25,7 +32,12 @@ node scripts/verify/serve.js
 
 ## 2. 데스크톱 확인
 
-`http://localhost:8731/` 로 접속해서:
+**페이지가 둘이다.** `index.html`(랜딩)과 `report.html`(리포트)을 각각 본다.
+
+- `http://localhost:8731/?home=1` — 랜딩 (그냥 `/` 로 가면 기억된 종목 리포트로 넘어간다)
+- `http://localhost:8731/report.html?code=005930` — 리포트
+
+각각에서:
 
 - 콘솔 에러 0
 - 렌더가 끝났는지 — `불러오는 중`, `-` 로 남은 요소가 없어야 한다
@@ -38,9 +50,12 @@ node scripts/verify/serve.js
 **창 리사이즈(`resize_window`)는 이 환경에서 먹지 않는다.** 성공을 반환하고도 뷰포트가 안 바뀐다.
 대신 **같은 출처 iframe에 사이트를 넣고 iframe 폭을 바꾼다.**
 
+> **iframe `src`는 절대 주소로 쓴다.** 탭이 라이브(stock.bigwave.im)에 있으면
+> 상대 주소가 라이브를 가리켜, 고친 내용이 반영 안 된 것처럼 보인다. 실제로 한 번 헷갈렸다.
+
 ```js
 const f = document.createElement('iframe');
-f.src = '/?code=005930';
+f.src = 'http://localhost:8731/report.html?code=005930';
 f.style.cssText = 'width:390px;height:820px;border:0;display:block';
 document.body.appendChild(f);
 ```
@@ -70,10 +85,12 @@ document.body.appendChild(f);
 
 ## 6. 오프라인
 
-1. 서버를 **켠 채로 한 번 방문** (첫 방문에는 데이터가 캐시되지 않는다 — 서비스 워커가 아직 제어권이 없다)
-2. **다시 방문** — 이때 데이터가 캐시된다
+1. 서버를 **켠 채로 랜딩과 리포트를 각각 한 번씩 방문** (첫 방문에는 데이터가 캐시되지 않는다 — 서비스 워커가 아직 제어권이 없다)
+2. **두 페이지를 다시 한 번씩 방문** — 이때 데이터가 캐시된다
 3. 서버 종료
-4. 새로고침 → 차트·시세·수급·시장 정보가 전부 캐시에서 떠야 한다
+4. **리포트** 새로고침 → 차트·시세·수급·시장 정보가 전부 캐시에서 떠야 한다
+5. **`/?home=1`** 새로고침 → **랜딩이 떠야 한다.** 여기서 리포트가 뜨면
+   서비스 워커가 두 페이지를 같은 자리에 저장하고 있는 것이다(실제로 겪었다)
 
 > 이 순서를 지키지 않으면 "오프라인 실패"로 잘못 판단한다. 실제로 한 번 오판했다.
 
@@ -81,7 +98,7 @@ document.body.appendChild(f);
 
 - 서버 종료 (`Stop-Process -Name node`)
 - 열어둔 탭 닫기
-- `index.html` 을 고쳤으면 `sw.js` 의 `CACHE` 버전 올리기
+- 화면 파일(`index.html`·`report.html`)을 고쳤으면 `sw.js` 의 `CACHE` 버전 올리기
 
 ## 배포 후
 
