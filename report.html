@@ -486,7 +486,7 @@
         <div id="flowBox" class="muted">불러오는 중…</div>
       </div>
       <div>
-        <div class="sub-h">혼자 움직이나요, 같이 움직이나요</div>
+        <div class="sub-h">오늘은 왜 이렇게 움직였나요</div>
         <div id="marketBox" class="muted">불러오는 중…</div>
       </div>
     </div>
@@ -1301,8 +1301,33 @@ function renderContext(data){
       const lvl=m.corr60>=0.7?'거의 똑같이 움직여요':m.corr60>=0.5?'많이 닮았어요':m.corr60>=0.3?'조금 닮았어요':'따로 노는 편이에요';
       h+='<div class="kv"><span class="k">'+nm[k]+'</span><span class="v">'+lvl+' <span class="muted" style="font-weight:400">'+m.corr60.toFixed(2)+'</span></span></div>';
     }
+    /* 오늘 왜 움직였나 — 이 앱이 검증된 근거로 답할 수 있는 몇 안 되는 질문이다.
+       같은 요인으로 **같은 날** 등락을 설명하면 R² 70.5%인데 **하루 뒤**를 맞히려 하면
+       2.3%로 떨어진다(ADR 001 §3). 설명은 되고 예측은 안 된다는 뜻이라,
+       "오늘 왜"에는 답하고 "내일 어떻게"에는 답하지 않는다.
+       기여도를 숫자로 지어내지 않는다 — 두 등락률을 나란히 놓고 방향과 크기만 말한다. */
+    const kospi=MARKET.kospi;
+    let today='';
+    if(kospi && kospi.chg1!=null && data.length>1){
+      const s=(last/data[data.length-2].c-1)*100, k=kospi.chg1;
+      const sTxt='<b class="'+(s>=0?'up':'down')+'">'+(s>=0?UPI:DNI)+' '+Math.abs(s).toFixed(1)+'%</b>';
+      const kTxt='<b class="'+(k>=0?'up':'down')+'">'+(k>=0?UPI:DNI)+' '+Math.abs(k).toFixed(1)+'%</b>';
+      const sameDir = s*k > 0;
+      const bigger = Math.abs(s) > Math.abs(k)*1.5 + 0.3;
+      const verdict = !sameDir
+        ? '오늘은 <b>시장과 따로 움직였어요.</b> 이 종목 자체 소식을 찾아볼 만해요.'
+        : bigger
+          ? '방향은 시장과 같지만 <b>이 종목이 더 크게 움직였어요.</b> 이 종목 소식도 함께 보세요.'
+          : '오늘 움직임은 <b>대체로 시장 전체에서 왔어요.</b> 이 종목 뉴스를 뒤질 일은 아니에요.';
+      today='<div class="kv"><span class="k">오늘 '+SYM.name+'</span><span class="v">'+sTxt+'</span></div>'
+        +'<div class="kv"><span class="k">오늘 코스피</span><span class="v">'+kTxt+'</span></div>'
+        +'<div class="warnline" style="margin-bottom:12px">'+verdict
+        +'<br><span class="muted">왜 이렇게 말할 수 있나요? 같은 날 움직임을 <b>설명</b>하는 건 잘 되지만'
+        +'(설명력 70%), 같은 정보로 <b>내일</b>을 맞히려 하면 2%로 떨어져요. 그래서 오늘 이야기만 해요.</span></div>';
+    }
+
     const mk=ST().market||{};
-    mb.className=''; mb.innerHTML=h+
+    mb.className=''; mb.innerHTML=today+h+
       '<div class="warnline">최근 3개월 동안 얼마나 같이 움직였는지예요. 1에 가까울수록 똑같이 움직인 거예요.<br>'
       +(mk.withMarketPct!=null
         ? SYM.name+'가 <b>하루에 5% 넘게 오른 날 중 '+mk.withMarketPct+'%</b>는 코스피도 같이 올랐어요. '
