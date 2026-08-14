@@ -42,6 +42,26 @@ function get(p) {
   check('report.html 에 모델이 있어야 한다', rep.body.includes('function makeForecast'));
   check('report.html 에 예측 기록 키가 있어야 한다', rep.body.includes('_predictions_v1'));
 
+  // 공유 카드·검색 노출 — 크롤러는 자바스크립트를 실행하지 않으므로 HTML에 박혀 있어야 한다
+  for (const [p, body] of [['/', root.body], ['/report.html', rep.body]]) {
+    for (const tag of ['og:title', 'og:description', 'og:image', 'og:url']) {
+      check(`${p} 에 ${tag} 이 있어야 한다`, new RegExp(`property=["']${tag}["']`).test(body));
+    }
+    check(p + ' 에 twitter:card 가 있어야 한다', /name=["']twitter:card["']/.test(body));
+    check(p + ' 에 canonical 이 있어야 한다', /rel=["']canonical["']/.test(body));
+    // 제목에 특정 종목명이 박혀 있으면 다른 종목 링크를 공유할 때 틀린 정보가 나간다
+    check(p + ' 제목에 특정 종목명이 박혀 있으면 안 된다', !/<title>[^<]*삼성전자/.test(body));
+  }
+  const rob = await get('/robots.txt');
+  check('robots.txt 가 있어야 한다', rob.status === 200, 'status=' + rob.status);
+  check('robots.txt 에 sitemap 이 적혀 있어야 한다', /sitemap/i.test(rob.body));
+  const sm = await get('/sitemap.xml');
+  check('sitemap.xml 이 있어야 한다', sm.status === 200, 'status=' + sm.status);
+  check('sitemap 에 report.html 이 있어야 한다', sm.body.includes('report.html'));
+
+  const og = await get('/icons/og.png');
+  check('공유 카드 이미지가 있어야 한다', og.status === 200, 'status=' + og.status);
+
   if (fails.length) {
     console.error('\n✗ 라우팅 검사 실패\n');
     fails.forEach((f, i) => console.error(`  ${i + 1}. ${f}`));
